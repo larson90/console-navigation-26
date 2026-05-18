@@ -1,0 +1,387 @@
+import {
+  imgIconColor4 as imgIcon2Color4,
+  imgIconColor5 as imgIcon2Color5,
+  imgIconColor6 as imgIcon2Color6,
+  imgIconColor7 as imgIcon2Color7,
+  imgIconColor8 as imgIcon2Color8,
+  imgIconColor13 as imgIcon2Color13,
+  imgIconColor14 as imgIcon2Color14,
+  imgIconColor15 as imgIcon2Color15,
+  imgIconColor16 as imgIcon2Color16,
+  imgIconColor17 as imgIcon2Color17,
+  imgIconColor18 as imgIcon2Color18,
+  imgIconColor19 as imgIcon2Color19,
+  imgIconColor20 as imgIcon2Color20,
+  imgIconColor21 as imgIcon2Color21,
+  imgIconColor22 as imgIcon2Color22,
+  imgIconColor23 as imgIcon2Color23,
+  imgIconColor24 as imgIcon2Color24,
+  imgIconColor25 as imgIcon2Color25,
+  imgIconColor26 as imgIcon2Color26,
+  imgIconColor27 as imgIcon2Color27,
+  imgIconColor28 as imgIcon2Color28,
+  imgIconColor29 as imgIcon2Color29,
+  imgIconColor30 as imgIcon2Color30,
+  imgIconColor31 as imgIcon2Color31,
+  imgIconColor32 as imgIcon2Color32,
+  imgIconColor33 as imgIcon2Color33,
+  imgIconColor34 as imgIcon2Color34,
+  imgIconColor35 as imgIcon2Color35,
+  imgIconColor36 as imgIcon2Color36,
+} from '../../imports/MainMenuDesktop-1/svg-vz3cs';
+
+const ICONS = [
+  imgIcon2Color13, imgIcon2Color14, imgIcon2Color15, imgIcon2Color16, imgIcon2Color17,
+  imgIcon2Color18, imgIcon2Color19, imgIcon2Color20, imgIcon2Color21, imgIcon2Color22,
+  imgIcon2Color23, imgIcon2Color24, imgIcon2Color25, imgIcon2Color26, imgIcon2Color27,
+  imgIcon2Color28, imgIcon2Color29, imgIcon2Color30, imgIcon2Color31, imgIcon2Color32,
+  imgIcon2Color33, imgIcon2Color34, imgIcon2Color35, imgIcon2Color36,
+];
+
+let iconIndex = 0;
+function nextIcon(): string {
+  const icon = ICONS[iconIndex % ICONS.length];
+  iconIndex += 1;
+  return icon;
+}
+
+const PREVIEW = 'Preview';
+
+export interface ServiceCard {
+  id: string;
+  icon: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface MegaService {
+  title: string;
+  icon: string;
+  services: ServiceCard[];
+}
+
+export interface ServiceCategory {
+  id: string;
+  title: string;
+  megaservice?: MegaService;
+  services: ServiceCard[];
+}
+
+export interface ControlItem {
+  id: string;
+  title: string;
+}
+
+export interface ControlSubcategory {
+  title: string;
+  icon: string;
+  items: ControlItem[];
+}
+
+export interface ControlCategory {
+  id: string;
+  title: string;
+  subcategories: ControlSubcategory[];
+}
+
+function svc(id: string, title: string, subtitle = ''): ServiceCard {
+  return { id, icon: nextIcon(), title, subtitle };
+}
+
+export const CATEGORY_COLORS: Record<string, string> = {
+  infrastructure: '#f5b27b',
+  network: '#a8d1a2',
+  'ai-factory': '#c9b8e8',
+  storage: '#e6c878',
+  containers: '#ceb7e7',
+  'message-brokers': '#f0a8c8',
+  databases: '#aac4ea',
+  development: '#99d7ba',
+  'data-platform': '#b8d4f0',
+};
+
+export const SERVICE_CATEGORIES: ServiceCategory[] = [
+  {
+    id: 'infrastructure',
+    title: 'Инфраструктура',
+    megaservice: {
+      title: 'Compute',
+      icon: imgIcon2Color13,
+      services: [
+        svc('vm', 'Виртуальные машины'),
+        svc('placement-groups', 'Группы размещения'),
+        svc('vm-management', 'Управление ПО', PREVIEW),
+        svc('compute-disks', 'Диски Compute'),
+        svc('compute-images', 'Образы Compute'),
+        svc('compute-monitoring', 'Мониторинг Compute'),
+        svc('compute-subnets', 'Подсети Compute'),
+        svc('compute-public-ip', 'Публичные IP Compute'),
+        svc('compute-backup', 'Резервное копирование Compute'),
+        svc('compute-security-groups', 'Группы безопасности Compute'),
+        svc('compute-ssh-keys', 'SSH-ключи Compute'),
+      ],
+    },
+    services: [
+      svc('bare-metal', 'Bare Metal'),
+      svc('agent-backup', 'Agent Backup'),
+      svc('images', 'Образы'),
+      svc('migration', 'Migration'),
+      svc('disaster-recovery', 'Disaster Recovery'),
+    ],
+  },
+  {
+    id: 'network',
+    title: 'Сеть',
+    services: [
+      svc('subnets-net', 'Подсети'),
+      svc('public-ip-net', 'Публичные IP'),
+      svc('snat-gateways', 'sNAT-шлюзы'),
+      svc('load-balancer', 'Load Balancer'),
+      svc('dns', 'DNS'),
+      svc('vpc', 'VPC'),
+      svc('virtual-ip', 'Виртуальные IP'),
+      svc('vpn', 'VPN', PREVIEW),
+      svc('magic-router', 'Magic Router'),
+    ],
+  },
+  {
+    id: 'ai-factory',
+    title: 'AI Factory',
+    megaservice: {
+      title: 'Distributed Train',
+      icon: imgIcon2Color34,
+      services: [
+        svc('data-transfer', 'Data Transfer Service'),
+        svc('distributed-train-1', 'ServiceName'),
+        svc('distributed-train-2', 'ServiceName'),
+        svc('distributed-train-3', 'ServiceName'),
+      ],
+    },
+    services: [
+      svc('ml-inference', 'ML Inference'),
+      svc('notebooks', 'Notebooks'),
+      svc('managed-rag', 'Managed RAG'),
+      svc('foundation-models', 'Foundation Models'),
+      svc('ml-finetuning', 'ML Finetuning'),
+      svc('ai-agents', 'AI Agents'),
+    ],
+  },
+  {
+    id: 'storage',
+    title: 'Хранение данных',
+    services: [
+      svc('disks-storage', 'Диски'),
+      svc('object-storage', 'Object Storage'),
+    ],
+  },
+  {
+    id: 'containers',
+    title: 'Контейнеры',
+    services: [
+      svc('k8s', 'Managed Kubernetes'),
+      svc('container-apps', 'Container Apps'),
+      svc('artifact-registry', 'Artifact Registry'),
+    ],
+  },
+  {
+    id: 'message-brokers',
+    title: 'Брокеры сообщений',
+    services: [
+      svc('managed-kafka', 'Managed Kafka®'),
+      svc('managed-corax', 'Managed Corax'),
+    ],
+  },
+  {
+    id: 'databases',
+    title: 'Базы данных',
+    services: [
+      svc('managed-postgres', 'Managed PostgreSQL®'),
+      svc('managed-datagrid', 'Managed DataGrid', PREVIEW),
+      svc('managed-clickhouse', 'Managed ClickHouse', PREVIEW),
+      svc('managed-pangolin', 'Managed Pangolin', PREVIEW),
+      svc('managed-redis', 'Managed Redis', PREVIEW),
+    ],
+  },
+  {
+    id: 'development',
+    title: 'Разработка',
+    megaservice: {
+      title: 'Repo',
+      icon: imgIcon2Color35,
+      services: [
+        svc('model-registry', 'Model Registry'),
+        svc('code', 'Code'),
+        svc('dataset-registry', 'Dataset Registry'),
+        svc('repo-settings', 'Настройки Repo'),
+      ],
+    },
+    services: [svc('pipelines', 'Pipelines', PREVIEW)],
+  },
+  {
+    id: 'data-platform',
+    title: 'Платформа данных',
+    services: [
+      svc('managed-airflow', 'Managed Airflow', PREVIEW),
+      svc('managed-metastore', 'Managed Metastore'),
+      svc('managed-spark', 'Managed Spark'),
+      svc('managed-trino', 'Managed Trino'),
+      svc('managed-arenadatadb', 'Managed ArenadataDB'),
+      svc('managed-bi', 'Managed BI'),
+    ],
+  },
+];
+
+export const CONTROL_CATEGORIES: ControlCategory[] = [
+  {
+    id: 'finance',
+    title: 'Финансы',
+    subcategories: [
+      {
+        title: 'Контроль затрат',
+        icon: imgIcon2Color4,
+        items: [
+          { id: 'contract', title: 'Договор' },
+          { id: 'budgets', title: 'Бюджеты' },
+          { id: 'consumption', title: 'Потребление' },
+          { id: 'forecast', title: 'Прогноз потребления' },
+          { id: 'grants', title: 'Гранты' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'administration',
+    title: 'Администрирование',
+    subcategories: [
+      {
+        title: 'Администрирование',
+        icon: imgIcon2Color6,
+        items: [
+          { id: 'users-control', title: 'Пользователи' },
+          { id: 'permissions', title: 'Управление разрешениями' },
+          { id: 'security', title: 'Сервисные аккаунты' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'iam',
+    title: 'IAM',
+    subcategories: [
+      {
+        title: 'Роли',
+        icon: imgIcon2Color5,
+        items: [{ id: 'roles', title: 'Роли' }],
+      },
+    ],
+  },
+  {
+    id: 'monitoring',
+    title: 'Мониторинг',
+    subcategories: [
+      {
+        title: 'Мониторинг',
+        icon: imgIcon2Color7,
+        items: [
+          { id: 'dashboards', title: 'Дашборды' },
+          { id: 'monitoring-analysis', title: 'Анализ мониторинга' },
+          { id: 'integrations', title: 'Внешние интеграции' },
+          { id: 'api', title: 'Публичный API' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'resource-management',
+    title: 'Управление ресурсами',
+    subcategories: [
+      {
+        title: 'Менеджер ресурсов',
+        icon: imgIcon2Color8,
+        items: [
+          { id: 'resource-manager', title: 'Менеджер ресурсов' },
+          { id: 'resource-groups', title: 'Группы ресурсов' },
+          { id: 'history', title: 'История изменений' },
+        ],
+      },
+    ],
+  },
+];
+
+export const SERVICE_DESCRIPTIONS: Record<string, string> = {
+  vm: 'Создание и управление виртуальными машинами: конфигурации, запуск, остановка и масштабирование.',
+  'placement-groups': 'Управление группами размещения виртуальных машин в инфраструктуре.',
+  'vm-management': 'Установка, обновление и сопровождение ПО на виртуальных машинах.',
+  'compute-disks': 'Блочные диски для виртуальных машин Compute.',
+  'compute-images': 'Образы операционных систем и шаблоны для Compute.',
+  'compute-monitoring': 'Мониторинг состояния и метрик ресурсов Compute.',
+  'compute-subnets': 'Подсети в контексте сервиса Compute.',
+  'compute-public-ip': 'Публичные IP-адреса для ресурсов Compute.',
+  'compute-backup': 'Резервное копирование данных и конфигураций Compute.',
+  'compute-security-groups': 'Группы безопасности для защиты ресурсов Compute.',
+  'compute-ssh-keys': 'SSH-ключи для доступа к виртуальным машинам Compute.',
+  'bare-metal': 'Выделенные физические серверы с полным контролем над ресурсами.',
+  'agent-backup': 'Резервное копирование с агентом на стороне гостевой ОС.',
+  images: 'Каталог образов для развёртывания виртуальных машин.',
+  migration: 'Перенос рабочих нагрузок и данных в облако.',
+  'disaster-recovery': 'Аварийное восстановление и репликация критичных систем.',
+  'subnets-net': 'Логические подсети для изолированной сетевой топологии.',
+  'public-ip-net': 'Публичные IP-адреса для доступа из интернета.',
+  'snat-gateways': 'Исходящий NAT для приватных подсетей.',
+  'load-balancer': 'Распределение трафика между экземплярами сервиса.',
+  dns: 'Управление DNS-зонами и записями.',
+  vpc: 'Виртуальные частные облака для объединения ресурсов.',
+  'virtual-ip': 'Плавающие IP для отказоустойчивого переключения.',
+  vpn: 'Защищённые VPN-туннели для связи с корпоративной сетью.',
+  'magic-router': 'Маршрутизация трафика между VPC и внешними сетями.',
+  'data-transfer': 'Передача данных для распределённого обучения моделей.',
+  'ml-inference': 'Развёртывание и обслуживание моделей машинного обучения.',
+  notebooks: 'Интерактивные среды для разработки и экспериментов с данными.',
+  'managed-rag': 'Управляемый сервис Retrieval-Augmented Generation.',
+  'foundation-models': 'Доступ к базовым моделям для AI-задач.',
+  'ml-finetuning': 'Дообучение моделей на собственных данных.',
+  'ai-agents': 'Создание и запуск AI-агентов для автоматизации задач.',
+  'disks-storage': 'Блочное хранилище для подключения к ресурсам.',
+  'object-storage': 'Масштабируемое объектное хранилище S3-совместимого типа.',
+  k8s: 'Управляемый кластер Kubernetes.',
+  'container-apps': 'Запуск контейнерных приложений без управления кластером.',
+  'artifact-registry': 'Хранилище Docker-образов и артефактов.',
+  'managed-kafka': 'Управляемый брокер сообщений Apache Kafka®.',
+  'managed-corax': 'Управляемый брокер сообщений Corax.',
+  'managed-postgres': 'Управляемая СУБД PostgreSQL®.',
+  'managed-datagrid': 'Управляемый сервис DataGrid для распределённых данных.',
+  'managed-clickhouse': 'Управляемая аналитическая СУБД ClickHouse.',
+  'managed-pangolin': 'Управляемая СУБД Pangolin.',
+  'managed-redis': 'Управляемый кэш и хранилище Redis.',
+  'model-registry': 'Реестр версий моделей машинного обучения.',
+  code: 'Хранение и управление исходным кодом проектов.',
+  'dataset-registry': 'Реестр наборов данных для ML-пайплайнов.',
+  'repo-settings': 'Настройки репозитория и политик доступа.',
+  pipelines: 'Оркестрация CI/CD и ML-пайплайнов.',
+  'managed-airflow': 'Управляемый Apache Airflow для ETL и оркестрации.',
+  'managed-metastore': 'Метаданные для платформы данных.',
+  'managed-spark': 'Управляемый Apache Spark для обработки данных.',
+  'managed-trino': 'Управляемый Trino для интерактивной аналитики.',
+  'managed-arenadatadb': 'Управляемая ArenadataDB для аналитики.',
+  'managed-bi': 'Управляемая BI-платформа для отчётности и дашбордов.',
+  contract: 'Договорные условия, тарифы и юридическая информация.',
+  budgets: 'Планирование и контроль бюджетов.',
+  consumption: 'Детализация потребления ресурсов.',
+  forecast: 'Прогноз расходов на основе потребления.',
+  grants: 'Гранты и промо-средства.',
+  'users-control': 'Управление пользователями и доступом.',
+  permissions: 'Назначение и аудит разрешений.',
+  security: 'Сервисные аккаунты для интеграции с API.',
+  roles: 'Роли и наборы разрешений.',
+  dashboards: 'Дашборды для визуализации метрик.',
+  'monitoring-analysis': 'Анализ телеметрии и событий мониторинга.',
+  integrations: 'Внешние интеграции систем мониторинга.',
+  api: 'Публичный API платформы.',
+  'resource-manager': 'Инвентаризация и управление облачными ресурсами.',
+  'resource-groups': 'Группировка ресурсов для управления.',
+  history: 'Журнал изменений конфигурации.',
+};
+
+export function getServiceDescription(id: string, title: string): string {
+  return SERVICE_DESCRIPTIONS[id] ?? `Сервис «${title}» в облачной платформе Cloud.ru.`;
+}

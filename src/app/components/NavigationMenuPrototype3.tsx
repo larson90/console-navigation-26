@@ -3,283 +3,26 @@ import { useDrag, useDrop } from 'react-dnd';
 import { Link } from 'react-router';
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import svgPathsFrame from "../../imports/Frame1851041041/svg-s81pzj7n11";
-import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
-import imgSolutionObservatory from "figma:asset/13a87ebe8d52252380a917437a7ba97c4d34355e.png";
-import imgSolutionDataReplication from "figma:asset/16a9fde8a5bc0a83aedd938e24d56d8e72f2ae4b.png";
-import {
-  imgIconColor3 as imgIconSolutionEvolutionCompute,
-  imgIconColor4 as imgIconSolutionObservatory,
-  imgIconColor5 as imgIconSolutionDataReplication
-} from "../../imports/◆EvolutionMenuContent-2-1/svg-hqsa5";
 import {
   imgIconColor, imgIconColor1, imgIconColor2, imgIconColor3, imgIconColor4,
   imgIconColor5, imgIconColor6, imgIconColor7, imgIconColor8, imgIconColor9,
   imgIconColor10, imgIconColor11, imgIconColor12, imgIconColor13
 } from "../../imports/MainMenuDesktop/svg-3dkbq";
 import {
-  imgIconColor as imgIcon2Color,
-  imgIconColor4 as imgIcon2Color4,
-  imgIconColor5 as imgIcon2Color5,
-  imgIconColor6 as imgIcon2Color6,
-  imgIconColor7 as imgIcon2Color7,
-  imgIconColor8 as imgIcon2Color8,
-  imgIconColor9 as imgIcon2Color9,
   imgIconColor10 as imgIcon2Color10,
   imgIconColor11 as imgIcon2Color11,
   imgIconColor12 as imgIcon2Color12,
   imgIconColor13 as imgIcon2Color13,
-  imgIconColor14 as imgIcon2Color14,
-  imgIconColor15 as imgIcon2Color15,
-  imgIconColor16 as imgIcon2Color16,
-  imgIconColor17 as imgIcon2Color17,
-  imgIconColor18 as imgIcon2Color18,
-  imgIconColor19 as imgIcon2Color19,
-  imgIconColor20 as imgIcon2Color20,
-  imgIconColor21 as imgIcon2Color21,
-  imgIconColor22 as imgIcon2Color22,
-  imgIconColor23 as imgIcon2Color23,
-  imgIconColor24 as imgIcon2Color24,
-  imgIconColor25 as imgIcon2Color25,
-  imgIconColor26 as imgIcon2Color26,
-  imgIconColor27 as imgIcon2Color27,
-  imgIconColor28 as imgIcon2Color28,
-  imgIconColor29 as imgIcon2Color29,
-  imgIconColor30 as imgIcon2Color30,
-  imgIconColor31 as imgIcon2Color31,
-  imgIconColor32 as imgIcon2Color32,
-  imgIconColor33 as imgIcon2Color33,
-  imgIconColor34 as imgIcon2Color34,
-  imgIconColor35 as imgIcon2Color35,
-  imgIconColor36 as imgIcon2Color36
 } from "../../imports/MainMenuDesktop-1/svg-vz3cs";
-
-interface ServiceCard {
-  id: string;
-  icon: string;
-  title: string;
-  subtitle: string;
-}
-
-interface MegaService {
-  title: string;
-  icon: string;
-  services: ServiceCard[];
-}
-
-interface ServiceCategory {
-  id: string;
-  title: string;
-  megaservice?: MegaService;
-  services: ServiceCard[];
-}
-
-interface ControlItem {
-  id: string;
-  title: string;
-}
-
-interface ControlSubcategory {
-  title: string;
-  icon: string;
-  items: ControlItem[];
-}
-
-interface ControlCategory {
-  id: string;
-  title: string;
-  subcategories: ControlSubcategory[];
-}
-
-const SERVICE_CATEGORIES: ServiceCategory[] = [
-  {
-    id: 'compute',
-    title: 'Инфраструктура',
-    megaservice: {
-      title: 'Compute',
-      icon: imgIcon2Color13,
-      services: [
-        { id: 'vm', icon: imgIcon2Color14, title: 'Виртуальные машины', subtitle: '' },
-        { id: 'subnets', icon: imgIcon2Color15, title: 'Подсети', subtitle: '' },
-        { id: 'public-ip', icon: imgIcon2Color16, title: 'Публичные IP', subtitle: '' },
-        { id: 'disks', icon: imgIcon2Color17, title: 'Диски', subtitle: '' },
-        { id: 'security-groups', icon: imgIcon2Color18, title: 'Группы безопасности', subtitle: '' },
-        { id: 'backup', icon: imgIcon2Color19, title: 'Резервное копирование', subtitle: '' },
-        { id: 'images', icon: imgIcon2Color20, title: 'Образы', subtitle: '' },
-        { id: 'ssh-keys', icon: imgIcon2Color21, title: 'SSH-ключи', subtitle: '' },
-        { id: 'placement-groups', icon: imgIcon2Color22, title: 'Группы размещения', subtitle: '' },
-        { id: 'vm-management', icon: imgIcon2Color14, title: 'Управление ПО', subtitle: '' },
-      ]
-    },
-    services: [
-      { id: 'images-2', icon: imgIcon2Color20, title: 'Образы', subtitle: '' },
-      { id: 'ssh-keys-2', icon: imgIcon2Color21, title: 'SSH-ключи', subtitle: '' },
-      { id: 'bare-metal', icon: imgIcon2Color23, title: 'Bare Metal', subtitle: '' },
-      { id: 'migration', icon: imgIcon2Color26, title: 'Migration', subtitle: '' },
-      { id: 'agent-backup', icon: imgIcon2Color24, title: 'Agent Backup', subtitle: '' },
-      { id: 'disaster-recovery', icon: imgIcon2Color25, title: 'Disaster Recovery', subtitle: '' },
-    ]
-  },
-  {
-    id: 'network',
-    title: 'Сеть',
-    services: [
-      { id: 'subnets-net', icon: imgIcon2Color15, title: 'Подсети', subtitle: '' },
-      { id: 'vpc', icon: imgIcon2Color27, title: 'VPC', subtitle: '' },
-      { id: 'public-ip-net', icon: imgIcon2Color16, title: 'Публичные IP', subtitle: '' },
-      { id: 'virtual-ip', icon: imgIcon2Color32, title: 'Виртуальные IP', subtitle: '' },
-      { id: 'snat-gateways', icon: imgIcon2Color28, title: 'sNAT-шлюзы', subtitle: '' },
-      { id: 'security-groups-net', icon: imgIcon2Color18, title: 'Группы безопасности', subtitle: '' },
-      { id: 'vpn', icon: imgIcon2Color14, title: 'VPN', subtitle: '' },
-      { id: 'load-balancer', icon: imgIcon2Color30, title: 'Load Balancer', subtitle: '' },
-      { id: 'dns', icon: imgIcon2Color29, title: 'DNS', subtitle: '' },
-      { id: 'magic-router', icon: imgIcon2Color31, title: 'Magic Router', subtitle: '' },
-    ]
-  },
-  {
-    id: 'storage',
-    title: 'Хранение данных',
-    services: [
-      { id: 'disks-storage', icon: imgIcon2Color17, title: 'Диски', subtitle: '' },
-      { id: 'object-storage', icon: imgIcon2Color33, title: 'Object Storage', subtitle: '' },
-    ]
-  },
-  {
-    id: 'containers',
-    title: 'Контейнеры',
-    services: [
-      { id: 'k8s', icon: imgIcon2Color34, title: 'Managed Kubernetes', subtitle: '' },
-      { id: 'artifact-registry', icon: imgIcon2Color35, title: 'Artifact Registry', subtitle: '' },
-      { id: 'container-apps', icon: imgIcon2Color36, title: 'Container Apps', subtitle: '' },
-    ]
-  },
-  {
-    id: 'admin',
-    title: 'Управление',
-    services: [
-      { id: 'cost-control', icon: imgIcon2Color4, title: 'Контроль затрат', subtitle: 'Управление финансами' },
-      { id: 'iam', icon: imgIcon2Color5, title: 'IAM', subtitle: 'Роли' },
-      { id: 'admin', icon: imgIcon2Color6, title: 'Администрирование', subtitle: 'Оргструктура, квоты' },
-      { id: 'observatory', icon: imgIcon2Color7, title: 'Обсерватория', subtitle: 'Мониторинг' },
-      { id: 'resource-manager', icon: imgIcon2Color8, title: 'Менеджер ресурсов', subtitle: 'Управление ресурсами' },
-      { id: 'users', icon: imgIcon2Color9, title: 'Пользователи', subtitle: 'Управление доступами' },
-    ]
-  },
-];
-
-const CONTROL_CATEGORIES: ControlCategory[] = [
-  {
-    id: 'finance',
-    title: 'Финансы',
-    subcategories: [
-      {
-        title: 'Контроль затрат',
-        icon: imgIcon2Color4,
-        items: [
-          { id: 'contract', title: 'Договор' },
-          { id: 'budgets', title: 'Бюджеты' },
-          { id: 'consumption', title: 'Потребление' },
-          { id: 'forecast', title: 'Прогноз потребления' },
-          { id: 'grants', title: 'Гранты' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'administration',
-    title: 'Администрирование',
-    subcategories: [
-      {
-        title: 'Администрирование',
-        icon: imgIcon2Color6,
-        items: [
-          { id: 'users', title: 'Пользователи' },
-          { id: 'permissions', title: 'Управление разрешениями' },
-          { id: 'security', title: 'Связанные аккаунты' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'iam',
-    title: 'IAM',
-    subcategories: [
-      {
-        title: 'Роли',
-        icon: imgIcon2Color5,
-        items: [
-          { id: 'roles', title: 'Роли' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'monitoring',
-    title: 'Мониторинг',
-    subcategories: [
-      {
-        title: 'Мониторинг',
-        icon: imgIcon2Color7,
-        items: [
-          { id: 'dashboards', title: 'Дашборды' },
-          { id: 'monitoring', title: 'Анализ мониторинга' },
-          { id: 'integrations', title: 'Внешние интеграции' },
-          { id: 'api', title: 'Публичный API' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'resource-management',
-    title: 'Управление ресурсами',
-    subcategories: [
-      {
-        title: 'Менеджер ресурсов',
-        icon: imgIcon2Color8,
-        items: [
-          { id: 'resource-manager', title: 'Менеджер ресурсов' },
-          { id: 'resource-groups', title: 'Группы ресурсов' },
-          { id: 'history', title: 'История изменений' },
-        ]
-      }
-    ]
-  },
-];
-
-interface SolutionCard {
-  id: string;
-  title: string;
-  description: string;
-  badge?: string;
-  icon: string;
-  image: string;
-}
-
-const SOLUTION_CARDS: SolutionCard[] = [
-  {
-    id: 'evolution-compute',
-    title: 'Evolution Compute',
-    description: 'Отслеживайте и анализируйте состояние',
-    badge: '3',
-    icon: imgIconSolutionEvolutionCompute,
-    image: imgSolutionEvolutionCompute
-  },
-  {
-    id: 'observatory',
-    title: 'Обсерватория',
-    description: 'Разверни виртульную машину',
-    badge: '3',
-    icon: imgIconSolutionObservatory,
-    image: imgSolutionObservatory
-  },
-  {
-    id: 'data-replication',
-    title: 'Data Replication',
-    description: 'Отслеживайте и анализируйте состояние',
-    badge: '3',
-    icon: imgIconSolutionDataReplication,
-    image: imgSolutionDataReplication
-  }
-];
+import {
+  type ServiceCard,
+  type ServiceCategory,
+  type ControlCategory,
+  SERVICE_CATEGORIES,
+  CONTROL_CATEGORIES,
+  CATEGORY_COLORS,
+} from '../data/serviceCatalog';
+import { type Solution, SOLUTIONS } from '../data/solutionsCatalog';
 
 interface ServiceCardItemProps {
   service: ServiceCard;
@@ -311,17 +54,18 @@ interface CategoryBlockProps {
   favorites: string[];
 }
 
+interface SolutionBlockProps {
+  solution: Solution;
+  isExpanded: boolean;
+  onToggle: (id: string) => void;
+  toggleFavorite: (id: string) => void;
+  favorites: string[];
+}
+
 function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites }: PlatformCategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
 
-  const categoryColors: Record<string, string> = {
-    'compute': '#f5b27b',
-    'network': '#a8d1a2',
-    'storage': '#e6c878',
-    'containers': '#ceb7e7',
-    'admin': '#99d7ba'
-  };
-  const borderColor = categoryColors[category.id] || '#dde0ea';
+  const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
 
   const [{ isDragging }, drag] = useDrag({
     type: 'PLATFORM_CATEGORY',
@@ -356,17 +100,32 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
       <div aria-hidden="true" className={`absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]`} style={{ borderColor }} />
       <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
         <div className="relative shrink-0 w-full">
-          <div className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onToggle(category.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onToggle(category.id);
+              }
+            }}
+            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+          >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex items-start pl-[12px] relative size-full">
+              <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
                     <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
-                {isHovered && (
-                  <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-                    <button className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]">
+                <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
+                  {isHovered && (
+                    <button
+                      type="button"
+                      onClick={(e) => e.stopPropagation()}
+                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]"
+                    >
                       <div className="relative shrink-0 size-[24px]">
                         <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
                           <circle cx="7" cy="5" r="1.5" fill="#8b8e9b"/>
@@ -381,30 +140,27 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
                         </svg>
                       </div>
                     </button>
-                    <button
-                      onClick={() => onToggle(category.id)}
-                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                    >
-                      <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                        <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                          <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                            <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                              <svg
-                                className="block size-full"
-                                fill="none"
-                                preserveAspectRatio="none"
-                                viewBox="0 0 5.34099 8.56066"
-                                style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                              >
-                                <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                              </svg>
-                            </div>
+                  )}
+                  <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
+                    <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
+                      <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
+                        <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
+                          <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
+                            <svg
+                              className="block size-full"
+                              fill="none"
+                              preserveAspectRatio="none"
+                              viewBox="0 0 5.34099 8.56066"
+                              style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
+                            >
+                              <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
+                            </svg>
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -514,17 +270,32 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
       <div aria-hidden="true" className="absolute border-l-6 border-[#99d7ba] border-solid inset-0 pointer-events-none rounded-[4px]" />
       <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
         <div className="relative shrink-0 w-full">
-          <div className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onToggle(category.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onToggle(category.id);
+              }
+            }}
+            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+          >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex items-start pl-[12px] relative size-full">
+              <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
                     <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
-                {isHovered && (
-                  <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-                    <button className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]">
+                <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
+                  {isHovered && (
+                    <button
+                      type="button"
+                      onClick={(e) => e.stopPropagation()}
+                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]"
+                    >
                       <div className="relative shrink-0 size-[24px]">
                         <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
                           <circle cx="7" cy="5" r="1.5" fill="#8b8e9b"/>
@@ -539,30 +310,27 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
                         </svg>
                       </div>
                     </button>
-                    <button
-                      onClick={() => onToggle(category.id)}
-                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                    >
-                      <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                        <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                          <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                            <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                              <svg
-                                className="block size-full"
-                                fill="none"
-                                preserveAspectRatio="none"
-                                viewBox="0 0 5.34099 8.56066"
-                                style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                              >
-                                <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                              </svg>
-                            </div>
+                  )}
+                  <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
+                    <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
+                      <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
+                        <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
+                          <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
+                            <svg
+                              className="block size-full"
+                              fill="none"
+                              preserveAspectRatio="none"
+                              viewBox="0 0 5.34099 8.56066"
+                              style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
+                            >
+                              <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
+                            </svg>
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -622,6 +390,73 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function SolutionBlock({ solution, isExpanded, onToggle, toggleFavorite, favorites }: SolutionBlockProps) {
+  return (
+    <div className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full">
+      <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
+        <div className="relative shrink-0 w-full">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onToggle(solution.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onToggle(solution.id);
+              }
+            }}
+            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+          >
+            <div className="flex-[1_0_0] min-w-px relative">
+              <div className="content-stretch flex flex-col gap-[4px] items-start pl-[12px] relative size-full">
+                <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] tracking-[0.15px] w-full">
+                  <p className="leading-[24px]">{solution.title}</p>
+                </div>
+                <div className="flex flex-col font-['SB_Sans_Interface:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#6d707f] text-[12px] tracking-[0.1px] w-full">
+                  <p className="leading-[16px]">{solution.description}</p>
+                </div>
+              </div>
+            </div>
+            <div className="content-stretch flex items-start relative shrink-0 pt-[4px]">
+              <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
+                <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
+                  <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
+                    <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
+                      <svg
+                        className="block size-full"
+                        fill="none"
+                        preserveAspectRatio="none"
+                        viewBox="0 0 5.34099 8.56066"
+                        style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
+                      >
+                        <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {isExpanded && solution.services.length > 0 && (
+          <div className="content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full px-[8px]">
+            {solution.services.map((service) => (
+              <div key={service.id} className="flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative">
+                <ServiceCardItem
+                  service={service}
+                  onAddToFavorites={toggleFavorite}
+                  isFavorite={favorites.includes(service.id)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -739,6 +574,7 @@ export default function NavigationMenuPrototype3() {
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(SERVICE_CATEGORIES.map(c => c.id));
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [hoveredPlatformCategory, setHoveredPlatformCategory] = useState<string | null>(null);
+  const [expandedSolutions, setExpandedSolutions] = useState<string[]>(SOLUTIONS.map(s => s.id));
 
   const allServices = [
     ...SERVICE_CATEGORIES.flatMap(cat => [
@@ -811,6 +647,14 @@ export default function NavigationMenuPrototype3() {
     }
   };
 
+  const toggleSolution = (solutionId: string) => {
+    if (expandedSolutions.includes(solutionId)) {
+      setExpandedSolutions(expandedSolutions.filter(id => id !== solutionId));
+    } else {
+      setExpandedSolutions([...expandedSolutions, solutionId]);
+    }
+  };
+
   const moveCategory = (dragIndex: number, hoverIndex: number) => {
     const newOrder = [...categoryOrder];
     const [removed] = newOrder.splice(dragIndex, 1);
@@ -827,13 +671,9 @@ export default function NavigationMenuPrototype3() {
 
   const favoriteServices = allServices.filter(s => favorites.includes(s.id));
 
-  const categoriesByTab = SERVICE_CATEGORIES.filter(category =>
-    activeTab === 'platform' ? category.id !== 'admin' : category.id === 'admin'
-  );
-
   const filteredCategories = searchQuery.trim() === ''
-    ? categoriesByTab
-    : categoriesByTab.map(category => {
+    ? SERVICE_CATEGORIES
+    : SERVICE_CATEGORIES.map(category => {
         const filteredMegaServices = category.megaservice?.services.filter(service =>
           service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
@@ -1221,100 +1061,16 @@ export default function NavigationMenuPrototype3() {
 
                 {activeTab === 'solutions' && (
                   <div className="content-stretch flex flex-col gap-[8px] items-start relative w-full">
-                    <div className="content-stretch flex gap-[4px] items-start relative shrink-0 w-full">
-                      {SOLUTION_CARDS.slice(0, 2).map((solution) => (
-                        <div key={solution.id} className="bg-[#fdfdfd] flex-[1_0_0] h-[80px] min-w-px relative rounded-[4px] cursor-pointer hover:shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)] transition-shadow">
-                          <div className="content-stretch flex flex-col items-start justify-between pl-[14px] pr-[8px] py-[8px] relative size-full">
-                            <div className="relative shrink-0 w-full">
-                              <div className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full">
-                                <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
-                                  <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                                    <div className="relative shrink-0 size-[24px]">
-                                      <div
-                                        className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-                                        style={{ maskImage: `url('${solution.icon}')` }}
-                                      />
-                                    </div>
-                                    <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                                      <p className="leading-[20px] overflow-hidden text-ellipsis">{solution.title}</p>
-                                    </div>
-                                    <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                                      <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                                        <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                                          <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                                            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 5.34099 8.56066">
-                                              <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                                            </svg>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="relative shrink-0 pr-[90px]">
-                              <div className="flex flex-col font-['SB_Sans_Interface:Regular',sans-serif] justify-center leading-[0] not-italic relative text-[#6d707f] text-[12px] tracking-[0.1px]">
-                                <p className="leading-[16px]">{solution.description}</p>
-                              </div>
-                            </div>
-                            <div className="absolute bottom-[7px] h-[65px] right-[-0.5px] w-[84px]">
-                              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                <img alt="" className="absolute h-[115.39%] left-[-6.87%] max-w-none top-[-7.05%] w-[115.71%]" src={solution.image} />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {SOLUTION_CARDS.length > 2 && (
-                      <div className="content-stretch flex gap-[4px] items-start relative shrink-0 w-[305px]">
-                        {SOLUTION_CARDS.slice(2).map((solution) => (
-                          <div key={solution.id} className="bg-[#fdfdfd] flex-[1_0_0] h-[80px] min-w-px relative rounded-[4px] cursor-pointer hover:shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)] transition-shadow">
-                            <div className="content-stretch flex flex-col items-start justify-between pl-[14px] pr-[8px] py-[8px] relative size-full">
-                              <div className="relative shrink-0 w-full">
-                                <div className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full">
-                                  <div className="content-stretch flex flex-[1_0_0] items-start min-w-px relative">
-                                    <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                                      <div className="relative shrink-0 size-[24px]">
-                                        <div
-                                          className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-                                          style={{ maskImage: `url('${solution.icon}')` }}
-                                        />
-                                      </div>
-                                      <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                                        <p className="leading-[20px] overflow-hidden text-ellipsis">{solution.title}</p>
-                                      </div>
-                                      <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                                        <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                                          <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                                            <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                                              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 5.34099 8.56066">
-                                                <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                                              </svg>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="relative shrink-0 pr-[90px]">
-                                <div className="flex flex-col font-['SB_Sans_Interface:Regular',sans-serif] justify-center leading-[0] not-italic relative text-[#6d707f] text-[12px] tracking-[0.1px]">
-                                  <p className="leading-[16px]">{solution.description}</p>
-                                </div>
-                              </div>
-                              <div className="absolute bottom-[7px] h-[65px] right-[-0.5px] w-[84px]">
-                                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                  <img alt="" className="absolute h-[115.39%] left-[-6.87%] max-w-none top-[-7.05%] w-[115.71%]" src={solution.image} />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {SOLUTIONS.map((solution) => (
+                      <SolutionBlock
+                        key={solution.id}
+                        solution={solution}
+                        isExpanded={expandedSolutions.includes(solution.id)}
+                        onToggle={toggleSolution}
+                        toggleFavorite={toggleFavorite}
+                        favorites={favorites}
+                      />
+                    ))}
                   </div>
                 )}
               </div>

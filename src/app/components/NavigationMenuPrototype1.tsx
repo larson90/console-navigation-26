@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Link } from 'react-router';
+import { Switch } from './ui/switch';
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import svgPathsFrame from "../../imports/Frame1851041041/svg-s81pzj7n11";
 import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
@@ -17,233 +18,20 @@ import {
   imgIconColor10, imgIconColor11, imgIconColor12, imgIconColor13
 } from "../../imports/MainMenuDesktop/svg-3dkbq";
 import {
-  imgIconColor as imgIcon2Color,
-  imgIconColor4 as imgIcon2Color4,
-  imgIconColor5 as imgIcon2Color5,
-  imgIconColor6 as imgIcon2Color6,
-  imgIconColor7 as imgIcon2Color7,
-  imgIconColor8 as imgIcon2Color8,
-  imgIconColor9 as imgIcon2Color9,
   imgIconColor10 as imgIcon2Color10,
   imgIconColor11 as imgIcon2Color11,
   imgIconColor12 as imgIcon2Color12,
   imgIconColor13 as imgIcon2Color13,
-  imgIconColor14 as imgIcon2Color14,
-  imgIconColor15 as imgIcon2Color15,
-  imgIconColor16 as imgIcon2Color16,
-  imgIconColor17 as imgIcon2Color17,
-  imgIconColor18 as imgIcon2Color18,
-  imgIconColor19 as imgIcon2Color19,
-  imgIconColor20 as imgIcon2Color20,
-  imgIconColor21 as imgIcon2Color21,
-  imgIconColor22 as imgIcon2Color22,
-  imgIconColor23 as imgIcon2Color23,
-  imgIconColor24 as imgIcon2Color24,
-  imgIconColor25 as imgIcon2Color25,
-  imgIconColor26 as imgIcon2Color26,
-  imgIconColor27 as imgIcon2Color27,
-  imgIconColor28 as imgIcon2Color28,
-  imgIconColor29 as imgIcon2Color29,
-  imgIconColor30 as imgIcon2Color30,
-  imgIconColor31 as imgIcon2Color31,
-  imgIconColor32 as imgIcon2Color32,
-  imgIconColor33 as imgIcon2Color33,
-  imgIconColor34 as imgIcon2Color34,
-  imgIconColor35 as imgIcon2Color35,
-  imgIconColor36 as imgIcon2Color36
 } from "../../imports/MainMenuDesktop-1/svg-vz3cs";
-
-interface ServiceCard {
-  id: string;
-  icon: string;
-  title: string;
-  subtitle: string;
-}
-
-interface MegaService {
-  title: string;
-  icon: string;
-  services: ServiceCard[];
-}
-
-interface ServiceCategory {
-  id: string;
-  title: string;
-  megaservice?: MegaService;
-  services: ServiceCard[];
-}
-
-interface ControlItem {
-  id: string;
-  title: string;
-}
-
-interface ControlSubcategory {
-  title: string;
-  icon: string;
-  items: ControlItem[];
-}
-
-interface ControlCategory {
-  id: string;
-  title: string;
-  subcategories: ControlSubcategory[];
-}
-
-const SERVICE_CATEGORIES: ServiceCategory[] = [
-  {
-    id: 'compute',
-    title: 'Инфраструктура',
-    megaservice: {
-      title: 'Compute',
-      icon: imgIcon2Color13,
-      services: [
-        { id: 'vm', icon: imgIcon2Color14, title: 'Виртуальные машины', subtitle: '' },
-        { id: 'subnets', icon: imgIcon2Color15, title: 'Подсети', subtitle: '' },
-        { id: 'public-ip', icon: imgIcon2Color16, title: 'Публичные IP', subtitle: '' },
-        { id: 'disks', icon: imgIcon2Color17, title: 'Диски', subtitle: '' },
-        { id: 'security-groups', icon: imgIcon2Color18, title: 'Группы безопасности', subtitle: '' },
-        { id: 'backup', icon: imgIcon2Color19, title: 'Резервное копирование', subtitle: '' },
-        { id: 'images', icon: imgIcon2Color20, title: 'Образы', subtitle: '' },
-        { id: 'ssh-keys', icon: imgIcon2Color21, title: 'SSH-ключи', subtitle: '' },
-        { id: 'placement-groups', icon: imgIcon2Color22, title: 'Группы размещения', subtitle: '' },
-        { id: 'vm-management', icon: imgIcon2Color14, title: 'Управление ПО', subtitle: '' },
-      ]
-    },
-    services: [
-      { id: 'images-2', icon: imgIcon2Color20, title: 'Образы', subtitle: '' },
-      { id: 'ssh-keys-2', icon: imgIcon2Color21, title: 'SSH-ключи', subtitle: '' },
-      { id: 'bare-metal', icon: imgIcon2Color23, title: 'Bare Metal', subtitle: '' },
-      { id: 'migration', icon: imgIcon2Color26, title: 'Migration', subtitle: '' },
-      { id: 'agent-backup', icon: imgIcon2Color24, title: 'Agent Backup', subtitle: '' },
-      { id: 'disaster-recovery', icon: imgIcon2Color25, title: 'Disaster Recovery', subtitle: '' },
-    ]
-  },
-  {
-    id: 'network',
-    title: 'Сеть',
-    services: [
-      { id: 'subnets-net', icon: imgIcon2Color15, title: 'Подсети', subtitle: '' },
-      { id: 'vpc', icon: imgIcon2Color27, title: 'VPC', subtitle: '' },
-      { id: 'public-ip-net', icon: imgIcon2Color16, title: 'Публичные IP', subtitle: '' },
-      { id: 'virtual-ip', icon: imgIcon2Color32, title: 'Виртуальные IP', subtitle: '' },
-      { id: 'snat-gateways', icon: imgIcon2Color28, title: 'sNAT-шлюзы', subtitle: '' },
-      { id: 'security-groups-net', icon: imgIcon2Color18, title: 'Группы безопасности', subtitle: '' },
-      { id: 'vpn', icon: imgIcon2Color14, title: 'VPN', subtitle: '' },
-      { id: 'load-balancer', icon: imgIcon2Color30, title: 'Load Balancer', subtitle: '' },
-      { id: 'dns', icon: imgIcon2Color29, title: 'DNS', subtitle: '' },
-      { id: 'magic-router', icon: imgIcon2Color31, title: 'Magic Router', subtitle: '' },
-    ]
-  },
-  {
-    id: 'storage',
-    title: 'Хранение данных',
-    services: [
-      { id: 'disks-storage', icon: imgIcon2Color17, title: 'Диски', subtitle: '' },
-      { id: 'object-storage', icon: imgIcon2Color33, title: 'Object Storage', subtitle: '' },
-    ]
-  },
-  {
-    id: 'containers',
-    title: 'Контейнеры',
-    services: [
-      { id: 'k8s', icon: imgIcon2Color34, title: 'Managed Kubernetes', subtitle: '' },
-      { id: 'artifact-registry', icon: imgIcon2Color35, title: 'Artifact Registry', subtitle: '' },
-      { id: 'container-apps', icon: imgIcon2Color36, title: 'Container Apps', subtitle: '' },
-    ]
-  },
-  {
-    id: 'admin',
-    title: 'Управление',
-    services: [
-      { id: 'cost-control', icon: imgIcon2Color4, title: 'Контроль затрат', subtitle: 'Управление финансами' },
-      { id: 'iam', icon: imgIcon2Color5, title: 'IAM', subtitle: 'Роли' },
-      { id: 'admin', icon: imgIcon2Color6, title: 'Администрирование', subtitle: 'Оргструктура, квоты' },
-      { id: 'observatory', icon: imgIcon2Color7, title: 'Обсерватория', subtitle: 'Мониторинг' },
-      { id: 'resource-manager', icon: imgIcon2Color8, title: 'Менеджер ресурсов', subtitle: 'Управление ресурсами' },
-      { id: 'users', icon: imgIcon2Color9, title: 'Пользователи', subtitle: 'Управление доступами' },
-    ]
-  },
-];
-
-const CONTROL_CATEGORIES: ControlCategory[] = [
-  {
-    id: 'finance',
-    title: 'Финансы',
-    subcategories: [
-      {
-        title: 'Контроль затрат',
-        icon: imgIcon2Color4,
-        items: [
-          { id: 'contract', title: 'Договор' },
-          { id: 'budgets', title: 'Бюджеты' },
-          { id: 'consumption', title: 'Потребление' },
-          { id: 'forecast', title: 'Прогноз потребления' },
-          { id: 'grants', title: 'Гранты' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'administration',
-    title: 'Администрирование',
-    subcategories: [
-      {
-        title: 'Администрирование',
-        icon: imgIcon2Color6,
-        items: [
-          { id: 'users', title: 'Пользователи' },
-          { id: 'permissions', title: 'Управление разрешениями' },
-          { id: 'security', title: 'Связанные аккаунты' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'iam',
-    title: 'IAM',
-    subcategories: [
-      {
-        title: 'Роли',
-        icon: imgIcon2Color5,
-        items: [
-          { id: 'roles', title: 'Роли' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'monitoring',
-    title: 'Мониторинг',
-    subcategories: [
-      {
-        title: 'Мониторинг',
-        icon: imgIcon2Color7,
-        items: [
-          { id: 'dashboards', title: 'Дашборды' },
-          { id: 'monitoring', title: 'Анализ мониторинга' },
-          { id: 'integrations', title: 'Внешние интеграции' },
-          { id: 'api', title: 'Публичный API' },
-        ]
-      }
-    ]
-  },
-  {
-    id: 'resource-management',
-    title: 'Управление ресурсами',
-    subcategories: [
-      {
-        title: 'Менеджер ресурсов',
-        icon: imgIcon2Color8,
-        items: [
-          { id: 'resource-manager', title: 'Менеджер ресурсов' },
-          { id: 'resource-groups', title: 'Группы ресурсов' },
-          { id: 'history', title: 'История изменений' },
-        ]
-      }
-    ]
-  },
-];
+import {
+  type ServiceCard,
+  type ServiceCategory,
+  type ControlCategory,
+  SERVICE_CATEGORIES,
+  CONTROL_CATEGORIES,
+  CATEGORY_COLORS,
+  getServiceDescription,
+} from '../data/serviceCatalog';
 
 interface SolutionCard {
   id: string;
@@ -281,10 +69,47 @@ const SOLUTION_CARDS: SolutionCard[] = [
   }
 ];
 
+function ServiceItemsContainer({
+  showMoreDetails,
+  className = '',
+  children,
+}: {
+  showMoreDetails: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={
+        showMoreDetails
+          ? `grid grid-cols-2 gap-[8px] items-start relative shrink-0 w-full ${className}`
+          : `content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full ${className}`
+      }
+    >
+      {children}
+    </div>
+  );
+}
+
+function ServiceItemWrapper({
+  showMoreDetails,
+  children,
+}: {
+  showMoreDetails: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={showMoreDetails ? 'relative min-w-0' : 'flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative'}>
+      {children}
+    </div>
+  );
+}
+
 interface ServiceCardItemProps {
   service: ServiceCard;
   onAddToFavorites: (id: string) => void;
   isFavorite: boolean;
+  showMoreDetails?: boolean;
 }
 
 interface PlatformCategoryBlockProps {
@@ -297,6 +122,7 @@ interface PlatformCategoryBlockProps {
   onHover: (id: string | null) => void;
   toggleFavorite: (id: string) => void;
   favorites: string[];
+  showMoreDetails: boolean;
 }
 
 interface CategoryBlockProps {
@@ -309,19 +135,13 @@ interface CategoryBlockProps {
   onHover: (id: string | null) => void;
   toggleFavorite: (id: string) => void;
   favorites: string[];
+  showMoreDetails: boolean;
 }
 
-function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites }: PlatformCategoryBlockProps) {
+function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails }: PlatformCategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
 
-  const categoryColors: Record<string, string> = {
-    'compute': '#f5b27b',
-    'network': '#a8d1a2',
-    'storage': '#e6c878',
-    'containers': '#ceb7e7',
-    'admin': '#99d7ba'
-  };
-  const borderColor = categoryColors[category.id] || '#dde0ea';
+  const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
 
   const [{ isDragging }, drag] = useDrag({
     type: 'PLATFORM_CATEGORY',
@@ -356,17 +176,32 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
       <div aria-hidden="true" className={`absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]`} style={{ borderColor }} />
       <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
         <div className="relative shrink-0 w-full">
-          <div className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onToggle(category.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onToggle(category.id);
+              }
+            }}
+            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+          >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex items-start pl-[12px] relative size-full">
+              <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
                     <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
-                {isHovered && (
-                  <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-                    <button className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]">
+                <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
+                  {isHovered && (
+                    <button
+                      type="button"
+                      onClick={(e) => e.stopPropagation()}
+                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]"
+                    >
                       <div className="relative shrink-0 size-[24px]">
                         <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
                           <circle cx="7" cy="5" r="1.5" fill="#8b8e9b"/>
@@ -381,30 +216,27 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
                         </svg>
                       </div>
                     </button>
-                    <button
-                      onClick={() => onToggle(category.id)}
-                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                    >
-                      <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                        <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                          <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                            <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                              <svg
-                                className="block size-full"
-                                fill="none"
-                                preserveAspectRatio="none"
-                                viewBox="0 0 5.34099 8.56066"
-                                style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                              >
-                                <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                              </svg>
-                            </div>
+                  )}
+                  <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
+                    <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
+                      <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
+                        <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
+                          <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
+                            <svg
+                              className="block size-full"
+                              fill="none"
+                              preserveAspectRatio="none"
+                              viewBox="0 0 5.34099 8.56066"
+                              style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
+                            >
+                              <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
+                            </svg>
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -444,41 +276,43 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
                     </div>
                   </div>
                 </div>
-                <div className="content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full">
+                <ServiceItemsContainer showMoreDetails={showMoreDetails}>
                   {category.megaservice.services.map((service) => (
-                    <div key={service.id} className="flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative">
+                    <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
                       <ServiceCardItem
                         service={service}
                         onAddToFavorites={toggleFavorite}
                         isFavorite={favorites.includes(service.id)}
+                        showMoreDetails={showMoreDetails}
                       />
-                    </div>
+                    </ServiceItemWrapper>
                   ))}
-                </div>
+                </ServiceItemsContainer>
               </div>
             </div>
           </div>
         )}
 
         {isExpanded && category.services.length > 0 && (
-          <div className="content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full px-[8px]">
+          <ServiceItemsContainer showMoreDetails={showMoreDetails} className="px-[8px]">
             {category.services.map((service) => (
-              <div key={service.id} className="flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative">
+              <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
                 <ServiceCardItem
                   service={service}
                   onAddToFavorites={toggleFavorite}
                   isFavorite={favorites.includes(service.id)}
+                  showMoreDetails={showMoreDetails}
                 />
-              </div>
+              </ServiceItemWrapper>
             ))}
-          </div>
+          </ServiceItemsContainer>
         )}
       </div>
     </div>
   );
 }
 
-function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites }: CategoryBlockProps) {
+function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails }: CategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag({
@@ -514,17 +348,32 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
       <div aria-hidden="true" className="absolute border-l-6 border-[#99d7ba] border-solid inset-0 pointer-events-none rounded-[4px]" />
       <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
         <div className="relative shrink-0 w-full">
-          <div className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onToggle(category.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onToggle(category.id);
+              }
+            }}
+            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+          >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex items-start pl-[12px] relative size-full">
+              <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
                     <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
-                {isHovered && (
-                  <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-                    <button className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]">
+                <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
+                  {isHovered && (
+                    <button
+                      type="button"
+                      onClick={(e) => e.stopPropagation()}
+                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]"
+                    >
                       <div className="relative shrink-0 size-[24px]">
                         <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
                           <circle cx="7" cy="5" r="1.5" fill="#8b8e9b"/>
@@ -539,30 +388,27 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
                         </svg>
                       </div>
                     </button>
-                    <button
-                      onClick={() => onToggle(category.id)}
-                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                    >
-                      <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                        <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                          <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                            <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                              <svg
-                                className="block size-full"
-                                fill="none"
-                                preserveAspectRatio="none"
-                                viewBox="0 0 5.34099 8.56066"
-                                style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                              >
-                                <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                              </svg>
-                            </div>
+                  )}
+                  <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
+                    <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
+                      <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
+                        <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
+                          <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
+                            <svg
+                              className="block size-full"
+                              fill="none"
+                              preserveAspectRatio="none"
+                              viewBox="0 0 5.34099 8.56066"
+                              style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
+                            >
+                              <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
+                            </svg>
                           </div>
                         </div>
                       </div>
-                    </button>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -602,22 +448,23 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
                     </div>
                   </div>
                 </div>
-                <div className="content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full">
+                <ServiceItemsContainer showMoreDetails={showMoreDetails}>
                   {subcategory.items.map((item) => (
-                    <div key={item.id} className="flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative">
+                    <ServiceItemWrapper key={item.id} showMoreDetails={showMoreDetails}>
                       <ServiceCardItem
                         service={{
                           id: item.id,
-                          icon: imgIcon2Color13,
+                          icon: subcategory.icon,
                           title: item.title,
                           subtitle: ''
                         }}
                         onAddToFavorites={toggleFavorite}
                         isFavorite={favorites.includes(item.id)}
+                        showMoreDetails={showMoreDetails}
                       />
-                    </div>
+                    </ServiceItemWrapper>
                   ))}
-                </div>
+                </ServiceItemsContainer>
               </div>
             </div>
           </div>
@@ -627,10 +474,31 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
   );
 }
 
-function ServiceCardItem({ service, onAddToFavorites, isFavorite }: ServiceCardItemProps) {
+function ServiceIcon({ icon, size = 24 }: { icon: string; size?: number }) {
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <div
+        className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px]"
+        style={{ maskImage: `url('${icon}')`, maskSize: `${size}px ${size}px` }}
+      />
+    </div>
+  );
+}
+
+function ServiceDescriptionTooltip({ description }: { description: string }) {
+  return (
+    <div className="absolute bottom-[calc(100%+6px)] right-0 z-50 w-[min(240px,calc(100vw-32px))] bg-[#41424e] text-white text-[12px] leading-[16px] rounded-[6px] px-[10px] py-[8px] shadow-[0px_4px_12px_rgba(0,0,0,0.15)]">
+      <p className="line-clamp-4">{description}</p>
+      <div className="absolute top-full right-[12px] w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#41424e]" />
+    </div>
+  );
+}
+
+function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetails = false }: ServiceCardItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [tooltipTimeout, setTooltipTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const description = getServiceDescription(service.id, service.title);
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'SERVICE_CARD',
@@ -640,85 +508,105 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite }: ServiceCardI
     }),
   }));
 
-  const handleInfoHover = () => {
-    const timeout = setTimeout(() => {
-      setShowTooltip(true);
-    }, 500);
-    setTooltipTimeout(timeout);
-  };
-
-  const handleInfoLeave = () => {
+  const clearTooltipTimeout = () => {
     if (tooltipTimeout) {
       clearTimeout(tooltipTimeout);
+      setTooltipTimeout(null);
     }
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (!showMoreDetails) {
+      clearTooltipTimeout();
+      const timeout = setTimeout(() => setShowTooltip(true), 400);
+      setTooltipTimeout(timeout);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    clearTooltipTimeout();
     setShowTooltip(false);
   };
+
+  const favoriteButton = (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onAddToFavorites(service.id);
+      }}
+      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] hover:bg-[rgba(0,0,0,0.05)]"
+    >
+      <div className="relative shrink-0 size-[24px]">
+        <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+            fill={isFavorite ? '#fbbf24' : 'none'}
+            stroke={isFavorite ? '#fbbf24' : '#8b8e9b'}
+            strokeWidth="2"
+          />
+        </svg>
+      </div>
+    </button>
+  );
+
+  if (showMoreDetails) {
+    return (
+      <div
+        ref={drag}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={`relative h-full cursor-move ${isDragging ? 'opacity-50' : ''}`}
+      >
+        <div className="bg-[#fdfdfd] border border-[#e6e8ef] content-stretch flex flex-col gap-[8px] h-full min-h-[96px] p-[12px] relative rounded-[6px] hover:shadow-[0px_2px_8px_rgba(0,0,0,0.06)] transition-shadow">
+          <div className="content-stretch flex gap-[10px] items-start relative flex-[1_0_0]">
+            <ServiceIcon icon={service.icon} size={28} />
+            <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-w-px relative">
+              <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[18px] not-italic text-[#41424e] text-[13px] tracking-[0.1px] w-full">
+                {service.title}
+              </p>
+              <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic text-[#8b8e9b] text-[12px] tracking-[0.1px] w-full line-clamp-3">
+                {description}
+              </p>
+            </div>
+          </div>
+          {isHovered && <div className="absolute top-[8px] right-[8px]">{favoriteButton}</div>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       ref={drag}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={`min-h-[32px] relative rounded-[4px] cursor-move hover:bg-[rgba(0,0,0,0.02)] ${isDragging ? 'opacity-50' : ''}`}
     >
+      {showTooltip && <ServiceDescriptionTooltip description={description} />}
       <div className="flex flex-row items-center min-h-[inherit] overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center min-h-[inherit] p-[4px] relative size-full">
-          <div className="relative shrink-0 size-[24px]">
-            <div
-              className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-              style={{ maskImage: `url('${service.icon}')` }}
-            />
-          </div>
+          <ServiceIcon icon={service.icon} size={24} />
           <div className="content-stretch flex flex-[1_0_0] flex-col items-start min-w-px relative">
-            <div className="content-stretch flex gap-[4px] items-center relative shrink-0 w-full">
-              <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis tracking-[0.1px] whitespace-nowrap">{service.title}</p>
-            </div>
-            {service.subtitle && (
-              <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic overflow-hidden relative shrink-0 text-[#8b8e9b] text-[12px] text-ellipsis tracking-[0.1px] w-full">{service.subtitle}</p>
-            )}
+            <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis tracking-[0.1px] whitespace-nowrap w-full">
+              {service.title}
+            </p>
           </div>
           {isHovered && (
             <>
-              <div
-                className="relative"
-                onMouseEnter={handleInfoHover}
-                onMouseLeave={handleInfoLeave}
-              >
-                <button
-                  className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] hover:bg-[rgba(0,0,0,0.05)]"
-                >
+              <div className="relative shrink-0">
+                <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
                   <div className="relative shrink-0 size-[24px]">
                     <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="#8b8e9b" strokeWidth="2" fill="none"/>
-                      <path d="M12 16V12M12 8H12.01" stroke="#8b8e9b" strokeWidth="2" strokeLinecap="round"/>
+                      <circle cx="12" cy="12" r="10" stroke="#8b8e9b" strokeWidth="2" fill="none" />
+                      <path d="M12 16V12M12 8H12.01" stroke="#8b8e9b" strokeWidth="2" strokeLinecap="round" />
                     </svg>
                   </div>
-                </button>
-                {showTooltip && (
-                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-[#41424e] text-white text-[12px] rounded-[4px] px-[8px] py-[4px] whitespace-nowrap z-50">
-                    Краткая информация о сервисе
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-[#41424e]"></div>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAddToFavorites(service.id);
-                }}
-                className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] hover:bg-[rgba(0,0,0,0.05)]"
-              >
-                <div className="relative shrink-0 size-[24px]">
-                  <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                      fill={isFavorite ? '#fbbf24' : 'none'}
-                      stroke={isFavorite ? '#fbbf24' : '#8b8e9b'}
-                      strokeWidth="2"
-                    />
-                  </svg>
                 </div>
-              </button>
+              </div>
+              {favoriteButton}
             </>
           )}
         </div>
@@ -732,9 +620,9 @@ export default function NavigationMenuPrototype1() {
   const showSolutionsTab = false;
   const [favorites, setFavorites] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'platform' | 'control' | 'solutions'>('platform');
+  const [moreDetails, setMoreDetails] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
-  const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>([]);
+  const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>(SERVICE_CATEGORIES.map(c => c.id));
   const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(SERVICE_CATEGORIES.map(c => c.id));
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -786,21 +674,13 @@ export default function NavigationMenuPrototype1() {
   };
 
   const expandAll = () => {
-    const allCategoryIds = CONTROL_CATEGORIES.map(cat => cat.id);
-    setExpandedCategories(allCategoryIds);
+    setExpandedPlatformCategories(SERVICE_CATEGORIES.map(cat => cat.id));
+    setExpandedCategories(CONTROL_CATEGORIES.map(cat => cat.id));
   };
 
   const collapseAll = () => {
-    setExpandedCategories([]);
-  };
-
-  const expandAllPlatform = () => {
-    const allCategoryIds = SERVICE_CATEGORIES.map(cat => cat.id);
-    setExpandedPlatformCategories(allCategoryIds);
-  };
-
-  const collapseAllPlatform = () => {
     setExpandedPlatformCategories([]);
+    setExpandedCategories([]);
   };
 
   const togglePlatformCategory = (categoryId: string) => {
@@ -827,13 +707,9 @@ export default function NavigationMenuPrototype1() {
 
   const favoriteServices = allServices.filter(s => favorites.includes(s.id));
 
-  const categoriesByTab = SERVICE_CATEGORIES.filter(category =>
-    activeTab === 'platform' ? category.id !== 'admin' : category.id === 'admin'
-  );
-
   const filteredCategories = searchQuery.trim() === ''
-    ? categoriesByTab
-    : categoriesByTab.map(category => {
+    ? SERVICE_CATEGORIES
+    : SERVICE_CATEGORIES.map(category => {
         const filteredMegaServices = category.megaservice?.services.filter(service =>
           service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
@@ -1127,59 +1003,40 @@ export default function NavigationMenuPrototype1() {
                   </div>
 
                   <div className="content-stretch flex items-center justify-between relative shrink-0 w-full">
-                    <div className="content-stretch flex items-center p-[3px] relative rounded-[4px] shrink-0">
-                      <div aria-hidden="true" className="absolute border border-[#dde0ea] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                      <div className="relative shrink-0">
-                        <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start relative size-full">
-                          <button
-                            onClick={() => setActiveTab('platform')}
-                            className={`${activeTab === 'platform' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer`}
-                          >
-                            <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Сервисы</p>
-                          </button>
-                          <button
-                            onClick={() => setActiveTab('control')}
-                            className={`${activeTab === 'control' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer`}
-                          >
-                            <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Центр управления</p>
-                          </button>
-                          {showSolutionsTab && (
-                            <button
-                              onClick={() => setActiveTab('solutions')}
-                              className={`${activeTab === 'solutions' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer`}
-                            >
-                              <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Решения</p>
-                            </button>
-                          )}
+                    <label className="content-stretch flex gap-[8px] items-center cursor-pointer select-none">
+                      <Switch
+                        checked={moreDetails}
+                        onCheckedChange={setMoreDetails}
+                        className="data-[state=checked]:bg-[#99d7ba]"
+                      />
+                      <span className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic text-[#6d707f] text-[12px] whitespace-nowrap">
+                        Больше деталей
+                      </span>
+                    </label>
+                    <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
+                      <button
+                        onClick={expandAll}
+                        className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
+                      >
+                        <div className="relative shrink-0 size-[24px]">
+                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color11}')` }} />
                         </div>
-                      </div>
+                      </button>
+                      <button
+                        onClick={collapseAll}
+                        className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
+                      >
+                        <div className="relative shrink-0 size-[24px]">
+                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color12}')` }} />
+                        </div>
+                      </button>
                     </div>
-                    {activeTab !== 'solutions' && (
-                      <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-                        <button
-                          onClick={activeTab === 'platform' ? expandAllPlatform : expandAll}
-                          className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                        >
-                          <div className="relative shrink-0 size-[24px]">
-                            <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color11}')` }} />
-                          </div>
-                        </button>
-                        <button
-                          onClick={activeTab === 'platform' ? collapseAllPlatform : collapseAll}
-                          className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                        >
-                          <div className="relative shrink-0 size-[24px]">
-                            <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color12}')` }} />
-                          </div>
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
 
               </div>
               <div className="content-stretch flex flex-col gap-[8px] items-start pb-[20px] relative pr-[20px]">
-                {activeTab === 'platform' && platformCategoryOrder.map((categoryId, index) => {
+                {platformCategoryOrder.map((categoryId, index) => {
                   const category = filteredCategories.find(c => c.id === categoryId);
                   if (!category) return null;
 
@@ -1195,11 +1052,12 @@ export default function NavigationMenuPrototype1() {
                       onHover={setHoveredPlatformCategory}
                       toggleFavorite={toggleFavorite}
                       favorites={favorites}
+                      showMoreDetails={moreDetails}
                     />
                   );
                 })}
 
-                {activeTab === 'control' && categoryOrder.map((categoryId, index) => {
+                {categoryOrder.map((categoryId, index) => {
                   const category = filteredControlCategories.find(c => c.id === categoryId);
                   if (!category) return null;
 
@@ -1215,11 +1073,12 @@ export default function NavigationMenuPrototype1() {
                       onHover={setHoveredCategory}
                       toggleFavorite={toggleFavorite}
                       favorites={favorites}
+                      showMoreDetails={moreDetails}
                     />
                   );
                 })}
 
-                {activeTab === 'solutions' && (
+                {showSolutionsTab && (
                   <div className="content-stretch flex flex-col gap-[8px] items-start relative w-full">
                     <div className="content-stretch flex gap-[4px] items-start relative shrink-0 w-full">
                       {SOLUTION_CARDS.slice(0, 2).map((solution) => (
