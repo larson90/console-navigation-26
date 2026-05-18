@@ -1,17 +1,40 @@
 image: node:24-alpine
 
 stages:
+  - build
   - deploy
+
+variables:
+  VERCEL_ORG_ID: team_tnADIfHy6ONULIEnCLoIA6bh
+  VERCEL_PROJECT_ID: prj_lpNDcKTYAvVKwVPBkF5LxwDHd6nJ
+
+build:
+  stage: build
+  script:
+    - npm ci
+    - npm run build
+    - cp dist/index.html dist/404.html
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
 
 pages:
   stage: deploy
-  before_script:
-    - npm ci
+  needs: [build]
   script:
-    - npm run build
-    - cp dist/index.html dist/404.html
     - rm -rf public
     - mv dist public
   artifacts:
     paths:
       - public
+
+deploy-vercel:
+  stage: deploy
+  needs: [build]
+  script:
+    - npm install -g vercel@54
+    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+    - vercel deploy --prod --token=$VERCEL_TOKEN
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $VERCEL_TOKEN

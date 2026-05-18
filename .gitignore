@@ -4,3 +4,5 @@ dist
 *.local
 figma-make-export/
 *.zip
+.vercel/*
+!.vercel/project.json
