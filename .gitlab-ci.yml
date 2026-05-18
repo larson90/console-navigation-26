@@ -1,0 +1,17 @@
+image: node:24-alpine
+
+stages:
+  - deploy
+
+pages:
+  stage: deploy
+  before_script:
+    - npm ci
+  script:
+    - npm run build
+    - cp dist/index.html dist/404.html
+    - rm -rf public
+    - mv dist public
+  artifacts:
+    paths:
+      - public
