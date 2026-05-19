@@ -683,6 +683,18 @@ export default function NavigationMenuPrototype1() {
     setExpandedCategories([]);
   };
 
+  const isAllExpanded =
+    SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id)) &&
+    CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id));
+
+  const toggleExpandAllCategories = () => {
+    if (isAllExpanded) {
+      collapseAll();
+    } else {
+      expandAll();
+    }
+  };
+
   const togglePlatformCategory = (categoryId: string) => {
     if (expandedPlatformCategories.includes(categoryId)) {
       setExpandedPlatformCategories(expandedPlatformCategories.filter(id => id !== categoryId));
@@ -998,11 +1010,24 @@ export default function NavigationMenuPrototype1() {
                             className="flex-[1_0_0] font-['SB_Sans_Interface:Regular',sans-serif] leading-[20px] min-w-px not-italic overflow-hidden relative text-[#41424e] text-[14px] text-ellipsis tracking-[0.1px] whitespace-nowrap bg-transparent border-none outline-none placeholder:text-[#aaaebd]"
                           />
                         </div>
+                        <button
+                          type="button"
+                          onClick={toggleExpandAllCategories}
+                          aria-label={isAllExpanded ? 'Свернуть все категории' : 'Развернуть все категории'}
+                          className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
+                        >
+                          <div className="relative shrink-0 size-[24px]">
+                            <div
+                              className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
+                              style={{ maskImage: `url('${isAllExpanded ? imgIcon2Color11 : imgIcon2Color12}')` }}
+                            />
+                          </div>
+                        </button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="content-stretch flex items-center justify-between relative shrink-0 w-full">
+                  <div className="content-stretch flex items-center justify-end relative shrink-0 w-full">
                     <label className="content-stretch flex gap-[8px] items-center cursor-pointer select-none">
                       <Switch
                         checked={moreDetails}
@@ -1013,24 +1038,6 @@ export default function NavigationMenuPrototype1() {
                         Больше деталей
                       </span>
                     </label>
-                    <div className="content-stretch flex gap-[4px] items-center relative shrink-0">
-                      <button
-                        onClick={expandAll}
-                        className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                      >
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color11}')` }} />
-                        </div>
-                      </button>
-                      <button
-                        onClick={collapseAll}
-                        className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                      >
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color12}')` }} />
-                        </div>
-                      </button>
-                    </div>
                   </div>
                 </div>
 
