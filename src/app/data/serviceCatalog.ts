@@ -60,11 +60,18 @@ export interface MegaService {
   services: ServiceCard[];
 }
 
+export interface ServiceSubcategory {
+  title: string;
+  icon: string;
+  services: ServiceCard[];
+}
+
 export interface ServiceCategory {
   id: string;
   title: string;
   megaservice?: MegaService;
   services: ServiceCard[];
+  subcategories?: ServiceSubcategory[];
 }
 
 export interface ControlItem {
@@ -98,6 +105,10 @@ export const CATEGORY_COLORS: Record<string, string> = {
   databases: '#aac4ea',
   development: '#99d7ba',
   'data-platform': '#b8d4f0',
+  security: '#d4a8a8',
+  'security-administration': '#d4a8a8',
+  monitoring: '#99d7ba',
+  'resource-management': '#aac4ea',
 };
 
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
@@ -117,8 +128,6 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         svc('compute-subnets', 'Подсети Compute'),
         svc('compute-public-ip', 'Публичные IP Compute'),
         svc('compute-backup', 'Резервное копирование Compute'),
-        svc('compute-security-groups', 'Группы безопасности Compute'),
-        svc('compute-ssh-keys', 'SSH-ключи Compute'),
       ],
     },
     services: [
@@ -181,6 +190,12 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       svc('k8s', 'Managed Kubernetes'),
       svc('container-apps', 'Container Apps'),
       svc('artifact-registry', 'Artifact Registry'),
+      svc('keda', 'KEDA'),
+      svc('terraform', 'Terraform'),
+      svc('n8n', 'n8n'),
+      svc('docker', 'Docker'),
+      svc('helm', 'Helm'),
+      svc('kubectl', 'Kubectl'),
     ],
   },
   {
@@ -229,6 +244,74 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
       svc('managed-bi', 'Managed BI'),
     ],
   },
+  {
+    id: 'security-administration',
+    title: 'Безопасность и администрирование',
+    services: [],
+    subcategories: [
+      {
+        title: 'Права доступа',
+        icon: imgIcon2Color5,
+        services: [
+          svc('roles', 'Конструктор ролей'),
+          svc('users-control', 'Пользователи'),
+          svc('security', 'Сервисные аккаунты'),
+          svc('federations', 'Федерации'),
+          svc('invitations', 'Приглашения'),
+        ],
+      },
+      {
+        title: 'Администрирование',
+        icon: imgIcon2Color6,
+        services: [
+          svc('catalogs-projects', 'Каталоги и проекты'),
+          svc('admin-quotas', 'Квоты'),
+          svc('contracts', 'Договоры'),
+          svc('admin-settings', 'Настройки'),
+        ],
+      },
+      {
+        title: 'Безопасность',
+        icon: imgIcon2Color5,
+        services: [
+          svc('certificate-manager', 'Certificate Manager'),
+          svc('secret-management', 'Secret Management'),
+          svc('security-groups', 'Группы безопасности'),
+          svc('key-management', 'Key Management'),
+          svc('audit-logging', 'Аудит-логирование'),
+          svc('ssh-keys', 'SSH-ключи'),
+        ],
+      },
+    ],
+  },
+  {
+    id: 'monitoring',
+    title: 'Мониторинг',
+    services: [
+      svc('dashboards', 'Дашборды'),
+      svc('monitoring-alerts', 'Алерты мониторинга'),
+      svc('metric-management', 'Управление метриками'),
+      svc('public-api', 'Публичные API'),
+      svc('logging', 'Логирование'),
+      svc('audit-logging', 'Аудит-логирование'),
+      svc('notifications', 'Нотификации'),
+    ],
+  },
+  {
+    id: 'resource-management',
+    title: 'Управление ресурсами',
+    megaservice: {
+      title: 'Менеджер ресурсов',
+      icon: imgIcon2Color8,
+      services: [
+        svc('resources', 'Ресурсы'),
+        svc('tags', 'Теги'),
+        svc('resource-groups', 'Группы ресурсов'),
+        svc('reports', 'Отчеты'),
+      ],
+    },
+    services: [svc('task-history', 'История задач')],
+  },
 ];
 
 export const CONTROL_CATEGORIES: ControlCategory[] = [
@@ -250,30 +333,41 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
     ],
   },
   {
-    id: 'administration',
-    title: 'Администрирование',
+    id: 'security-administration',
+    title: 'Безопасность и администрирование',
     subcategories: [
+      {
+        title: 'Права доступа',
+        icon: imgIcon2Color5,
+        items: [
+          { id: 'roles', title: 'Конструктор ролей' },
+          { id: 'users-control', title: 'Пользователи' },
+          { id: 'security', title: 'Сервисные аккаунты' },
+          { id: 'federations', title: 'Федерации' },
+          { id: 'invitations', title: 'Приглашения' },
+        ],
+      },
       {
         title: 'Администрирование',
         icon: imgIcon2Color6,
         items: [
-          { id: 'users-control', title: 'Пользователи' },
-          { id: 'federations', title: 'Федерации' },
-          { id: 'security', title: 'Сервисные аккаунты' },
-          { id: 'admin-settings', title: 'Настройки' },
+          { id: 'catalogs-projects', title: 'Каталоги и проекты' },
           { id: 'admin-quotas', title: 'Квоты' },
+          { id: 'contracts', title: 'Договоры' },
+          { id: 'admin-settings', title: 'Настройки' },
         ],
       },
-    ],
-  },
-  {
-    id: 'iam',
-    title: 'Безопасность',
-    subcategories: [
       {
         title: 'Безопасность',
         icon: imgIcon2Color5,
-        items: [{ id: 'roles', title: 'Конструктор ролей' }],
+        items: [
+          { id: 'certificate-manager', title: 'Certificate Manager' },
+          { id: 'secret-management', title: 'Secret Management' },
+          { id: 'security-groups', title: 'Группы безопасности' },
+          { id: 'key-management', title: 'Key Management' },
+          { id: 'audit-logging', title: 'Аудит-логирование' },
+          { id: 'ssh-keys', title: 'SSH-ключи' },
+        ],
       },
     ],
   },
@@ -286,9 +380,12 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
         icon: imgIcon2Color7,
         items: [
           { id: 'dashboards', title: 'Дашборды' },
-          { id: 'monitoring-analysis', title: 'Анализ мониторинга' },
-          { id: 'integrations', title: 'Внешние интеграции' },
-          { id: 'api', title: 'Публичный API' },
+          { id: 'monitoring-alerts', title: 'Алерты мониторинга' },
+          { id: 'metric-management', title: 'Управление метриками' },
+          { id: 'public-api', title: 'Публичные API' },
+          { id: 'logging', title: 'Логирование' },
+          { id: 'audit-logging', title: 'Аудит-логирование' },
+          { id: 'notifications', title: 'Нотификации' },
         ],
       },
     ],
@@ -301,9 +398,11 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
         title: 'Менеджер ресурсов',
         icon: imgIcon2Color8,
         items: [
-          { id: 'resource-manager', title: 'Менеджер ресурсов' },
+          { id: 'resources', title: 'Ресурсы' },
+          { id: 'tags', title: 'Теги' },
           { id: 'resource-groups', title: 'Группы ресурсов' },
-          { id: 'history', title: 'История изменений' },
+          { id: 'reports', title: 'Отчеты' },
+          { id: 'task-history', title: 'История задач' },
         ],
       },
     ],
@@ -320,8 +419,6 @@ export const SERVICE_DESCRIPTIONS: Record<string, string> = {
   'compute-subnets': 'Подсети в контексте сервиса Compute.',
   'compute-public-ip': 'Публичные IP-адреса для ресурсов Compute.',
   'compute-backup': 'Резервное копирование данных и конфигураций Compute.',
-  'compute-security-groups': 'Группы безопасности для защиты ресурсов Compute.',
-  'compute-ssh-keys': 'SSH-ключи для доступа к виртуальным машинам Compute.',
   'bare-metal': 'Выделенные физические серверы с полным контролем над ресурсами.',
   'agent-backup': 'Резервное копирование с агентом на стороне гостевой ОС.',
   images: 'Каталог образов для развёртывания виртуальных машин.',
@@ -348,6 +445,12 @@ export const SERVICE_DESCRIPTIONS: Record<string, string> = {
   k8s: 'Управляемый кластер Kubernetes.',
   'container-apps': 'Запуск контейнерных приложений без управления кластером.',
   'artifact-registry': 'Хранилище Docker-образов и артефактов.',
+  keda: 'Event-driven автомасштабирование workload в Kubernetes по метрикам и событиям.',
+  terraform: 'Управление облачной инфраструктурой через Terraform и IaC.',
+  n8n: 'Визуальная автоматизация workflow и интеграций без кода.',
+  docker: 'Сборка и запуск контейнеров на базе Docker.',
+  helm: 'Управление приложениями в Kubernetes через Helm-чарты.',
+  kubectl: 'CLI для управления ресурсами Kubernetes-кластера.',
   'managed-kafka': 'Управляемый брокер сообщений Apache Kafka®.',
   'managed-corax': 'Управляемый брокер сообщений Corax.',
   'managed-postgres': 'Управляемая СУБД PostgreSQL®.',
@@ -366,26 +469,61 @@ export const SERVICE_DESCRIPTIONS: Record<string, string> = {
   'managed-trino': 'Управляемый Trino для интерактивной аналитики.',
   'managed-arenadatadb': 'Управляемая ArenadataDB для аналитики.',
   'managed-bi': 'Управляемая BI-платформа для отчётности и дашбордов.',
+  roles: 'Создание и редактирование ролей с набором разрешений.',
+  iam: 'Централизованное управление идентификацией и доступом.',
+  'certificate-manager': 'Выпуск и управление TLS-сертификатами для сервисов.',
+  'secret-management': 'Безопасное хранение и ротация секретов и ключей.',
+  'security-groups': 'Правила сетевого доступа и группы безопасности для ресурсов.',
+  'key-management': 'Управление криптографическими ключами шифрования.',
+  'audit-logging': 'Сбор и анализ событий безопасности и аудита.',
+  'ssh-keys': 'SSH-ключи для безопасного доступа к виртуальным машинам.',
   contract: 'Договорные условия, тарифы и юридическая информация.',
   budgets: 'Планирование и контроль бюджетов.',
   consumption: 'Детализация потребления ресурсов.',
   forecast: 'Прогноз расходов на основе потребления.',
   grants: 'Гранты и промо-средства.',
+  'catalogs-projects': 'Каталоги и проекты для организации ресурсов и доступа.',
+  contracts: 'Управление договорами и юридическими условиями.',
   'users-control': 'Управление пользователями и доступом.',
   federations: 'Управление федерациями и доверенными связями между организациями.',
+  invitations: 'Приглашение пользователей в организацию и управление приглашениями.',
   security: 'Сервисные аккаунты для интеграции с API.',
   'admin-settings': 'Административные настройки организации и платформы.',
   'admin-quotas': 'Квоты и лимиты потребления ресурсов.',
-  roles: 'Создание и редактирование ролей с набором разрешений.',
-  dashboards: 'Дашборды для визуализации метрик.',
-  'monitoring-analysis': 'Анализ телеметрии и событий мониторинга.',
-  integrations: 'Внешние интеграции систем мониторинга.',
-  api: 'Публичный API платформы.',
-  'resource-manager': 'Инвентаризация и управление облачными ресурсами.',
-  'resource-groups': 'Группировка ресурсов для управления.',
-  history: 'Журнал изменений конфигурации.',
+  dashboards: 'Дашборды для визуализации метрик и состояния ресурсов.',
+  'monitoring-alerts': 'Настройка и управление алертами мониторинга.',
+  'metric-management': 'Сбор, хранение и управление метриками.',
+  'public-api': 'Публичные API для интеграции с системами мониторинга.',
+  logging: 'Централизованное логирование событий и диагностика.',
+  notifications: 'Уведомления о событиях и срабатывании алертов.',
+  resources: 'Просмотр и управление облачными ресурсами.',
+  tags: 'Метки для классификации и организации ресурсов.',
+  'resource-groups': 'Группировка ресурсов для управления и отчётности.',
+  reports: 'Отчёты по использованию и состоянию ресурсов.',
+  'task-history': 'История задач и операций над ресурсами.',
 };
 
 export function getServiceDescription(id: string, title: string): string {
   return SERVICE_DESCRIPTIONS[id] ?? `Сервис «${title}» в облачной платформе Cloud.ru.`;
+}
+
+export function findServicesByIds(ids: string[]): ServiceCard[] {
+  const byId = new Map<string, ServiceCard>();
+  for (const category of SERVICE_CATEGORIES) {
+    for (const service of category.services) {
+      byId.set(service.id, service);
+    }
+    for (const service of category.megaservice?.services ?? []) {
+      byId.set(service.id, service);
+    }
+    for (const subcategory of category.subcategories ?? []) {
+      for (const service of subcategory.services) {
+        byId.set(service.id, service);
+      }
+    }
+  }
+  return ids.flatMap((id) => {
+    const service = byId.get(id);
+    return service ? [service] : [];
+  });
 }

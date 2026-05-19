@@ -207,6 +207,46 @@ export function PlatformCategoryBlock({ category, index, isExpanded, isHovered, 
             ))}
           </ServiceItemsContainer>
         )}
+        {isExpanded && category.subcategories?.map((subcategory, idx) => (
+          <div key={idx} className="content-stretch flex flex-col items-start overflow-clip relative shrink-0 w-full">
+            <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[4px] shrink-0 w-full">
+              <div className="content-stretch flex flex-col gap-[8px] items-start pb-[8px] pt-[12px] px-[8px] relative size-full">
+                <div className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full">
+                  <div className="flex-[1_0_0] min-w-px relative">
+                    <div className="content-stretch flex items-start pl-[4px] relative size-full">
+                      <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                        <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                          <div className="relative shrink-0 size-[24px]">
+                            <div
+                              className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
+                              style={{ maskImage: `url('${subcategory.icon}')` }}
+                            />
+                          </div>
+                          <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
+                            <p className="leading-[20px] overflow-hidden text-ellipsis">{subcategory.title}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ServiceItemsContainer showMoreDetails={showMoreDetails}>
+                  {subcategory.services.map((service) => (
+                    <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
+                      <ServiceCardItem
+                        service={service}
+                        onAddToFavorites={toggleFavorite}
+                        isFavorite={favorites.includes(service.id)}
+                        showMoreDetails={showMoreDetails}
+                      />
+                    </ServiceItemWrapper>
+                  ))}
+                </ServiceItemsContainer>
+              </div>
+            </div>
+          </div>
+        ))}
+
       </div>
     </div>
   );

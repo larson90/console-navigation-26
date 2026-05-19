@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { Switch } from './ui/switch';
 import { ServiceCardItem } from './navigationServiceUi';
 import { CategoryBlock, PlatformCategoryBlock, SolutionBlock } from './navigationCategoryBlocks';
+import { PlatformSelector } from './PlatformSelector';
 
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import svgPathsFrame from "../../imports/Frame1851041041/svg-s81pzj7n11";
@@ -210,46 +211,13 @@ export default function NavigationMenuPrototype3() {
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
               <div className="content-stretch flex flex-col isolate items-start justify-between pb-[20px] relative size-full">
-                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2] flex-[1_0_0] min-h-0 overflow-hidden">
-
-                  {/* Platform Selector */}
-                  {showPlatformSelector && (
-                    <div className="content-stretch flex flex-col h-[56px] items-start pb-[16px] relative shrink-0 w-full">
-                      <div className="bg-[#fdfdfd] h-[56px] relative rounded-[4px] shrink-0 w-full">
-                        <div className="flex flex-row items-center size-full">
-                          <div className="content-stretch flex gap-[8px] items-center px-[12px] py-px relative size-full">
-                            <div className="flex-[1_0_0] min-w-px relative">
-                              <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[8px] items-center relative size-full">
-                                <div className="bg-[#787b8a] relative rounded-[4px] shrink-0 size-[32px]">
-                                  <div className="absolute inset-0 overflow-clip">
-                                    <div className="absolute inset-[12.5%]">
-                                      <div className="absolute inset-[-5.21%]">
-                                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 26.5 26.5">
-                                          <path clipRule="evenodd" d={svgPaths.p1c0bf500} fill="white" fillRule="evenodd" stroke="white" strokeWidth="2.5" />
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="content-stretch flex flex-[1_0_0] flex-col items-start min-w-px not-italic relative">
-                                  <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] relative shrink-0 text-[#8b8e9b] text-[12px] tracking-[0.1px] w-full">Платформа</p>
-                                  <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[20px] overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] w-full whitespace-nowrap">Evolution</p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="relative shrink-0 size-[24px]">
-                              <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIconColor}')` }} />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2] flex-[1_0_0] min-h-0">
+                  {showPlatformSelector && <PlatformSelector />}
 
                   {/* Favorites */}
                   <div
                     ref={drop}
-                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-[216px] flex-[1_0_0] min-h-0 ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
+                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-[216px] flex-[1_0_0] min-h-0 overflow-hidden ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
                   >
                     <div className="relative shrink-0 w-full">
                       <div className="content-stretch flex flex-col gap-[4px] items-start p-[8px] relative size-full">
