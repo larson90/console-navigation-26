@@ -245,7 +245,7 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
         {isExpanded && category.megaservice && (
           <div className="content-stretch flex flex-col items-start overflow-clip relative shrink-0 w-full">
             <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[4px] shrink-0 w-full">
-              <div className="content-stretch flex flex-col gap-[8px] items-start pb-[8px] pt-[12px] px-[8px] relative size-full">
+              <div className="content-stretch flex flex-col gap-[8px] items-start justify-center pb-[8px] pt-[12px] px-[8px] relative size-full">
                 <div className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full">
                   <div className="flex-[1_0_0] min-w-px relative">
                     <div className="content-stretch flex items-start pl-[4px] relative size-full">
@@ -417,7 +417,7 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
         {isExpanded && category.subcategories.map((subcategory, idx) => (
           <div key={idx} className="content-stretch flex flex-col items-start overflow-clip relative shrink-0 w-full">
             <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[4px] shrink-0 w-full">
-              <div className="content-stretch flex flex-col gap-[8px] items-start pb-[8px] pt-[12px] px-[8px] relative size-full">
+              <div className="content-stretch flex flex-col gap-[8px] items-start justify-center pb-[8px] pt-[12px] px-[8px] relative size-full">
                 <div className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full">
                   <div className="flex-[1_0_0] min-w-px relative">
                     <div className="content-stretch flex items-start pl-[4px] relative size-full">

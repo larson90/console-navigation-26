@@ -29,6 +29,10 @@ import {
 } from '../data/serviceCatalog';
 import { type Solution, SOLUTIONS } from '../data/solutionsCatalog';
 
+/** На вкладке «Сервисы» нет категории «Безопасность и администрирование» — только в «Центре управления». */
+const PLATFORM_SERVICE_CATEGORIES = SERVICE_CATEGORIES.filter(
+  (c) => c.id !== 'security-administration',
+);
 
 export default function NavigationMenuPrototype3() {
   const showPlatformSelector = true;
@@ -40,15 +44,18 @@ export default function NavigationMenuPrototype3() {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
   const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>([]);
   const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
-  const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(SERVICE_CATEGORIES.map(c => c.id));
+  const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(
+    PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
+  );
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [hoveredPlatformCategory, setHoveredPlatformCategory] = useState<string | null>(null);
   const [expandedSolutions, setExpandedSolutions] = useState<string[]>(SOLUTIONS.map(s => s.id));
 
   const allServices = [
-    ...SERVICE_CATEGORIES.flatMap(cat => [
+    ...PLATFORM_SERVICE_CATEGORIES.flatMap((cat) => [
       ...(cat.megaservice?.services || []),
-      ...cat.services
+      ...cat.services,
+      ...(cat.subcategories?.flatMap((sub) => sub.services) || []),
     ]),
     ...CONTROL_CATEGORIES.flatMap(cat =>
       cat.subcategories.flatMap(sub =>
@@ -100,7 +107,7 @@ export default function NavigationMenuPrototype3() {
   };
 
   const expandAllPlatform = () => {
-    const allCategoryIds = SERVICE_CATEGORIES.map(cat => cat.id);
+    const allCategoryIds = PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id);
     setExpandedPlatformCategories(allCategoryIds);
   };
 
@@ -111,7 +118,7 @@ export default function NavigationMenuPrototype3() {
 
   const isAllExpanded =
     activeTab === 'platform'
-      ? SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id))
+      ? PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id))
       : activeTab === 'control'
         ? CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id))
         : SOLUTIONS.every((s) => expandedSolutions.includes(s.id));
@@ -163,8 +170,8 @@ export default function NavigationMenuPrototype3() {
   const favoriteServices = allServices.filter(s => favorites.includes(s.id));
 
   const filteredCategories = searchQuery.trim() === ''
-    ? SERVICE_CATEGORIES
-    : SERVICE_CATEGORIES.map(category => {
+    ? PLATFORM_SERVICE_CATEGORIES
+    : PLATFORM_SERVICE_CATEGORIES.map((category) => {
         const filteredMegaServices = category.megaservice?.services.filter(service =>
           service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
@@ -484,7 +491,9 @@ export default function NavigationMenuPrototype3() {
 
               </div>
               <div className="content-stretch flex flex-col gap-[8px] items-start pb-[20px] relative pr-[20px]">
-                {activeTab === 'platform' && platformCategoryOrder.map((categoryId, index) => {
+                {activeTab === 'platform' && platformCategoryOrder
+                  .filter((categoryId) => categoryId !== 'security-administration')
+                  .map((categoryId, index) => {
                   const category = filteredCategories.find(c => c.id === categoryId);
                   if (!category) return null;
 
