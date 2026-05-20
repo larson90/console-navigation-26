@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Link } from 'react-router';
 import { Switch } from './ui/switch';
+import { NavigationMenuScrim } from './NavigationMenuScrim';
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import svgPathsFrame from "../../imports/Frame1851041041/svg-s81pzj7n11";
 import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
@@ -760,9 +761,7 @@ export default function NavigationMenuPrototype1() {
       }).filter(category => category.subcategories.length > 0);
 
   return (
-    <div className="bg-[rgba(0,0,0,0.32)] absolute inset-0">
-      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-start pr-[20px] relative size-full">
-        <div className="bg-[#eeeff3] flex-[1_0_0] h-full max-w-[900px] min-w-[744px] relative shadow-[0px_0px_16px_0px_rgba(0,0,0,0.08),0px_24px_16px_0px_rgba(0,0,0,0.08)]">
+    <NavigationMenuScrim>
           <div className="content-stretch flex items-start max-w-[inherit] min-w-[inherit] pl-[20px] pt-[20px] relative size-full">
 
             {/* Left Sidebar */}
@@ -1187,8 +1186,6 @@ export default function NavigationMenuPrototype1() {
             </div>
 
           </div>
-        </div>
-      </div>
-    </div>
+    </NavigationMenuScrim>
   );
 }

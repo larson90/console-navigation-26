@@ -1,24 +1,32 @@
-import { createBrowserRouter } from "react-router";
-import Home from "./pages/Home";
-import Prototype1 from "./pages/Prototype1";
-import Prototype2 from "./pages/Prototype2";
-import Prototype3 from "./pages/Prototype3";
+import { createBrowserRouter } from 'react-router';
+import LkLayout from './layouts/LkLayout';
+import LkDashboard from './pages/LkDashboard';
+
+function PrototypeRoutePlaceholder() {
+  return null;
+}
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    Component: Home,
-  },
-  {
-    path: "/prototype-1",
-    Component: Prototype1,
-  },
-  {
-    path: "/prototype-2",
-    Component: Prototype2,
-  },
-  {
-    path: "/prototype-3",
-    Component: Prototype3,
+    path: '/',
+    Component: LkLayout,
+    children: [
+      {
+        index: true,
+        Component: LkDashboard,
+      },
+      {
+        path: 'prototype-1',
+        Component: PrototypeRoutePlaceholder,
+      },
+      {
+        path: 'prototype-2',
+        Component: PrototypeRoutePlaceholder,
+      },
+      {
+        path: 'prototype-3',
+        Component: PrototypeRoutePlaceholder,
+      },
+    ],
   },
 ]);
