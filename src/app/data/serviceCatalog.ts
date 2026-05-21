@@ -100,15 +100,15 @@ export const CATEGORY_COLORS: Record<string, string> = {
   network: '#a8d1a2',
   'ai-factory': '#c9b8e8',
   storage: '#e6c878',
-  containers: '#ceb7e7',
+  containers: '#b89ad4',
   'message-brokers': '#f0a8c8',
-  databases: '#aac4ea',
+  databases: '#7eb8e8',
   development: '#99d7ba',
-  'data-platform': '#b8d4f0',
-  security: '#d4a8a8',
+  'data-platform': '#8ecae6',
   'security-administration': '#d4a8a8',
-  monitoring: '#99d7ba',
+  monitoring: '#f2c97d',
   'resource-management': '#aac4ea',
+  finance: '#c9a87c',
 };
 
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
@@ -522,6 +522,49 @@ export function getServiceDescription(id: string, title: string): string {
   return SERVICE_DESCRIPTIONS[id] ?? `Сервис «${title}» в облачной платформе Cloud.ru.`;
 }
 
+/** Уникальный индекс всех сервисов (платформа + центр управления) для избранного. */
+export function buildServicesIndex(controlItemIcon: string): Map<string, ServiceCard> {
+  const byId = new Map<string, ServiceCard>();
+  const add = (service: ServiceCard) => {
+    if (!byId.has(service.id)) {
+      byId.set(service.id, service);
+    }
+  };
+
+  for (const category of SERVICE_CATEGORIES) {
+    for (const service of category.services) add(service);
+    for (const service of category.megaservice?.services ?? []) add(service);
+    for (const subcategory of category.subcategories ?? []) {
+      for (const service of subcategory.services) add(service);
+    }
+  }
+
+  for (const category of CONTROL_CATEGORIES) {
+    for (const subcategory of category.subcategories) {
+      for (const item of subcategory.items) {
+        add({
+          id: item.id,
+          icon: controlItemIcon,
+          title: item.title,
+          subtitle: '',
+        });
+      }
+    }
+  }
+
+  return byId;
+}
+
+/** Список избранного в порядке добавления, без дубликатов по id. */
+export function resolveFavoriteServices(
+  favoriteIds: string[],
+  index: Map<string, ServiceCard>,
+): ServiceCard[] {
+  return favoriteIds
+    .map((id) => index.get(id))
+    .filter((service): service is ServiceCard => service !== undefined);
+}
+
 export function findServicesByIds(ids: string[]): ServiceCard[] {
   const byId = new Map<string, ServiceCard>();
   for (const category of SERVICE_CATEGORIES) {
@@ -537,8 +580,5 @@ export function findServicesByIds(ids: string[]): ServiceCard[] {
       }
     }
   }
-  return ids.flatMap((id) => {
-    const service = byId.get(id);
-    return service ? [service] : [];
-  });
+  return resolveFavoriteServices(ids, byId);
 }

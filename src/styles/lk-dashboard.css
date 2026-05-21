@@ -187,10 +187,7 @@
 /* Оверлей прототипа навигации */
 .nav-proto-overlay {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 48px;
+  inset: 0;
   z-index: 1100;
   overflow: hidden;
 }

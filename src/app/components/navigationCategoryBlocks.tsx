@@ -254,6 +254,7 @@ export function PlatformCategoryBlock({ category, index, isExpanded, isHovered, 
 
 export function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails }: CategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
 
   const [{ isDragging }, drag] = useDrag({
     type: 'CATEGORY',
@@ -285,7 +286,7 @@ export function CategoryBlock({ category, index, isExpanded, isHovered, onToggle
       className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full"
       style={{ opacity: isDragging ? 0.5 : 1 }}
     >
-      <div aria-hidden="true" className="absolute border-l-6 border-[#99d7ba] border-solid inset-0 pointer-events-none rounded-[4px]" />
+      <div aria-hidden="true" className="absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]" style={{ borderColor }} />
       <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
         <div className="relative shrink-0 w-full">
           <div

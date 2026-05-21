@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
 import { Link } from 'react-router';
 import { Switch } from './ui/switch';
 import { ServiceCardItem } from './navigationServiceUi';
 import { CategoryBlock, PlatformCategoryBlock } from './navigationCategoryBlocks';
+import { FavoritesList } from './FavoritesList';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
+import { NavigationMiniBanners } from './navigationMiniBanners';
 import { PlatformSelector } from './PlatformSelector';
+import { useFavorites } from '../hooks/useFavorites';
 
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
-import svgPathsFrame from "../../imports/Frame1851041041/svg-s81pzj7n11";
 import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
 import imgSolutionObservatory from "figma:asset/13a87ebe8d52252380a917437a7ba97c4d34355e.png";
 import imgSolutionDataReplication from "figma:asset/16a9fde8a5bc0a83aedd938e24d56d8e72f2ae4b.png";
@@ -79,11 +80,55 @@ const SOLUTION_CARDS: SolutionCard[] = [
   }
 ];
 
+const CONTROL_QUICK_ACCESS_CARDS = [
+  { icon: imgIcon2Color7, title: 'Обсерватория', subtitle: 'Мониторинг' },
+  { icon: imgIcon2Color8, title: 'Менеджер ресурсов', subtitle: 'Управление ресурсами' },
+  { icon: imgIcon2Color4, title: 'Контроль затрат', subtitle: 'Управление финансами' },
+  { icon: imgIcon2Color9, title: 'Пользователи', subtitle: 'Управление доступами' },
+  { icon: imgIcon2Color6, title: 'IAM', subtitle: 'Роли' },
+  { icon: imgIcon2Color5, title: 'Администрирование', subtitle: 'Оргструктура, квоты' },
+] as const;
+
+function QuickAccessCard({
+  icon,
+  title,
+  subtitle,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="bg-[#fdfdfd] min-h-[32px] relative rounded-[4px] cursor-pointer hover:bg-[rgba(0,0,0,0.02)]">
+      <div className="flex flex-row items-center min-h-[inherit] overflow-clip rounded-[inherit] size-full">
+        <div className="content-stretch flex gap-[8px] items-center min-h-[inherit] p-[8px] relative size-full">
+          <div className="bg-[rgba(238,239,243,0.5)] content-stretch flex items-center p-[6px] relative rounded-[2px] shrink-0">
+            <div className="relative shrink-0 size-[24px]">
+              <div
+                className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
+                style={{ maskImage: `url('${icon}')` }}
+              />
+            </div>
+          </div>
+          <div className="content-stretch flex flex-[1_0_0] flex-col gap-[2px] items-start justify-center leading-[16px] min-w-px not-italic relative whitespace-nowrap">
+            <p className="font-['SB_Sans_Interface:Semibold',sans-serif] overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis w-full">
+              {title}
+            </p>
+            <p className="font-['SB_Sans_Interface:Regular',sans-serif] overflow-hidden relative shrink-0 text-[#8b8e9b] text-[12px] text-ellipsis tracking-[0.1px] w-full">
+              {subtitle}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function NavigationMenuPrototype2() {
-  const showPlatformSelector = true;
+  const showPlatformSelector = false;
   const showSolutionsTab = false;
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const { favorites, favoriteServices, isOver, drop, toggleFavorite } =
+    useFavorites(imgIcon2Color13);
   const [searchQuery, setSearchQuery] = useState('');
   const [moreDetails, setMoreDetails] = useState(false);
   const [activeTab, setActiveTab] = useState<'platform' | 'control' | 'solutions'>('platform');
@@ -93,43 +138,6 @@ export default function NavigationMenuPrototype2() {
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(SERVICE_CATEGORIES.map(c => c.id));
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [hoveredPlatformCategory, setHoveredPlatformCategory] = useState<string | null>(null);
-
-  const allServices = [
-    ...SERVICE_CATEGORIES.flatMap(cat => [
-      ...(cat.megaservice?.services || []),
-      ...cat.services
-    ]),
-    ...CONTROL_CATEGORIES.flatMap(cat =>
-      cat.subcategories.flatMap(sub =>
-        sub.items.map(item => ({
-          id: item.id,
-          icon: imgIcon2Color13,
-          title: item.title,
-          subtitle: ''
-        }))
-      )
-    )
-  ];
-
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: 'SERVICE_CARD',
-    drop: (item: { id: string }) => {
-      if (!favorites.includes(item.id)) {
-        setFavorites([...favorites, item.id]);
-      }
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
-  }));
-
-  const toggleFavorite = (id: string) => {
-    if (favorites.includes(id)) {
-      setFavorites(favorites.filter(fav => fav !== id));
-    } else {
-      setFavorites([...favorites, id]);
-    }
-  };
 
   const toggleCategory = (categoryId: string) => {
     if (expandedCategories.includes(categoryId)) {
@@ -174,6 +182,15 @@ export default function NavigationMenuPrototype2() {
     }
   };
 
+  const handleMoreDetailsChange = (checked: boolean) => {
+    setMoreDetails(checked);
+    if (checked) {
+      expandAllPlatform();
+    } else {
+      collapseAllPlatform();
+    }
+  };
+
   const togglePlatformCategory = (categoryId: string) => {
     if (expandedPlatformCategories.includes(categoryId)) {
       setExpandedPlatformCategories(expandedPlatformCategories.filter(id => id !== categoryId));
@@ -195,8 +212,6 @@ export default function NavigationMenuPrototype2() {
     newOrder.splice(hoverIndex, 0, removed);
     setPlatformCategoryOrder(newOrder);
   };
-
-  const favoriteServices = allServices.filter(s => favorites.includes(s.id));
 
   const filteredCategories = searchQuery.trim() === ''
     ? SERVICE_CATEGORIES
@@ -240,11 +255,11 @@ export default function NavigationMenuPrototype2() {
 
   return (
     <NavigationMenuScrim>
-          <div className="content-stretch flex items-start max-w-[inherit] min-w-[inherit] pl-[20px] pt-[20px] relative size-full">
+          <div className="content-stretch flex items-start justify-center max-w-[inherit] min-w-[inherit] pl-[16px] pt-0 relative size-full">
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
-              <div className="content-stretch flex flex-col isolate items-start justify-between pb-[20px] relative size-full">
+              <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] relative size-full">
                 <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2] flex-[1_0_0] min-h-0">
                   {showPlatformSelector && <PlatformSelector />}
 
@@ -284,17 +299,10 @@ export default function NavigationMenuPrototype2() {
                           </div>
                         </div>
                       ) : (
-                        <div className="flex flex-col gap-[4px] w-full">
-                          {favoriteServices.map(service => (
-                            <div key={service.id} className="bg-[#fdfdfd] rounded-[4px]">
-                              <ServiceCardItem
-                                service={service}
-                                onAddToFavorites={toggleFavorite}
-                                isFavorite={true}
-                              />
-                            </div>
-                          ))}
-                        </div>
+                        <FavoritesList
+                          favoriteServices={favoriteServices}
+                          onToggleFavorite={toggleFavorite}
+                        />
                       )}
                     </div>
                   </div>
@@ -351,170 +359,22 @@ export default function NavigationMenuPrototype2() {
 
             {/* Main Content */}
             <div className="flex-[1_0_0] h-full min-w-px relative overflow-y-auto">
-              <div className="content-stretch flex flex-col gap-[8px] items-start pb-[20px] relative pr-[20px]">
+              <div className="content-stretch flex flex-col gap-[8px] items-start pt-[16px] pb-0 relative pr-[16px]">
 
-                {/* Info Blocks */}
-                <div className="content-stretch flex gap-[4px] items-start relative shrink-0 w-full pt-[8px]">
-                  <div className="bg-[#fdfdfd] flex-[1_0_0] min-w-px relative rounded-[4px]">
-                    <div className="content-stretch flex flex-col gap-[10px] items-start p-[8px] relative size-full">
-                      <div className="content-stretch flex flex-col gap-[4px] isolate items-start justify-center not-italic overflow-clip relative shrink-0 text-[12px] w-full">
-                        <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[20px] overflow-hidden relative shrink-0 text-[#41424e] text-ellipsis tracking-[0.15px] whitespace-nowrap z-[2]">Реферальная программа</p>
-                        <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] min-w-full relative shrink-0 text-[#6d707f] tracking-[0.1px] w-[min-content] z-[1]">Зарабатывайте 20% на рекомендациях сервисов Cloud.ru</p>
-                      </div>
-                      <div className="absolute content-stretch flex flex-col items-start overflow-clip pr-[4px] pt-[4px] right-[-0.5px] top-0">
-                        <div className="bg-[#389f74] content-stretch flex h-[16px] items-center justify-center relative rounded-[4px] shrink-0">
-                          <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0)] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                          <div className="content-stretch flex items-center justify-center px-[4px] relative shrink-0">
-                            <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[14px] not-italic relative shrink-0 text-[#fbfffc] text-[11px] whitespace-nowrap">15%</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#fdfdfd] flex-[1_0_0] min-w-px relative rounded-[4px]">
-                    <div className="flex flex-row items-center size-full">
-                      <div className="content-stretch flex items-center p-[8px] relative size-full">
-                        <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] isolate items-start min-w-px relative">
-                          <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[12px] text-ellipsis whitespace-nowrap z-[3]">Маркетплейс</p>
-                          <div className="content-stretch flex gap-[12px] items-center relative shrink-0 w-full z-[2]">
-                            <p className="flex-[1_0_0] font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] min-w-px not-italic relative text-[#6d707f] text-[12px] tracking-[0.1px]">Для разработки, анализа данных и других задач.</p>
-                            <div className="content-start flex flex-wrap gap-[4px_8px] items-start justify-end max-w-[140px] relative shrink-0 w-[64px]">
-                              <div className="overflow-clip relative rounded-[2px] shrink-0 size-[16px]">
-                                <div className="absolute inset-[20.83%_0]">
-                                  <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 9.33333">
-                                    <path clipRule="evenodd" d={svgPathsFrame.p11a02600} fill="#D70F37" fillRule="evenodd" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <div className="overflow-clip relative rounded-[2px] shrink-0 size-[16px]">
-                                <div className="absolute inset-[4.17%_0_1.1%_0]">
-                                  <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 15.1579">
-                                    <path d={svgPathsFrame.p2f498280} fill="#326CE5" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <div className="overflow-clip relative shrink-0 size-[16px]">
-                                <div className="absolute inset-[0_5.56%_0_5.54%]">
-                                  <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14.2238 16">
-                                    <path d={svgPathsFrame.p42c9200} fill="#5FA04E" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <div className="overflow-clip relative rounded-[2px] shrink-0 size-[16px]">
-                                <div className="absolute inset-[0_6.25%]">
-                                  <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 16">
-                                    <path d={svgPathsFrame.p391f5900} fill="#019639" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <div className="relative shrink-0 size-[16px]">
-                                <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 16 16">
-                                  <path d={svgPathsFrame.p30769300} fill="#E95420" />
-                                </svg>
-                              </div>
-                              <div className="overflow-clip relative rounded-[2px] shrink-0 size-[16px]">
-                                <div className="absolute inset-[0_0_22.73%_0]">
-                                  <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 15.9999 12.3635">
-                                    <path d={svgPathsFrame.p33485900} fill="#41424E" />
-                                  </svg>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="absolute content-stretch flex flex-col items-start overflow-clip pr-[4px] pt-[4px] right-[-7px] top-[-7px] z-[1]">
-                            <div className="bg-[#389f74] content-stretch flex h-[16px] items-center justify-center relative rounded-[4px] shrink-0">
-                              <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0)] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                              <div className="content-stretch flex items-center justify-center px-[4px] relative shrink-0">
-                                <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[14px] not-italic relative shrink-0 text-[#fbfffc] text-[11px] whitespace-nowrap">120+ сервисов</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Service Category Cards */}
-                <div className="content-stretch flex flex-wrap gap-[4px] items-start relative shrink-0 w-full pt-[8px]">
-                  <div className="bg-[#fdfdfd] flex-[1_0_0] min-w-[200px] max-w-[calc(33.333%-3px)] relative rounded-[4px] cursor-pointer hover:bg-[rgba(0,0,0,0.02)]">
-                    <div className="content-stretch flex gap-[8px] items-center p-[8px] relative size-full">
-                      <div className="bg-[rgba(238,239,243,0.5)] content-stretch flex items-center p-[6px] relative rounded-[2px] shrink-0">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color4}')` }} />
-                        </div>
-                      </div>
-                      <div className="content-stretch flex flex-[1_0_0] flex-col gap-[2px] items-start justify-center leading-[16px] min-w-px not-italic relative whitespace-nowrap">
-                        <p className="font-['SB_Sans_Interface:Semibold',sans-serif] overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis w-full">Контроль затрат</p>
-                        <p className="font-['SB_Sans_Interface:Regular',sans-serif] overflow-hidden relative shrink-0 text-[#8b8e9b] text-[12px] text-ellipsis tracking-[0.1px] w-full">Управление финансами</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#fdfdfd] flex-[1_0_0] min-w-[200px] max-w-[calc(33.333%-3px)] relative rounded-[4px] cursor-pointer hover:bg-[rgba(0,0,0,0.02)]">
-                    <div className="content-stretch flex gap-[8px] items-center p-[8px] relative size-full">
-                      <div className="bg-[rgba(238,239,243,0.5)] content-stretch flex items-center p-[6px] relative rounded-[2px] shrink-0">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color5}')` }} />
-                        </div>
-                      </div>
-                      <div className="content-stretch flex flex-[1_0_0] flex-col gap-[2px] items-start justify-center leading-[16px] min-w-px not-italic relative whitespace-nowrap">
-                        <p className="font-['SB_Sans_Interface:Semibold',sans-serif] overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis w-full">Безопасность и администрирование</p>
-                        <p className="font-['SB_Sans_Interface:Regular',sans-serif] overflow-hidden relative shrink-0 text-[#8b8e9b] text-[12px] text-ellipsis tracking-[0.1px] w-full">Права доступа, администрирование</p>
-                      </div>
-                    </div>
-                  </div>
-
-
-                  <div className="bg-[#fdfdfd] flex-[1_0_0] min-w-[200px] max-w-[calc(33.333%-3px)] relative rounded-[4px] cursor-pointer hover:bg-[rgba(0,0,0,0.02)]">
-                    <div className="content-stretch flex gap-[8px] items-center p-[8px] relative size-full">
-                      <div className="bg-[rgba(238,239,243,0.5)] content-stretch flex items-center p-[6px] relative rounded-[2px] shrink-0">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color7}')` }} />
-                        </div>
-                      </div>
-                      <div className="content-stretch flex flex-[1_0_0] flex-col gap-[2px] items-start justify-center leading-[16px] min-w-px not-italic relative whitespace-nowrap">
-                        <p className="font-['SB_Sans_Interface:Semibold',sans-serif] overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis w-full">Обсерватория</p>
-                        <p className="font-['SB_Sans_Interface:Regular',sans-serif] overflow-hidden relative shrink-0 text-[#8b8e9b] text-[12px] text-ellipsis tracking-[0.1px] w-full">Мониторинг</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#fdfdfd] flex-[1_0_0] min-w-[200px] max-w-[calc(33.333%-3px)] relative rounded-[4px] cursor-pointer hover:bg-[rgba(0,0,0,0.02)]">
-                    <div className="content-stretch flex gap-[8px] items-center p-[8px] relative size-full">
-                      <div className="bg-[rgba(238,239,243,0.5)] content-stretch flex items-center p-[6px] relative rounded-[2px] shrink-0">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color8}')` }} />
-                        </div>
-                      </div>
-                      <div className="content-stretch flex flex-[1_0_0] flex-col gap-[2px] items-start justify-center min-w-px not-italic relative whitespace-nowrap">
-                        <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis w-full">Менеджер ресурсов</p>
-                        <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[0] overflow-hidden relative shrink-0 text-[#8b8e9b] text-[12px] text-ellipsis tracking-[0.1px] w-full">
-                          <span className="leading-[16px]">Управление ре</span>
-                          <span className="leading-[16px]">сурсами</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#fdfdfd] flex-[1_0_0] min-w-[200px] max-w-[calc(33.333%-3px)] relative rounded-[4px] cursor-pointer hover:bg-[rgba(0,0,0,0.02)]">
-                    <div className="content-stretch flex gap-[8px] items-center p-[8px] relative size-full">
-                      <div className="bg-[rgba(238,239,243,0.5)] content-stretch flex items-center p-[6px] relative rounded-[2px] shrink-0">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color9}')` }} />
-                        </div>
-                      </div>
-                      <div className="content-stretch flex flex-[1_0_0] flex-col gap-[2px] items-start justify-center leading-[16px] min-w-px not-italic relative whitespace-nowrap">
-                        <p className="font-['SB_Sans_Interface:Semibold',sans-serif] overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis w-full">Пользователи</p>
-                        <p className="font-['SB_Sans_Interface:Regular',sans-serif] overflow-hidden relative shrink-0 text-[#8b8e9b] text-[12px] text-ellipsis tracking-[0.1px] w-full">Управление доступами</p>
-                      </div>
-                    </div>
-                  </div>
+                {/* Quick access cards */}
+                <div className="gap-x-[4px] gap-y-[4px] grid w-full shrink-0 grid-cols-3 grid-rows-[repeat(2,fit-content(100%))]">
+                  {CONTROL_QUICK_ACCESS_CARDS.map((card) => (
+                    <QuickAccessCard
+                      key={card.title}
+                      icon={card.icon}
+                      title={card.title}
+                      subtitle={card.subtitle}
+                    />
+                  ))}
                 </div>
 
                 {/* Search and Controls */}
-                <div className="content-stretch flex flex-col gap-[8px] items-start pt-[8px] relative rounded-[8px] shrink-0 w-full">
+                <div className="content-stretch flex flex-col gap-[8px] items-start relative rounded-[8px] shrink-0 w-full">
                   <div className="bg-[#fdfdfd] content-stretch flex flex-col items-start justify-center px-[10px] py-[8px] relative rounded-[4px] shrink-0 w-full">
                     <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0)] border-solid inset-0 pointer-events-none rounded-[4px]" />
                     <div className="relative shrink-0 w-full">
@@ -580,7 +440,7 @@ export default function NavigationMenuPrototype2() {
                       <label className="content-stretch flex gap-[8px] items-center cursor-pointer select-none">
                         <Switch
                           checked={moreDetails}
-                          onCheckedChange={setMoreDetails}
+                          onCheckedChange={handleMoreDetailsChange}
                           className="data-[state=checked]:bg-[#99d7ba]"
                         />
                         <span className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic text-[#6d707f] text-[12px] whitespace-nowrap">
@@ -589,10 +449,10 @@ export default function NavigationMenuPrototype2() {
                       </label>
                     )}
                   </div>
+
+                  <NavigationMiniBanners />
                 </div>
 
-              </div>
-              <div className="content-stretch flex flex-col gap-[8px] items-start pb-[20px] relative pr-[20px]">
                 {activeTab === 'platform' && platformCategoryOrder.map((categoryId, index) => {
                   const category = filteredCategories.find(c => c.id === categoryId);
                   if (!category) return null;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { PlatformProvider } from '../context/PlatformContext';
 import { LkHeader, getPrototypeIdFromPath } from '../components/LkHeader';
 import { NavigationPrototypeOverlay } from '../components/NavigationPrototypeOverlay';
 import NavigationMenuPrototype1 from '../components/NavigationMenuPrototype1';
@@ -28,15 +29,17 @@ export default function LkLayout() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="min-h-screen bg-[#f5f6f8]">
-        <LkHeader activePrototype={activePrototype} />
-        <Outlet />
-        {activePrototype && (
-          <NavigationPrototypeOverlay prototypeId={activePrototype}>
-            <PrototypeContent id={activePrototype} />
-          </NavigationPrototypeOverlay>
-        )}
-      </div>
+      <PlatformProvider>
+        <div className="min-h-screen bg-[#f5f6f8]">
+          <LkHeader activePrototype={activePrototype} />
+          <Outlet />
+          {activePrototype && (
+            <NavigationPrototypeOverlay prototypeId={activePrototype}>
+              <PrototypeContent id={activePrototype} />
+            </NavigationPrototypeOverlay>
+          )}
+        </div>
+      </PlatformProvider>
     </DndProvider>
   );
 }

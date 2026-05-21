@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { usePlatform } from '../context/PlatformContext';
 
 const FIGMA = '/assets/lk-figma';
 
 export default function LkDashboard() {
+  const { pageTitle } = usePlatform();
+
+  useEffect(() => {
+    document.title = pageTitle;
+  }, [pageTitle]);
+
   return (
     <div className="lk-page">
       <main className="lk-wrap">
-        <h1 className="lk-h1">Платформа Cloud.ru Evolution</h1>
+        <h1 className="lk-h1">{pageTitle}</h1>
 
         <div className="lk-layout">
           <section className="lk-main">
@@ -16,7 +23,7 @@ export default function LkDashboard() {
                   <img src={`${FIGMA}/lk-folder.svg`} alt="" width={24} height={24} />
                 </div>
                 <div className="proj-head__title-block">
-                  <h3 className="proj-head__title">Тестикус</h3>
+                  <h3 className="proj-head__title">Чат-бот</h3>
                 </div>
                 <button type="button" className="proj-head__cta">
                   Создать ресурс +
