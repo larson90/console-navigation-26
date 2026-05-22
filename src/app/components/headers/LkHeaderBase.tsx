@@ -5,7 +5,6 @@ import {
   useNavigationPrototype,
 } from '../../context/NavigationPrototypeContext';
 import { HeaderPlatformSelector } from '../HeaderPlatformSelector';
-import { PlatformItemIcon } from '../PlatformIcons';
 import type { LkHeaderConfig } from './lkHeaderConfig';
 
 const ASSETS = '/assets/lk-header';
@@ -102,6 +101,31 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
 
   return (
     <header className="lk-header" data-prototype={config.prototypeId}>
+      <a
+        href="/"
+        className="lk-header__logo lk-header__logo--leading"
+        aria-label="Cloud.ru"
+        onClick={(e) => {
+          e.preventDefault();
+          navigate('/');
+        }}
+      >
+        <img src={`${ASSETS}/lk-header-logo-c.svg`} alt="cloud.ru" width={20} height={20} />
+      </a>
+
+      {config.showPlatformSelector && (
+        <HeaderPlatformSelector
+          open={platformOpen}
+          onOpenChange={(open) => {
+            setPlatformOpen(open);
+            if (open) {
+              setProjectOpen(false);
+              setProfileOpen(false);
+            }
+          }}
+        />
+      )}
+
       <button
         type="button"
         className="lk-header__appswitcher"
@@ -116,38 +140,6 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
       >
         <img src={`${ASSETS}/lk-header-appswitcher.svg`} alt="" width={24} height={24} />
       </button>
-
-      <a
-        href="/"
-        className="lk-header__logo"
-        aria-label="Cloud.ru"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate('/');
-        }}
-      >
-        <img src={`${ASSETS}/lk-header-logo-c.svg`} alt="cloud.ru" width={20} height={20} />
-      </a>
-
-      {config.showPlatformSelector ? (
-        <HeaderPlatformSelector
-          open={platformOpen}
-          onOpenChange={(open) => {
-            setPlatformOpen(open);
-            if (open) {
-              setProjectOpen(false);
-              setProfileOpen(false);
-            }
-          }}
-        />
-      ) : config.staticPlatformId ? (
-        <div className="lk-header__platform-wrap" aria-label="Evolution">
-          <div className="lk-header__platform-btn lk-header__platform-btn--static">
-            <PlatformItemIcon id={config.staticPlatformId} size="sm" />
-            <span className="lk-header__platform-btn-title">Evolution</span>
-          </div>
-        </div>
-      ) : null}
 
       <div className="lk-header__project-wrap" ref={projectWrapRef}>
         <button

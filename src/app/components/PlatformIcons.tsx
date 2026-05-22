@@ -2,96 +2,144 @@ import React from 'react';
 import svgPaths from '../../imports/MainMenuDesktop/svg-znqodigjzs';
 import type { PlatformId } from '../data/platformCatalog';
 
-const SIZE_CLASS = { sm: 'size-[24px]', md: 'size-[32px]' } as const;
+/** Фон плиток платформ — как в макете Cloud.ru */
+const PLATFORM_ICON_BG = '#787b8a';
 
-function iconShell(size: 'sm' | 'md', children: React.ReactNode) {
+const SHELL_PX = { sm: 24, md: 32, tile: 40 } as const;
+
+function PlatformIconShell({
+  size,
+  children,
+}: {
+  size: keyof typeof SHELL_PX;
+  children: React.ReactNode;
+}) {
+  const px = SHELL_PX[size];
   return (
-    <div className={`bg-[#787b8a] relative rounded-[4px] shrink-0 ${SIZE_CLASS[size]} flex items-center justify-center`}>
+    <div
+      className="relative flex shrink-0 items-center justify-center rounded-[4px]"
+      style={{ width: px, height: px, backgroundColor: PLATFORM_ICON_BG }}
+    >
       {children}
     </div>
   );
 }
 
-function EvolutionIcon({ size }: { size: 'sm' | 'md' }) {
-  if (size === 'sm') {
-    return iconShell(
-      'sm',
-      <svg className="size-[14px]" fill="none" viewBox="0 0 26.5 26.5">
-        <path
-          clipRule="evenodd"
-          d={svgPaths.p1c0bf500}
-          fill="white"
-          fillRule="evenodd"
-          stroke="white"
-          strokeWidth="2.5"
-        />
-      </svg>,
-    );
-  }
-
+function EvolutionGlyph({ className }: { className: string }) {
   return (
-    <div className="bg-[#787b8a] relative rounded-[4px] shrink-0 size-[32px]">
-      <div className="absolute inset-0 overflow-clip">
-        <div className="absolute inset-[12.5%]">
-          <div className="absolute inset-[-5.21%]">
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 26.5 26.5">
-              <path
-                clipRule="evenodd"
-                d={svgPaths.p1c0bf500}
-                fill="white"
-                fillRule="evenodd"
-                stroke="white"
-                strokeWidth="2.5"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
+    <svg className={className} fill="none" viewBox="0 0 26.5 26.5" aria-hidden>
+      <path
+        clipRule="evenodd"
+        d={svgPaths.p1c0bf500}
+        fill="white"
+        fillRule="evenodd"
+        stroke="white"
+        strokeWidth="2.5"
+      />
+    </svg>
   );
 }
 
-function AdvancedIcon({ size }: { size: 'sm' | 'md' }) {
-  return iconShell(
-    size,
-    <svg className={size === 'sm' ? 'size-[14px]' : 'size-[20px]'} viewBox="0 0 24 24" fill="none">
-      <path d="M12 2L20 7V17L12 22L4 17V7L12 2Z" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M12 8V16M8 10L16 14M16 10L8 14" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>,
+function AdvancedGlyph({ className }: { className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 2L20 7V17L12 22L4 17V7L12 2Z"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 8V16M8 10L16 14M16 10L8 14"
+        stroke="white"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
-function VmwareIcon({ size }: { size: 'sm' | 'md' }) {
-  return iconShell(
-    size,
-    <span className="font-['SB_Sans_Interface:Semibold',sans-serif] text-[9px] text-white tracking-[0.05px]">
+function VmwareGlyph({ className }: { className: string }) {
+  return (
+    <span
+      className={`font-['SB_Sans_Interface:Semibold',sans-serif] lowercase text-white tracking-[0.02em] ${className}`}
+    >
       vm
-    </span>,
+    </span>
   );
 }
 
-function InitialsIcon({ label, size }: { label: string; size: 'sm' | 'md' }) {
-  return iconShell(
-    size,
-    <span className="font-['SB_Sans_Interface:Semibold',sans-serif] text-[9px] text-white tracking-[0.05px]">
-      {label}
-    </span>,
+/** Партнёрский кабинет — портфель / бизнес */
+function PartnerGlyph({ className }: { className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M8 7V5.5A2.5 2.5 0 0110.5 3h3A2.5 2.5 0 0116 5.5V7"
+        stroke="white"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+      <rect x="5" y="7" width="14" height="11" rx="1.5" stroke="white" strokeWidth="1.4" />
+      <path d="M5 11h14" stroke="white" strokeWidth="1.4" />
+      <circle cx="12" cy="14.5" r="1.25" fill="white" />
+    </svg>
   );
+}
+
+/** Маркетплейс — витрина / сетка приложений */
+function MarketplaceGlyph({ className }: { className: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 6h14l-1.2 12.5a1.5 1.5 0 01-1.5 1.5H7.7a1.5 1.5 0 01-1.5-1.5L5 6z"
+        stroke="white"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+      <path d="M9 6V4.8a1.2 1.2 0 011.2-1.2h3.6A1.2 1.2 0 0115 4.8V6" stroke="white" strokeWidth="1.4" />
+      <circle cx="10" cy="12" r="1" fill="white" />
+      <circle cx="14" cy="12" r="1" fill="white" />
+    </svg>
+  );
+}
+
+const GLYPH_CLASS = {
+  sm: { svg: 'size-[14px]', text: 'text-[9px]' },
+  md: { svg: 'size-[20px]', text: 'text-[11px]' },
+  tile: { svg: 'size-[22px]', text: 'text-[12px]' },
+} as const;
+
+function PlatformGlyph({ id, size }: { id: PlatformId; size: keyof typeof SHELL_PX }) {
+  const c = GLYPH_CLASS[size];
+  switch (id) {
+    case 'evolution':
+      return <EvolutionGlyph className={c.svg} />;
+    case 'advanced':
+      return <AdvancedGlyph className={c.svg} />;
+    case 'vmware':
+      return <VmwareGlyph className={c.text} />;
+    case 'partner':
+      return <PartnerGlyph className={c.svg} />;
+    case 'marketplace':
+      return <MarketplaceGlyph className={c.svg} />;
+    default:
+      return <EvolutionGlyph className={c.svg} />;
+  }
 }
 
 export function PlatformItemIcon({ id, size = 'md' }: { id: PlatformId; size?: 'sm' | 'md' }) {
-  switch (id) {
-    case 'evolution':
-      return <EvolutionIcon size={size} />;
-    case 'advanced':
-      return <AdvancedIcon size={size} />;
-    case 'vmware':
-      return <VmwareIcon size={size} />;
-    case 'partner':
-      return <InitialsIcon label="ПК" size={size} />;
-    case 'marketplace':
-      return <InitialsIcon label="МА" size={size} />;
-    default:
-      return <EvolutionIcon size={size} />;
-  }
+  return (
+    <PlatformIconShell size={size}>
+      <PlatformGlyph id={id} size={size} />
+    </PlatformIconShell>
+  );
+}
+
+/** Плитка для сетки выбора — те же серые иконки, крупнее */
+export function PlatformGridTile({ id }: { id: PlatformId }) {
+  return (
+    <PlatformIconShell size="tile">
+      <PlatformGlyph id={id} size="tile" />
+    </PlatformIconShell>
+  );
 }

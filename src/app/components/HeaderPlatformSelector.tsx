@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { PLATFORMS, type PlatformOption } from '../data/platformCatalog';
 import { usePlatform } from '../context/PlatformContext';
-import { PlatformItemIcon } from './PlatformIcons';
-
-const ASSETS = '/assets/lk-header';
+import { PlatformGridTile, PlatformItemIcon } from './PlatformIcons';
 
 interface HeaderPlatformSelectorProps {
   open: boolean;
@@ -30,7 +28,7 @@ export function HeaderPlatformSelector({ open, onOpenChange }: HeaderPlatformSel
     return () => document.removeEventListener('mousedown', handlePointerDown);
   }, [open, onOpenChange]);
 
-  const renderOption = (platform: PlatformOption) => {
+  const renderGridItem = (platform: PlatformOption) => {
     const isSelected = platform.id === selectedId;
 
     return (
@@ -39,15 +37,15 @@ export function HeaderPlatformSelector({ open, onOpenChange }: HeaderPlatformSel
         type="button"
         role="option"
         aria-selected={isSelected}
+        aria-label={platform.title}
         onClick={() => {
           selectPlatform(platform.id);
           onOpenChange(false);
         }}
-        className={`lk-header__platform-option${isSelected ? ' lk-header__platform-option--selected' : ''}`}
+        className={`lk-platform-grid__item${isSelected ? ' lk-platform-grid__item--selected' : ''}`}
       >
-        {isSelected && <span className="lk-header__platform-option-marker" aria-hidden />}
-        <PlatformItemIcon id={platform.id} size="sm" />
-        <span className="lk-header__platform-option-title">{platform.title}</span>
+        <PlatformGridTile id={platform.id} />
+        <span className="lk-platform-grid__label">{platform.title}</span>
       </button>
     );
   };
@@ -56,30 +54,27 @@ export function HeaderPlatformSelector({ open, onOpenChange }: HeaderPlatformSel
     <div className="lk-header__platform-wrap" ref={rootRef}>
       <button
         type="button"
-        className={`lk-header__platform-btn${open ? ' lk-header__platform-btn--open' : ''}`}
+        className={`lk-header__platform-btn lk-header__platform-btn--icon-only${open ? ' lk-header__platform-btn--open' : ''}`}
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label={selectedPlatform.title}
+        title={selectedPlatform.title}
         onClick={() => onOpenChange(!open)}
       >
         <PlatformItemIcon id={selectedId} size="sm" />
-        <img
-          src={`${ASSETS}/lk-header-chev-down.svg`}
-          alt=""
-          width={16}
-          height={16}
-          className={`lk-header__platform-chev${open ? ' lk-header__platform-chev--up' : ''}`}
-        />
       </button>
 
       {open && (
-        <div className="lk-header__platform-dropdown" role="listbox">
-          <p className="lk-header__platform-dropdown-label">Облачные платформы</p>
-          {cloudPlatforms.map(renderOption)}
+        <div className="lk-header__platform-dropdown lk-header__platform-dropdown--grid" role="listbox">
+          <div className="lk-header__platform-cloud-panel">
+            <p className="lk-header__platform-dropdown-label">Облачные платформы</p>
+            <div className="lk-platform-grid lk-platform-grid--cloud">{cloudPlatforms.map(renderGridItem)}</div>
+          </div>
+
           <p className="lk-header__platform-dropdown-label lk-header__platform-dropdown-label--other">
             Другие продукты
           </p>
-          {otherProducts.map(renderOption)}
+          <div className="lk-platform-grid lk-platform-grid--other">{otherProducts.map(renderGridItem)}</div>
         </div>
       )}
     </div>

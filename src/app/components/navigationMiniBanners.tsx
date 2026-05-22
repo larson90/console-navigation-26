@@ -1,24 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface MiniPromoBannerProps {
   title: string;
   badge?: string;
   illustration: React.ReactNode;
+  onDismiss: () => void;
 }
 
-export function MiniPromoBanner({ title, badge, illustration }: MiniPromoBannerProps) {
+function BannerCloseButton({ onDismiss, label }: { onDismiss: () => void; label: string }) {
   return (
-    <div className="relative flex-1 min-w-0 min-h-[48px] rounded-[8px] border border-[#dde0ea] bg-[#fdfdfd] overflow-hidden">
+    <button
+      type="button"
+      className="nav-mini-banner__close"
+      aria-label={`Скрыть: ${label}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onDismiss();
+      }}
+    >
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+        <path
+          d="M3 3L9 9M9 3L3 9"
+          stroke="#6D707F"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+export function MiniPromoBanner({ title, badge, illustration, onDismiss }: MiniPromoBannerProps) {
+  return (
+    <div className="nav-mini-banner group relative flex-1 min-w-0 min-h-[48px] rounded-[8px] border border-[#dde0ea] bg-[#fdfdfd] overflow-hidden">
       <div className="relative z-[1] flex min-h-[48px] w-full items-center py-[8px] pl-[10px] pr-[52px]">
         <p className="font-['SB_Sans_Interface:Medium',sans-serif] text-[12px] font-medium leading-[16px] text-[#41424e] tracking-[0.1px]">
           {title}
         </p>
       </div>
       {badge && (
-        <span className="absolute top-[8px] right-[8px] z-[2] rounded-[4px] bg-[#389f74] px-[4px] py-[1px] font-['SB_Sans_Interface:Semibold',sans-serif] text-[10px] leading-[13px] text-[#fbfffc]">
+        <span className="nav-mini-banner__badge absolute top-[8px] right-[8px] z-[2] rounded-[4px] bg-[#389f74] px-[4px] py-[1px] font-['SB_Sans_Interface:Semibold',sans-serif] text-[10px] leading-[13px] text-[#fbfffc]">
           {badge}
         </span>
       )}
+      <BannerCloseButton onDismiss={onDismiss} label={title} />
       <div className="pointer-events-none absolute bottom-0 right-0 flex items-end justify-end opacity-[0.7]">
         {illustration}
       </div>
@@ -50,19 +75,42 @@ function MarketplaceIllustration() {
   );
 }
 
+const BANNERS = [
+  {
+    id: 'referral',
+    title: 'Реферальная программа',
+    badge: '15%',
+    illustration: <ReferralIllustration />,
+  },
+  {
+    id: 'marketplace',
+    title: 'Маркетплейс',
+    badge: '120+',
+    illustration: <MarketplaceIllustration />,
+  },
+] as const;
+
 export function NavigationMiniBanners() {
+  const [dismissed, setDismissed] = useState<Set<string>>(() => new Set());
+
+  const visible = BANNERS.filter((b) => !dismissed.has(b.id));
+  if (visible.length === 0) return null;
+
+  const dismiss = (id: string) => {
+    setDismissed((prev) => new Set(prev).add(id));
+  };
+
   return (
     <div className="flex w-full items-stretch gap-[8px]">
-      <MiniPromoBanner
-        title="Реферальная программа"
-        badge="15%"
-        illustration={<ReferralIllustration />}
-      />
-      <MiniPromoBanner
-        title="Маркетплейс"
-        badge="120+"
-        illustration={<MarketplaceIllustration />}
-      />
+      {visible.map((banner) => (
+        <MiniPromoBanner
+          key={banner.id}
+          title={banner.title}
+          badge={banner.badge}
+          illustration={banner.illustration}
+          onDismiss={() => dismiss(banner.id)}
+        />
+      ))}
     </div>
   );
 }
