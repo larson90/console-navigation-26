@@ -3,12 +3,14 @@ import { Outlet, useLocation } from 'react-router';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { PlatformProvider } from '../context/PlatformContext';
-import { LkHeader, getPrototypeIdFromPath } from '../components/LkHeader';
+import { NavigationPrototypeProvider, useNavigationPrototype } from '../context/NavigationPrototypeContext';
+import { LkHeader } from '../components/LkHeader';
 import { NavigationPrototypeOverlay } from '../components/NavigationPrototypeOverlay';
 import NavigationMenuPrototype1 from '../components/NavigationMenuPrototype1';
 import NavigationMenuPrototype2 from '../components/NavigationMenuPrototype2';
 import NavigationMenuPrototype3 from '../components/NavigationMenuPrototype3';
-import type { NavigationPrototypeId } from '../components/LkHeader';
+import { getPrototypeIdFromPath } from '../navigationPrototype';
+import type { NavigationPrototypeId } from '../navigationPrototype';
 
 function PrototypeContent({ id }: { id: NavigationPrototypeId }) {
   switch (id) {
@@ -23,22 +25,31 @@ function PrototypeContent({ id }: { id: NavigationPrototypeId }) {
   }
 }
 
-export default function LkLayout() {
+function LkLayoutContent() {
   const { pathname } = useLocation();
+  const { selectedPrototypeId } = useNavigationPrototype();
   const activePrototype = getPrototypeIdFromPath(pathname);
 
   return (
+    <div className="min-h-screen bg-[#f5f6f8]">
+      <LkHeader prototypeId={selectedPrototypeId} />
+      <Outlet />
+      {activePrototype && (
+        <NavigationPrototypeOverlay prototypeId={activePrototype}>
+          <PrototypeContent id={activePrototype} />
+        </NavigationPrototypeOverlay>
+      )}
+    </div>
+  );
+}
+
+export default function LkLayout() {
+  return (
     <DndProvider backend={HTML5Backend}>
       <PlatformProvider>
-        <div className="min-h-screen bg-[#f5f6f8]">
-          <LkHeader activePrototype={activePrototype} />
-          <Outlet />
-          {activePrototype && (
-            <NavigationPrototypeOverlay prototypeId={activePrototype}>
-              <PrototypeContent id={activePrototype} />
-            </NavigationPrototypeOverlay>
-          )}
-        </div>
+        <NavigationPrototypeProvider>
+          <LkLayoutContent />
+        </NavigationPrototypeProvider>
       </PlatformProvider>
     </DndProvider>
   );

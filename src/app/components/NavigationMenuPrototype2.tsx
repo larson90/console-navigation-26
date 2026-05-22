@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router';
 import { Switch } from './ui/switch';
 import { ServiceCardItem } from './navigationServiceUi';
 import { CategoryBlock, PlatformCategoryBlock } from './navigationCategoryBlocks';
@@ -43,6 +42,11 @@ import {
   CONTROL_CATEGORIES,
   CATEGORY_COLORS,
 } from '../data/serviceCatalog';
+
+/** На вкладке «Сервисы» нет категории «Безопасность и администрирование» — только в «Центре управления». */
+const PLATFORM_SERVICE_CATEGORIES = SERVICE_CATEGORIES.filter(
+  (c) => c.id !== 'security-administration',
+);
 
 interface SolutionCard {
   id: string;
@@ -135,7 +139,9 @@ export default function NavigationMenuPrototype2() {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
   const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>([]);
   const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
-  const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(SERVICE_CATEGORIES.map(c => c.id));
+  const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(
+    PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
+  );
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [hoveredPlatformCategory, setHoveredPlatformCategory] = useState<string | null>(null);
 
@@ -157,7 +163,7 @@ export default function NavigationMenuPrototype2() {
   };
 
   const expandAllPlatform = () => {
-    const allCategoryIds = SERVICE_CATEGORIES.map(cat => cat.id);
+    const allCategoryIds = PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id);
     setExpandedPlatformCategories(allCategoryIds);
   };
 
@@ -168,7 +174,7 @@ export default function NavigationMenuPrototype2() {
 
   const isAllExpanded =
     activeTab === 'platform'
-      ? SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id))
+      ? PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id))
       : CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id));
 
   const toggleExpandAllCategories = () => {
@@ -214,8 +220,8 @@ export default function NavigationMenuPrototype2() {
   };
 
   const filteredCategories = searchQuery.trim() === ''
-    ? SERVICE_CATEGORIES
-    : SERVICE_CATEGORIES.map(category => {
+    ? PLATFORM_SERVICE_CATEGORIES
+    : PLATFORM_SERVICE_CATEGORIES.map((category) => {
         const filteredMegaServices = category.megaservice?.services.filter(service =>
           service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
@@ -259,7 +265,7 @@ export default function NavigationMenuPrototype2() {
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
-              <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] relative size-full">
+              <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] pl-[16px] relative size-full">
                 <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2] flex-[1_0_0] min-h-0">
                   {showPlatformSelector && <PlatformSelector />}
 
@@ -330,18 +336,6 @@ export default function NavigationMenuPrototype2() {
                       </div>
                     </div>
                   </div>
-                  <Link to="/" className="max-w-[286.5px] min-w-[200px] relative shrink-0 w-full hover:bg-[rgba(0,0,0,0.02)] rounded-[4px]">
-                    <div className="flex flex-row items-center max-w-[inherit] min-w-[inherit] size-full">
-                      <div className="content-stretch flex gap-[8px] items-center max-w-[inherit] min-w-[inherit] p-[4px] relative size-full">
-                        <div className="relative shrink-0 size-[24px]">
-                          <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
-                            <path d="M19 12H5M12 19l-7-7 7-7" stroke="#8b8e9b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                        <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis tracking-[0.1px] whitespace-nowrap">На главную</p>
-                      </div>
-                    </div>
-                  </Link>
                 </div>
               </div>
             </div>
@@ -391,19 +385,6 @@ export default function NavigationMenuPrototype2() {
                             className="flex-[1_0_0] font-['SB_Sans_Interface:Regular',sans-serif] leading-[20px] min-w-px not-italic overflow-hidden relative text-[#41424e] text-[14px] text-ellipsis tracking-[0.1px] whitespace-nowrap bg-transparent border-none outline-none placeholder:text-[#aaaebd]"
                           />
                         </div>
-                        <button
-                          type="button"
-                          onClick={toggleExpandAllCategories}
-                          aria-label={isAllExpanded ? 'Свернуть все категории' : 'Развернуть все категории'}
-                          className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
-                        >
-                          <div className="relative shrink-0 size-[24px]">
-                            <div
-                              className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-                              style={{ maskImage: `url('${isAllExpanded ? imgIcon2Color11 : imgIcon2Color12}')` }}
-                            />
-                          </div>
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -436,18 +417,33 @@ export default function NavigationMenuPrototype2() {
                         </div>
                       </div>
                     </div>
-                    {activeTab === 'platform' && (
-                      <label className="content-stretch flex gap-[8px] items-center cursor-pointer select-none">
-                        <Switch
-                          checked={moreDetails}
-                          onCheckedChange={handleMoreDetailsChange}
-                          className="data-[state=checked]:bg-[#99d7ba]"
-                        />
-                        <span className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic text-[#6d707f] text-[12px] whitespace-nowrap">
-                          Больше деталей
-                        </span>
-                      </label>
-                    )}
+                    <div className="content-stretch flex gap-[8px] items-center shrink-0">
+                      {activeTab === 'platform' && (
+                        <label className="content-stretch flex gap-[8px] items-center cursor-pointer select-none">
+                          <Switch
+                            checked={moreDetails}
+                            onCheckedChange={handleMoreDetailsChange}
+                            className="data-[state=checked]:bg-[#99d7ba]"
+                          />
+                          <span className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic text-[#6d707f] text-[12px] whitespace-nowrap">
+                            Больше деталей
+                          </span>
+                        </label>
+                      )}
+                      <button
+                        type="button"
+                        onClick={toggleExpandAllCategories}
+                        aria-label={isAllExpanded ? 'Свернуть все категории' : 'Развернуть все категории'}
+                        className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
+                      >
+                        <div className="relative shrink-0 size-[24px]">
+                          <div
+                            className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
+                            style={{ maskImage: `url('${isAllExpanded ? imgIcon2Color11 : imgIcon2Color12}')` }}
+                          />
+                        </div>
+                      </button>
+                    </div>
                   </div>
 
                   <NavigationMiniBanners />

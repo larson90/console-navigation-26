@@ -11,6 +11,7 @@ import {
   CATEGORY_COLORS,
 } from '../data/serviceCatalog';
 import { type Solution } from '../data/solutionsCatalog';
+import { SolutionIllustration } from './solutionIllustrations';
 
 export interface PlatformCategoryBlockProps {
   category: ServiceCategory;
@@ -150,16 +151,14 @@ export function PlatformCategoryBlock({ category, index, isExpanded, isHovered, 
                   <div className="flex-[1_0_0] min-w-px relative">
                     <div className="content-stretch flex items-start pl-[4px] relative size-full">
                       <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                        <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                          <div className="relative shrink-0 size-[24px]">
-                            <div
-                              className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-                              style={{ maskImage: `url('${category.megaservice.icon}')` }}
-                            />
-                          </div>
-                          <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                            <p className="leading-[20px] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
-                          </div>
+                        <div className="relative shrink-0 size-[24px]">
+                          <div
+                            className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
+                            style={{ maskImage: `url('${category.megaservice.icon}')` }}
+                          />
+                        </div>
+                        <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
+                          <p className="leading-[20px] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
                         </div>
                         <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
                           <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
@@ -434,54 +433,55 @@ export function SolutionBlock({
 }: SolutionBlockProps) {
   return (
     <div className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full">
-      <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
-        <div className="relative shrink-0 w-full">
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => onToggle(solution.id)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onToggle(solution.id);
-              }
-            }}
-            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
-          >
-            <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex flex-col gap-[4px] items-start pl-[12px] relative size-full">
-                <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] tracking-[0.15px] w-full">
-                  <p className="leading-[24px]">{solution.title}</p>
-                </div>
-                <div className="flex flex-col font-['SB_Sans_Interface:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#6d707f] text-[12px] tracking-[0.1px] w-full">
-                  <p className="leading-[16px]">{solution.description}</p>
-                </div>
-              </div>
-            </div>
-            <div className="content-stretch flex items-start relative shrink-0 pt-[4px]">
-              <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                  <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                    <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                      <svg
-                        className="block size-full"
-                        fill="none"
-                        preserveAspectRatio="none"
-                        viewBox="0 0 5.34099 8.56066"
-                        style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                      >
-                        <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                      </svg>
-                    </div>
-                  </div>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onToggle(solution.id)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggle(solution.id);
+          }
+        }}
+        className="solution-block__header relative flex w-full shrink-0 cursor-pointer items-center gap-[12px] overflow-hidden rounded-[4px] px-[14px] py-[8px] hover:bg-[rgba(0,0,0,0.03)]"
+      >
+        <div className="pointer-events-none flex w-[72px] shrink-0 items-center justify-center opacity-[0.85]">
+          <SolutionIllustration id={solution.illustrationId} />
+        </div>
+
+        <div className="flex min-w-0 flex-[1_0_0] flex-col gap-[4px]">
+          <p className="font-['SB_Sans_Interface:Semibold',sans-serif] text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e]">
+            {solution.title}
+          </p>
+          <p className="font-['SB_Sans_Interface:Regular',sans-serif] text-[12px] leading-[16px] tracking-[0.1px] text-[#6d707f]">
+            {solution.description}
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center">
+          <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
+            <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
+              <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
+                <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
+                  <svg
+                    className="block size-full"
+                    fill="none"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 5.34099 8.56066"
+                    style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
+                  >
+                    <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {isExpanded && solution.services.length > 0 && (
-          <ServiceItemsContainer showMoreDetails={showMoreDetails} className="px-[8px]">
+      {isExpanded && solution.services.length > 0 && (
+        <div className="px-[14px] pb-[8px]">
+          <ServiceItemsContainer showMoreDetails={showMoreDetails}>
             {solution.services.map((service) => (
               <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
                 <ServiceCardItem
@@ -493,8 +493,8 @@ export function SolutionBlock({
               </ServiceItemWrapper>
             ))}
           </ServiceItemsContainer>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { NavigationOverlayContext } from '../context/NavigationOverlayContext';
-import type { NavigationPrototypeId } from './LkHeader';
+import type { NavigationPrototypeId } from '../navigationPrototype';
 
 interface NavigationPrototypeOverlayProps {
   prototypeId: NavigationPrototypeId;
