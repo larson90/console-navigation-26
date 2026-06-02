@@ -4,6 +4,7 @@ import {
   ServiceCardItem,
   ServiceItemWrapper,
   ServiceItemsContainer,
+  ServiceWithSubservices,
 } from './navigationServiceUi';
 import {
   type ServiceCategory,
@@ -24,6 +25,7 @@ export interface PlatformCategoryBlockProps {
   toggleFavorite: (id: string) => void;
   favorites: string[];
   showMoreDetails: boolean;
+  searchQuery?: string;
 }
 
 export interface CategoryBlockProps {
@@ -39,7 +41,19 @@ export interface CategoryBlockProps {
   showMoreDetails: boolean;
 }
 
-export function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails }: PlatformCategoryBlockProps) {
+export function PlatformCategoryBlock({
+  category,
+  index,
+  isExpanded,
+  isHovered,
+  onToggle,
+  onMove,
+  onHover,
+  toggleFavorite,
+  favorites,
+  showMoreDetails,
+  searchQuery = '',
+}: PlatformCategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
@@ -177,14 +191,14 @@ export function PlatformCategoryBlock({ category, index, isExpanded, isHovered, 
                 </div>
                 <ServiceItemsContainer showMoreDetails={showMoreDetails}>
                   {category.megaservice.services.map((service) => (
-                    <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
-                      <ServiceCardItem
-                        service={service}
-                        onAddToFavorites={toggleFavorite}
-                        isFavorite={favorites.includes(service.id)}
-                        showMoreDetails={showMoreDetails}
-                      />
-                    </ServiceItemWrapper>
+                    <ServiceWithSubservices
+                      key={service.id}
+                      service={service}
+                      searchQuery={searchQuery}
+                      onAddToFavorites={toggleFavorite}
+                      isFavorite={favorites.includes(service.id)}
+                      showMoreDetails={showMoreDetails}
+                    />
                   ))}
                 </ServiceItemsContainer>
               </div>
@@ -195,14 +209,14 @@ export function PlatformCategoryBlock({ category, index, isExpanded, isHovered, 
         {isExpanded && category.services.length > 0 && (
           <ServiceItemsContainer showMoreDetails={showMoreDetails} className="px-[8px]">
             {category.services.map((service) => (
-              <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
-                <ServiceCardItem
-                  service={service}
-                  onAddToFavorites={toggleFavorite}
-                  isFavorite={favorites.includes(service.id)}
-                  showMoreDetails={showMoreDetails}
-                />
-              </ServiceItemWrapper>
+              <ServiceWithSubservices
+                key={service.id}
+                service={service}
+                searchQuery={searchQuery}
+                onAddToFavorites={toggleFavorite}
+                isFavorite={favorites.includes(service.id)}
+                showMoreDetails={showMoreDetails}
+              />
             ))}
           </ServiceItemsContainer>
         )}
@@ -445,12 +459,12 @@ export function SolutionBlock({
         }}
         className="solution-block__header relative flex w-full shrink-0 cursor-pointer items-center gap-[12px] overflow-hidden rounded-[4px] px-[14px] py-[8px] hover:bg-[rgba(0,0,0,0.03)]"
       >
-        <div className="pointer-events-none flex w-[72px] shrink-0 items-center justify-center opacity-[0.85]">
+        <div className="pointer-events-none flex h-[32px] w-[48px] shrink-0 items-center justify-center opacity-[0.85]">
           <SolutionIllustration id={solution.illustrationId} />
         </div>
 
         <div className="flex min-w-0 flex-[1_0_0] flex-col gap-[4px]">
-          <p className="font-['SB_Sans_Interface:Semibold',sans-serif] text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e]">
+          <p className="font-['SB_Sans_Interface:Semibold',sans-serif] font-medium text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e]">
             {solution.title}
           </p>
           <p className="font-['SB_Sans_Interface:Regular',sans-serif] text-[12px] leading-[16px] tracking-[0.1px] text-[#6d707f]">

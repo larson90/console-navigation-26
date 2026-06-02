@@ -4,9 +4,15 @@ import { ServiceCardItem } from './navigationServiceUi';
 import { CategoryBlock, PlatformCategoryBlock } from './navigationCategoryBlocks';
 import { FavoritesList } from './FavoritesList';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
+import { NavTabServicesGridIcon } from './navigationTabIcons';
 import { NavigationMiniBanners } from './navigationMiniBanners';
 import { PlatformSelector } from './PlatformSelector';
 import { useFavorites } from '../hooks/useFavorites';
+import {
+  PLATFORM_SERVICE_CATEGORIES,
+  usePlatformServiceSearch,
+} from '../hooks/usePlatformServiceSearch';
+import { useExpandCategoriesOnSearch } from '../hooks/useExpandCategoriesOnSearch';
 
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
@@ -42,11 +48,6 @@ import {
   CONTROL_CATEGORIES,
   CATEGORY_COLORS,
 } from '../data/serviceCatalog';
-
-/** На вкладке «Сервисы» нет категории «Безопасность и администрирование» — только в «Центре управления». */
-const PLATFORM_SERVICE_CATEGORIES = SERVICE_CATEGORIES.filter(
-  (c) => c.id !== 'security-administration',
-);
 
 interface SolutionCard {
   id: string;
@@ -219,29 +220,7 @@ export default function NavigationMenuPrototype2() {
     setPlatformCategoryOrder(newOrder);
   };
 
-  const filteredCategories = searchQuery.trim() === ''
-    ? PLATFORM_SERVICE_CATEGORIES
-    : PLATFORM_SERVICE_CATEGORIES.map((category) => {
-        const filteredMegaServices = category.megaservice?.services.filter(service =>
-          service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
-        ) || [];
-
-        const filteredRegularServices = category.services.filter(service =>
-          service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-        return {
-          ...category,
-          megaservice: filteredMegaServices.length > 0 && category.megaservice
-            ? { ...category.megaservice, services: filteredMegaServices }
-            : undefined,
-          services: filteredRegularServices
-        };
-      }).filter(category =>
-        (category.megaservice?.services.length || 0) + category.services.length > 0
-      );
+  const { filteredCategories, showFilteredCatalog } = usePlatformServiceSearch(searchQuery);
 
   const filteredControlCategories = searchQuery.trim() === ''
     ? CONTROL_CATEGORIES
@@ -258,6 +237,14 @@ export default function NavigationMenuPrototype2() {
           subcategories: filteredSubcategories
         };
       }).filter(category => category.subcategories.length > 0);
+
+  useExpandCategoriesOnSearch({
+    searchQuery,
+    platformCategoryIds: filteredCategories.map((c) => c.id),
+    controlCategoryIds: filteredControlCategories.map((c) => c.id),
+    setExpandedPlatformCategories,
+    setExpandedCategories,
+  });
 
   return (
     <NavigationMenuScrim>
@@ -381,7 +368,7 @@ export default function NavigationMenuPrototype2() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Поиск по сервисам"
+                            placeholder="Поиск по категориям, сервисам и подсервисам"
                             className="flex-[1_0_0] font-['SB_Sans_Interface:Regular',sans-serif] leading-[20px] min-w-px not-italic overflow-hidden relative text-[#41424e] text-[14px] text-ellipsis tracking-[0.1px] whitespace-nowrap bg-transparent border-none outline-none placeholder:text-[#aaaebd]"
                           />
                         </div>
@@ -402,12 +389,7 @@ export default function NavigationMenuPrototype2() {
                               className={`inline-flex shrink-0 size-[14px] ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
                               aria-hidden
                             >
-                              <svg viewBox="0 0 12 12" fill="none" className="size-full">
-                                <rect x="1.2" y="1.2" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
-                                <rect x="7.6" y="1.2" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
-                                <rect x="1.2" y="7.6" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
-                                <rect x="7.6" y="7.6" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
-                              </svg>
+                              <NavTabServicesGridIcon />
                             </span>
                             <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Сервисы</p>
                           </button>
@@ -478,26 +460,29 @@ export default function NavigationMenuPrototype2() {
                   <NavigationMiniBanners />
                 </div>
 
-                {activeTab === 'platform' && platformCategoryOrder.map((categoryId, index) => {
-                  const category = filteredCategories.find(c => c.id === categoryId);
-                  if (!category) return null;
+                {activeTab === 'platform' &&
+                  (showFilteredCatalog || !searchQuery.trim()) &&
+                  platformCategoryOrder.map((categoryId, index) => {
+                    const category = filteredCategories.find((c) => c.id === categoryId);
+                    if (!category) return null;
 
-                  return (
-                    <PlatformCategoryBlock
-                      key={category.id}
-                      category={category}
-                      index={index}
-                      isExpanded={expandedPlatformCategories.includes(category.id)}
-                      isHovered={hoveredPlatformCategory === category.id}
-                      onToggle={togglePlatformCategory}
-                      onMove={movePlatformCategory}
-                      onHover={setHoveredPlatformCategory}
-                      toggleFavorite={toggleFavorite}
-                      favorites={favorites}
-                      showMoreDetails={moreDetails}
-                    />
-                  );
-                })}
+                    return (
+                      <PlatformCategoryBlock
+                        key={category.id}
+                        category={category}
+                        index={index}
+                        isExpanded={expandedPlatformCategories.includes(category.id)}
+                        isHovered={hoveredPlatformCategory === category.id}
+                        onToggle={togglePlatformCategory}
+                        onMove={movePlatformCategory}
+                        onHover={setHoveredPlatformCategory}
+                        toggleFavorite={toggleFavorite}
+                        favorites={favorites}
+                        showMoreDetails={moreDetails}
+                        searchQuery={searchQuery}
+                      />
+                    );
+                  })}
 
                 {activeTab === 'control' && categoryOrder.map((categoryId, index) => {
                   const category = filteredControlCategories.find(c => c.id === categoryId);

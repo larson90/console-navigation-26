@@ -5,7 +5,13 @@ import { Switch } from './ui/switch';
 import { FavoritesList } from './FavoritesList';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
 import { NavigationMiniBanners } from './navigationMiniBanners';
+import { PlatformCategoryBlock as SharedPlatformCategoryBlock } from './navigationCategoryBlocks';
 import { useFavorites } from '../hooks/useFavorites';
+import {
+  PLATFORM_SERVICE_CATEGORIES,
+  usePlatformServiceSearch,
+} from '../hooks/usePlatformServiceSearch';
+import { useExpandCategoriesOnSearch } from '../hooks/useExpandCategoriesOnSearch';
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
 import imgSolutionObservatory from "figma:asset/13a87ebe8d52252380a917437a7ba97c4d34355e.png";
@@ -36,9 +42,9 @@ import {
   getServiceDescription,
 } from '../data/serviceCatalog';
 
-/** Категория «Безопасность и администрирование» только в блоке управления, не в «Сервисах». */
-const PLATFORM_SERVICE_CATEGORIES = SERVICE_CATEGORIES.filter(
-  (c) => c.id !== 'security-administration',
+/** В прототипе 1 «Центр управления» не дублирует platform-категории (Мониторинг, Менеджер ресурсов). */
+const PROTOTYPE1_CONTROL_CATEGORIES = CONTROL_CATEGORIES.filter(
+  (category) => !PLATFORM_SERVICE_CATEGORIES.some((platform) => platform.id === category.id),
 );
 
 interface SolutionCard {
@@ -693,11 +699,15 @@ export default function NavigationMenuPrototype1() {
     useFavorites(imgIcon2Color13);
   const [searchQuery, setSearchQuery] = useState('');
   const [moreDetails, setMoreDetails] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(
+    PROTOTYPE1_CONTROL_CATEGORIES.map((c) => c.id),
+  );
   const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
   );
-  const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
+  const [categoryOrder, setCategoryOrder] = useState<string[]>(
+    PROTOTYPE1_CONTROL_CATEGORIES.map((c) => c.id),
+  );
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
   );
@@ -714,7 +724,7 @@ export default function NavigationMenuPrototype1() {
 
   const expandAll = () => {
     setExpandedPlatformCategories(PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id));
-    setExpandedCategories(CONTROL_CATEGORIES.map(cat => cat.id));
+    setExpandedCategories(PROTOTYPE1_CONTROL_CATEGORIES.map((cat) => cat.id));
   };
 
   const collapseAll = () => {
@@ -724,7 +734,7 @@ export default function NavigationMenuPrototype1() {
 
   const isAllExpanded =
     PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id)) &&
-    CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id));
+    PROTOTYPE1_CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id));
 
   const toggleExpandAllCategories = () => {
     if (isAllExpanded) {
@@ -765,33 +775,11 @@ export default function NavigationMenuPrototype1() {
     setPlatformCategoryOrder(newOrder);
   };
 
-  const filteredCategories = searchQuery.trim() === ''
-    ? PLATFORM_SERVICE_CATEGORIES
-    : PLATFORM_SERVICE_CATEGORIES.map((category) => {
-        const filteredMegaServices = category.megaservice?.services.filter(service =>
-          service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
-        ) || [];
-
-        const filteredRegularServices = category.services.filter(service =>
-          service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          service.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-        return {
-          ...category,
-          megaservice: filteredMegaServices.length > 0 && category.megaservice
-            ? { ...category.megaservice, services: filteredMegaServices }
-            : undefined,
-          services: filteredRegularServices
-        };
-      }).filter(category =>
-        (category.megaservice?.services.length || 0) + category.services.length > 0
-      );
+  const { filteredCategories, showFilteredCatalog } = usePlatformServiceSearch(searchQuery);
 
   const filteredControlCategories = searchQuery.trim() === ''
-    ? CONTROL_CATEGORIES
-    : CONTROL_CATEGORIES.map(category => {
+    ? PROTOTYPE1_CONTROL_CATEGORIES
+    : PROTOTYPE1_CONTROL_CATEGORIES.map(category => {
         const filteredSubcategories = category.subcategories.map(sub => ({
           ...sub,
           items: sub.items.filter(item =>
@@ -804,6 +792,14 @@ export default function NavigationMenuPrototype1() {
           subcategories: filteredSubcategories
         };
       }).filter(category => category.subcategories.length > 0);
+
+  useExpandCategoriesOnSearch({
+    searchQuery,
+    platformCategoryIds: filteredCategories.map((c) => c.id),
+    controlCategoryIds: filteredControlCategories.map((c) => c.id),
+    setExpandedPlatformCategories,
+    setExpandedCategories,
+  });
 
   return (
     <NavigationMenuScrim>
@@ -948,7 +944,7 @@ export default function NavigationMenuPrototype1() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Поиск по сервисам"
+                            placeholder="Поиск по категориям, сервисам и подсервисам"
                             className="flex-[1_0_0] font-['SB_Sans_Interface:Regular',sans-serif] leading-[20px] min-w-px not-italic overflow-hidden relative text-[#41424e] text-[14px] text-ellipsis tracking-[0.1px] whitespace-nowrap bg-transparent border-none outline-none placeholder:text-[#aaaebd]"
                           />
                         </div>
@@ -992,12 +988,13 @@ export default function NavigationMenuPrototype1() {
                   </div>
                 </div>
 
-                {platformCategoryOrder.map((categoryId, index) => {
+                {(showFilteredCatalog || !searchQuery.trim()) &&
+                  platformCategoryOrder.map((categoryId, index) => {
                   const category = filteredCategories.find(c => c.id === categoryId);
                   if (!category) return null;
 
                   return (
-                    <PlatformCategoryBlock
+                    <SharedPlatformCategoryBlock
                       key={category.id}
                       category={category}
                       index={index}
@@ -1009,6 +1006,7 @@ export default function NavigationMenuPrototype1() {
                       toggleFavorite={toggleFavorite}
                       favorites={favorites}
                       showMoreDetails={moreDetails}
+                      searchQuery={searchQuery}
                     />
                   );
                 })}

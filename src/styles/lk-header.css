@@ -820,15 +820,15 @@
 .lk-header__project-add {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  min-height: 40px;
-  padding: 10px 16px;
+  min-height: 32px;
+  padding: 6px 12px;
   border: 0;
   background: transparent;
   border-radius: 0;
   cursor: pointer;
-  font: 600 14px/20px system-ui, sans-serif;
+  font: 600 12px/16px system-ui, sans-serif;
   color: #8b8e9b;
   text-align: left;
 }
