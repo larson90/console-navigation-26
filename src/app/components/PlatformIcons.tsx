@@ -44,17 +44,19 @@ function AdvancedGlyph({ className }: { className: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
-        d="M12 2L20 7V17L12 22L4 17V7L12 2Z"
+        d="M12 3.5L20 7.9V16.1L12 20.5L4 16.1V7.9L12 3.5Z"
         stroke="white"
-        strokeWidth="1.5"
+        strokeWidth="1.4"
         strokeLinejoin="round"
       />
       <path
-        d="M12 8V16M8 10L16 14M16 10L8 14"
+        d="M8.2 15.6L12 8.2L15.8 15.6M9.7 12.8H14.3"
         stroke="white"
-        strokeWidth="1.2"
+        strokeWidth="1.6"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
+      <path d="M16.6 9.2H18.2" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -89,17 +91,9 @@ function PartnerGlyph({ className }: { className: string }) {
 /** Маркетплейс — витрина / сетка приложений */
 function MarketplaceGlyph({ className }: { className: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M5 6h14l-1.2 12.5a1.5 1.5 0 01-1.5 1.5H7.7a1.5 1.5 0 01-1.5-1.5L5 6z"
-        stroke="white"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-      <path d="M9 6V4.8a1.2 1.2 0 011.2-1.2h3.6A1.2 1.2 0 0115 4.8V6" stroke="white" strokeWidth="1.4" />
-      <circle cx="10" cy="12" r="1" fill="white" />
-      <circle cx="14" cy="12" r="1" fill="white" />
-    </svg>
+    <span className={`font-['SB_Sans_Interface:Semibold',sans-serif] uppercase text-white tracking-[0.02em] ${className}`}>
+      mkp
+    </span>
   );
 }
 
@@ -121,7 +115,7 @@ function PlatformGlyph({ id, size }: { id: PlatformId; size: keyof typeof SHELL_
     case 'partner':
       return <PartnerGlyph className={c.svg} />;
     case 'marketplace':
-      return <MarketplaceGlyph className={c.svg} />;
+      return <MarketplaceGlyph className={c.text} />;
     default:
       return <EvolutionGlyph className={c.svg} />;
   }

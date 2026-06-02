@@ -4,7 +4,7 @@ import { usePlatform } from '../context/PlatformContext';
 const FIGMA = '/assets/lk-figma';
 
 export default function LkDashboard() {
-  const { pageTitle } = usePlatform();
+  const { pageTitle, selectedProjectName } = usePlatform();
 
   useEffect(() => {
     document.title = pageTitle;
@@ -23,7 +23,7 @@ export default function LkDashboard() {
                   <img src={`${FIGMA}/lk-folder.svg`} alt="" width={24} height={24} />
                 </div>
                 <div className="proj-head__title-block">
-                  <h3 className="proj-head__title">Чат-бот</h3>
+                  <h3 className="proj-head__title">{selectedProjectName}</h3>
                 </div>
                 <button type="button" className="proj-head__cta">
                   Создать ресурс +

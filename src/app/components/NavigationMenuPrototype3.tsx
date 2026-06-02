@@ -193,7 +193,7 @@ export default function NavigationMenuPrototype3() {
                   {/* Favorites */}
                   <div
                     ref={drop}
-                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-[216px] flex-[1_0_0] min-h-0 overflow-hidden ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
+                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full flex-[1_0_0] min-h-0 overflow-hidden ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
                   >
                     <div className="relative shrink-0 w-full">
                       <div className="content-stretch flex flex-col gap-[4px] items-start p-[8px] relative size-full">
@@ -236,7 +236,7 @@ export default function NavigationMenuPrototype3() {
                 </div>
 
                 {/* Bottom Menu */}
-                <div className="content-stretch flex flex-col items-start min-h-[32px] overflow-clip relative rounded-[4px] shrink-0 w-[216px] z-[1]">
+                <div className="content-stretch flex flex-col items-start min-h-[32px] overflow-clip relative rounded-[4px] shrink-0 w-full z-[1]">
                   <div className="max-w-[286.5px] min-w-[200px] relative shrink-0 w-full hover:bg-[rgba(0,0,0,0.02)] rounded-[4px]">
                     <div className="flex flex-row items-center max-w-[inherit] min-w-[inherit] size-full">
                       <div className="content-stretch flex gap-[8px] items-center max-w-[inherit] min-w-[inherit] p-[4px] relative size-full">
@@ -310,12 +310,32 @@ export default function NavigationMenuPrototype3() {
                             onClick={() => setActiveTab('platform')}
                             className={`${activeTab === 'platform' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer`}
                           >
+                            <span
+                              className={`inline-flex shrink-0 size-[14px] ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
+                              aria-hidden
+                            >
+                              <svg viewBox="0 0 12 12" fill="none" className="size-full">
+                                <rect x="1.2" y="1.2" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
+                                <rect x="7.6" y="1.2" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
+                                <rect x="1.2" y="7.6" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
+                                <rect x="7.6" y="7.6" width="3.2" height="3.2" rx="0.6" stroke="currentColor" strokeWidth="1" />
+                              </svg>
+                            </span>
                             <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Сервисы</p>
                           </button>
                           <button
                             onClick={() => setActiveTab('control')}
                             className={`${activeTab === 'control' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer`}
                           >
+                            <span
+                              className={`inline-flex shrink-0 size-[14px] ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
+                              aria-hidden
+                            >
+                              <svg viewBox="0 0 12 12" fill="none" className="size-full">
+                                <circle cx="6" cy="6" r="2" stroke="currentColor" strokeWidth="1" />
+                                <path d="M6 1.5V3M6 9V10.5M1.5 6H3M9 6H10.5M2.8 2.8L3.8 3.8M8.2 8.2L9.2 9.2M9.2 2.8L8.2 3.8M3.8 8.2L2.8 9.2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+                              </svg>
+                            </span>
                             <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Центр управления</p>
                           </button>
                           {showSolutionsTab && (
@@ -323,6 +343,15 @@ export default function NavigationMenuPrototype3() {
                               onClick={() => setActiveTab('solutions')}
                               className={`${activeTab === 'solutions' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer`}
                             >
+                            <span
+                                className={`inline-flex shrink-0 size-[14px] ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
+                                aria-hidden
+                              >
+                                <svg viewBox="0 0 12 12" fill="none" className="size-full">
+                                  <path d="M6 1.2L7.1 4.1L10 5.2L7.1 6.3L6 9.2L4.9 6.3L2 5.2L4.9 4.1L6 1.2Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
+                                  <path d="M9.8 8.2L10.2 9.2L11.2 9.6L10.2 10L9.8 11L9.4 10L8.4 9.6L9.4 9.2L9.8 8.2Z" fill="currentColor" />
+                                </svg>
+                              </span>
                               <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Решения</p>
                             </button>
                           )}

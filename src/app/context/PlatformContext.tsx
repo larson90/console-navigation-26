@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { useNavigate } from 'react-router';
 import { PLATFORMS, type PlatformId, type PlatformOption } from '../data/platformCatalog';
 
+const DEFAULT_PROJECT_NAME = 'K8s прод-кластер';
+
 export function getPlatformPageTitle(platform: PlatformOption): string {
   return `Платформа Cloud.ru ${platform.title}`;
 }
@@ -10,7 +12,9 @@ interface PlatformContextValue {
   selectedId: PlatformId;
   selectedPlatform: PlatformOption;
   pageTitle: string;
+  selectedProjectName: string;
   selectPlatform: (id: PlatformId) => void;
+  setSelectedProjectName: (name: string) => void;
 }
 
 const PlatformContext = createContext<PlatformContextValue | null>(null);
@@ -18,6 +22,7 @@ const PlatformContext = createContext<PlatformContextValue | null>(null);
 export function PlatformProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<PlatformId>('evolution');
+  const [selectedProjectName, setSelectedProjectName] = useState(DEFAULT_PROJECT_NAME);
 
   const selectedPlatform = PLATFORMS.find((p) => p.id === selectedId) ?? PLATFORMS[0];
   const pageTitle = getPlatformPageTitle(selectedPlatform);
@@ -35,9 +40,11 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
       selectedId,
       selectedPlatform,
       pageTitle,
+      selectedProjectName,
       selectPlatform,
+      setSelectedProjectName,
     }),
-    [selectedId, selectedPlatform, pageTitle, selectPlatform],
+    [pageTitle, selectPlatform, selectedId, selectedPlatform, selectedProjectName],
   );
 
   return <PlatformContext.Provider value={value}>{children}</PlatformContext.Provider>;

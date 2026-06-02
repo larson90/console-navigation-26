@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useDrag, useDrop } from 'react-dnd';
 import { Switch } from './ui/switch';
 import { FavoritesList } from './FavoritesList';
@@ -491,19 +492,35 @@ function ServiceIcon({ icon, size = 24 }: { icon: string; size?: number }) {
   );
 }
 
-function ServiceDescriptionTooltip({ description }: { description: string }) {
-  return (
-    <div className="absolute bottom-[calc(100%+6px)] right-0 z-50 w-[min(240px,calc(100vw-32px))] bg-[#41424e] text-white text-[12px] leading-[16px] rounded-[6px] px-[10px] py-[8px] shadow-[0px_4px_12px_rgba(0,0,0,0.15)]">
+function ServiceDescriptionTooltip({
+  description,
+  top,
+  left,
+}: {
+  description: string;
+  top: number;
+  left: number;
+}) {
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div
+      className="fixed z-[9999] w-[min(240px,calc(100vw-32px))] bg-[#41424e] text-white text-[12px] leading-[16px] rounded-[6px] px-[10px] py-[8px] shadow-[0px_4px_12px_rgba(0,0,0,0.15)] pointer-events-none"
+      style={{ top, left, transform: 'translateY(-100%)' }}
+    >
       <p className="line-clamp-4">{description}</p>
       <div className="absolute top-full right-[12px] w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#41424e]" />
-    </div>
+    </div>,
+    document.body,
   );
 }
 
 function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetails = false }: ServiceCardItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipTimeout, setTooltipTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const infoIconRef = useRef<HTMLDivElement | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const description = getServiceDescription(service.id, service.title);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -514,25 +531,49 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetail
     }),
   }));
 
-  const clearTooltipTimeout = () => {
-    if (tooltipTimeout) {
-      clearTimeout(tooltipTimeout);
-      setTooltipTimeout(null);
-    }
+  const updateTooltipPosition = () => {
+    const anchor = infoIconRef.current ?? cardRef.current;
+    if (!anchor) return;
+
+    const rect = anchor.getBoundingClientRect();
+    const tooltipWidth = Math.min(240, window.innerWidth - 32);
+    const left = Math.max(
+      16,
+      Math.min(rect.left + rect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - 16),
+    );
+    const top = Math.max(8, rect.top - 8);
+
+    setTooltipPosition({ top, left });
   };
+
+  useEffect(() => {
+    if (!showTooltip) return;
+
+    updateTooltipPosition();
+    window.addEventListener('scroll', updateTooltipPosition, true);
+    window.addEventListener('resize', updateTooltipPosition);
+
+    return () => {
+      window.removeEventListener('scroll', updateTooltipPosition, true);
+      window.removeEventListener('resize', updateTooltipPosition);
+    };
+  }, [showTooltip]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    if (!showMoreDetails) {
-      clearTooltipTimeout();
-      const timeout = setTimeout(() => setShowTooltip(true), 400);
-      setTooltipTimeout(timeout);
-    }
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    clearTooltipTimeout();
+    setShowTooltip(false);
+  };
+
+  const handleInfoMouseEnter = () => {
+    updateTooltipPosition();
+    setShowTooltip(true);
+  };
+
+  const handleInfoMouseLeave = () => {
     setShowTooltip(false);
   };
 
@@ -557,6 +598,11 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetail
       </div>
     </button>
   );
+
+  const setCompactCardRef = (node: HTMLDivElement | null) => {
+    cardRef.current = node;
+    drag(node);
+  };
 
   if (showMoreDetails) {
     return (
@@ -586,12 +632,18 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetail
 
   return (
     <div
-      ref={drag}
+      ref={setCompactCardRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={`min-h-[32px] relative rounded-[4px] cursor-move hover:bg-[rgba(0,0,0,0.02)] ${isDragging ? 'opacity-50' : ''}`}
     >
-      {showTooltip && <ServiceDescriptionTooltip description={description} />}
+      {showTooltip && (
+        <ServiceDescriptionTooltip
+          description={description}
+          top={tooltipPosition.top}
+          left={tooltipPosition.left}
+        />
+      )}
       <div className="flex flex-row items-center min-h-[inherit] overflow-clip rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center min-h-[inherit] p-[4px] relative size-full">
           <ServiceIcon icon={service.icon} size={24} />
@@ -602,7 +654,12 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetail
           </div>
           {isHovered && (
             <>
-              <div className="relative shrink-0">
+              <div
+                className="relative shrink-0"
+                ref={infoIconRef}
+                onMouseEnter={handleInfoMouseEnter}
+                onMouseLeave={handleInfoMouseLeave}
+              >
                 <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
                   <div className="relative shrink-0 size-[24px]">
                     <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
@@ -786,7 +843,7 @@ export default function NavigationMenuPrototype1() {
                   {/* Favorites */}
                   <div
                     ref={drop}
-                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-[216px] flex-[1_0_0] min-h-0 ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
+                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full flex-[1_0_0] min-h-0 overflow-hidden ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
                   >
                     <div className="relative shrink-0 w-full">
                       <div className="content-stretch flex flex-col gap-[4px] items-start p-[8px] relative size-full">
@@ -829,7 +886,7 @@ export default function NavigationMenuPrototype1() {
                 </div>
 
                 {/* Bottom Menu */}
-                <div className="content-stretch flex flex-col items-start min-h-[32px] overflow-clip relative rounded-[4px] shrink-0 w-[216px] z-[1]">
+                <div className="content-stretch flex flex-col items-start min-h-[32px] overflow-clip relative rounded-[4px] shrink-0 w-full z-[1]">
                   <div className="max-w-[286.5px] min-w-[200px] relative shrink-0 w-full hover:bg-[rgba(0,0,0,0.02)] rounded-[4px]">
                     <div className="flex flex-row items-center max-w-[inherit] min-w-[inherit] size-full">
                       <div className="content-stretch flex gap-[8px] items-center max-w-[inherit] min-w-[inherit] p-[4px] relative size-full">

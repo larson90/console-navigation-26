@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { PLATFORMS, type PlatformOption } from '../data/platformCatalog';
 import { usePlatform } from '../context/PlatformContext';
-import { PlatformGridTile, PlatformItemIcon } from './PlatformIcons';
+import { PlatformItemIcon } from './PlatformIcons';
 
 interface HeaderPlatformSelectorProps {
   open: boolean;
@@ -28,7 +28,7 @@ export function HeaderPlatformSelector({ open, onOpenChange }: HeaderPlatformSel
     return () => document.removeEventListener('mousedown', handlePointerDown);
   }, [open, onOpenChange]);
 
-  const renderGridItem = (platform: PlatformOption) => {
+  const renderListItem = (platform: PlatformOption) => {
     const isSelected = platform.id === selectedId;
 
     return (
@@ -42,10 +42,15 @@ export function HeaderPlatformSelector({ open, onOpenChange }: HeaderPlatformSel
           selectPlatform(platform.id);
           onOpenChange(false);
         }}
-        className={`lk-platform-grid__item${isSelected ? ' lk-platform-grid__item--selected' : ''}`}
+        className={`lk-platform-list__item${isSelected ? ' lk-platform-list__item--selected' : ''}`}
       >
-        <PlatformGridTile id={platform.id} />
-        <span className="lk-platform-grid__label">{platform.title}</span>
+        <span className="lk-platform-list__icon" aria-hidden>
+          <PlatformItemIcon id={platform.id} size="sm" />
+        </span>
+        <span className="lk-platform-list__content">
+          <span className="lk-platform-list__title">{platform.title}</span>
+          <span className="lk-platform-list__description">{platform.description}</span>
+        </span>
       </button>
     );
   };
@@ -65,16 +70,13 @@ export function HeaderPlatformSelector({ open, onOpenChange }: HeaderPlatformSel
       </button>
 
       {open && (
-        <div className="lk-header__platform-dropdown lk-header__platform-dropdown--grid" role="listbox">
-          <div className="lk-header__platform-cloud-panel">
-            <p className="lk-header__platform-dropdown-label">Облачные платформы</p>
-            <div className="lk-platform-grid lk-platform-grid--cloud">{cloudPlatforms.map(renderGridItem)}</div>
-          </div>
-
+        <div className="lk-header__platform-dropdown lk-header__platform-dropdown--list" role="listbox">
+          <p className="lk-header__platform-dropdown-label">Облачные платформы</p>
+          <div className="lk-platform-list">{cloudPlatforms.map(renderListItem)}</div>
           <p className="lk-header__platform-dropdown-label lk-header__platform-dropdown-label--other">
             Другие продукты
           </p>
-          <div className="lk-platform-grid lk-platform-grid--other">{otherProducts.map(renderGridItem)}</div>
+          <div className="lk-platform-list">{otherProducts.map(renderListItem)}</div>
         </div>
       )}
     </div>
