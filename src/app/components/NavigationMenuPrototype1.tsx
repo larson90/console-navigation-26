@@ -496,10 +496,12 @@ function ServiceDescriptionTooltip({
   description,
   top,
   left,
+  arrowLeft,
 }: {
   description: string;
   top: number;
   left: number;
+  arrowLeft: number;
 }) {
   if (typeof document === 'undefined') return null;
 
@@ -509,7 +511,10 @@ function ServiceDescriptionTooltip({
       style={{ top, left, transform: 'translateY(-100%)' }}
     >
       <p className="line-clamp-4">{description}</p>
-      <div className="absolute top-full right-[12px] w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#41424e]" />
+      <div
+        className="absolute top-full w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#41424e]"
+        style={{ left: arrowLeft, transform: 'translateX(-50%)' }}
+      />
     </div>,
     document.body,
   );
@@ -520,7 +525,7 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetail
   const [showTooltip, setShowTooltip] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const infoIconRef = useRef<HTMLDivElement | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0, arrowLeft: 0 });
   const description = getServiceDescription(service.id, service.title);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -537,13 +542,15 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetail
 
     const rect = anchor.getBoundingClientRect();
     const tooltipWidth = Math.min(240, window.innerWidth - 32);
+    const anchorCenterX = rect.left + rect.width / 2;
     const left = Math.max(
       16,
-      Math.min(rect.left + rect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - 16),
+      Math.min(anchorCenterX - tooltipWidth / 2, window.innerWidth - tooltipWidth - 16),
     );
     const top = Math.max(8, rect.top - 8);
+    const arrowLeft = Math.max(12, Math.min(anchorCenterX - left, tooltipWidth - 12));
 
-    setTooltipPosition({ top, left });
+    setTooltipPosition({ top, left, arrowLeft });
   };
 
   useEffect(() => {
@@ -642,6 +649,7 @@ function ServiceCardItem({ service, onAddToFavorites, isFavorite, showMoreDetail
           description={description}
           top={tooltipPosition.top}
           left={tooltipPosition.left}
+          arrowLeft={tooltipPosition.arrowLeft}
         />
       )}
       <div className="flex flex-row items-center min-h-[inherit] overflow-clip rounded-[inherit] size-full">

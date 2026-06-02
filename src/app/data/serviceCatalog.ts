@@ -96,19 +96,19 @@ function svc(id: string, title: string, subtitle = ''): ServiceCard {
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  infrastructure: '#f5b27b',
-  network: '#a8d1a2',
-  'ai-factory': '#c9b8e8',
-  storage: '#e6c878',
-  containers: '#b89ad4',
-  'message-brokers': '#f0a8c8',
-  databases: '#7eb8e8',
-  development: '#99d7ba',
-  'data-platform': '#8ecae6',
-  'security-administration': '#d4a8a8',
-  monitoring: '#f2c97d',
-  'resource-management': '#aac4ea',
-  finance: '#c9a87c',
+  infrastructure: '#ff6b6b',
+  network: '#3ecf8e',
+  'ai-factory': '#9b5de5',
+  storage: '#f9c74f',
+  containers: '#4361ee',
+  'message-brokers': '#f15bb5',
+  databases: '#00bbf9',
+  development: '#06d6a0',
+  'data-platform': '#4cc9f0',
+  'security-administration': '#ef476f',
+  monitoring: '#ffd166',
+  'resource-management': '#577590',
+  finance: '#f8961e',
 };
 
 export const SERVICE_CATEGORIES: ServiceCategory[] = [

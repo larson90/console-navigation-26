@@ -238,13 +238,13 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
                   <span className="lk-header__project-org-chip-icon" aria-hidden>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                       <path
-                        d="M5 3V6M19 3V6M4 21H20C20.5523 21 21 20.5523 21 20V8C21 7.44772 20.5523 7 20 7H4C3.44772 7 3 7.44772 3 8V20C3 20.5523 3.44772 21 4 21Z"
+                        d="M4 10.5L12 4L20 10.5V19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V10.5Z"
                         stroke="#8B8E9B"
                         strokeWidth="1.8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
-                      <path d="M3 11H21" stroke="#8B8E9B" strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M9.5 20V14H14.5V20" stroke="#8B8E9B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </span>
                   <span className="lk-header__project-org-text">{organizationFilterLabel}</span>
