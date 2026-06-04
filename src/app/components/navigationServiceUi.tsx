@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom';
 import { useDrag } from 'react-dnd';
 import { getServiceDescription, type ServiceCard } from '../data/serviceCatalog';
 import {
-  filterSubservicesForSearch,
-  matchesSearchQuery,
+  getVisibleSubservices,
+  normalizeSearchQuery,
   type ServiceHierarchyNode,
 } from '../data/serviceHierarchy';
 
@@ -21,7 +21,7 @@ export function ServiceItemsContainer({
     <div
       className={
         showMoreDetails
-          ? `grid grid-cols-2 gap-[8px] items-start relative shrink-0 w-full ${className}`
+          ? `grid grid-cols-[repeat(2,minmax(0,1fr))] gap-[8px] items-start relative shrink-0 w-full ${className}`
           : `content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full ${className}`
       }
     >
@@ -315,7 +315,7 @@ export function SubserviceRow({
   parentTitle: string;
 }) {
   return (
-    <div className="content-stretch flex items-center gap-[6px] min-h-[28px] ml-[12px] pl-[6px] pr-[8px] py-[4px] relative shrink-0 w-[calc(100%-12px)]">
+    <div className="content-stretch flex items-center gap-[6px] min-h-[28px] ml-[12px] pl-[8px] pr-[8px] py-[4px] relative shrink-0 w-[calc(100%-12px)] rounded-[4px] border-l-2 border-l-[#dde0ea] bg-[rgba(238,239,243,0.4)]">
       <SubserviceBranchIcon className="shrink-0 size-[12px] text-[#aaaebd]" />
       <span className="shrink-0 font-['SB_Sans_Interface:Regular',sans-serif] text-[11px] leading-[14px] text-[#8b8e9b] tracking-[0.1px]">
         {parentTitle}
@@ -343,19 +343,14 @@ export function ServiceWithSubservices({
   onAddToFavorites: (id: string) => void;
   isFavorite: boolean;
 }) {
-  const subservices = filterSubservicesForSearch(service.id, searchQuery);
-  const showSubservices =
-    subservices.length > 0 &&
-    (!searchQuery.trim() ||
-      matchesSearchQuery(service.title, searchQuery) ||
-      matchesSearchQuery(service.subtitle, searchQuery) ||
-      subservices.some((sub) => matchesSearchQuery(sub.title, searchQuery)));
+  const subservices = getVisibleSubservices(service.id, searchQuery);
+  const showSubservices = Boolean(normalizeSearchQuery(searchQuery)) && subservices.length > 0;
 
   return (
     <div
       className={
         showMoreDetails
-          ? 'col-span-2 relative min-w-0 w-full'
+          ? 'relative min-w-0 w-full'
           : 'flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative w-full'
       }
     >

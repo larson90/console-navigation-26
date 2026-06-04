@@ -138,7 +138,9 @@ export default function NavigationMenuPrototype2() {
   const [moreDetails, setMoreDetails] = useState(false);
   const [activeTab, setActiveTab] = useState<'platform' | 'control' | 'solutions'>('platform');
   const [expandedCategories, setExpandedCategories] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
-  const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>([]);
+  const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>(
+    PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
+  );
   const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
@@ -501,6 +503,7 @@ export default function NavigationMenuPrototype2() {
                       toggleFavorite={toggleFavorite}
                       favorites={favorites}
                       showMoreDetails={false}
+                      searchQuery={searchQuery}
                     />
                   );
                 })}

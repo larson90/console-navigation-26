@@ -39,6 +39,7 @@ export interface CategoryBlockProps {
   toggleFavorite: (id: string) => void;
   favorites: string[];
   showMoreDetails: boolean;
+  searchQuery?: string;
 }
 
 export function PlatformCategoryBlock({
@@ -171,7 +172,7 @@ export function PlatformCategoryBlock({
                             style={{ maskImage: `url('${category.megaservice.icon}')` }}
                           />
                         </div>
-                        <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
+                        <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] font-semibold justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
                           <p className="leading-[20px] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
                         </div>
                         <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
@@ -245,14 +246,14 @@ export function PlatformCategoryBlock({
                 </div>
                 <ServiceItemsContainer showMoreDetails={showMoreDetails}>
                   {subcategory.services.map((service) => (
-                    <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
-                      <ServiceCardItem
-                        service={service}
-                        onAddToFavorites={toggleFavorite}
-                        isFavorite={favorites.includes(service.id)}
-                        showMoreDetails={showMoreDetails}
-                      />
-                    </ServiceItemWrapper>
+                    <ServiceWithSubservices
+                      key={service.id}
+                      service={service}
+                      searchQuery={searchQuery}
+                      onAddToFavorites={toggleFavorite}
+                      isFavorite={favorites.includes(service.id)}
+                      showMoreDetails={showMoreDetails}
+                    />
                   ))}
                 </ServiceItemsContainer>
               </div>
@@ -265,7 +266,19 @@ export function PlatformCategoryBlock({
   );
 }
 
-export function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails }: CategoryBlockProps) {
+export function CategoryBlock({
+  category,
+  index,
+  isExpanded,
+  isHovered,
+  onToggle,
+  onMove,
+  onHover,
+  toggleFavorite,
+  favorites,
+  showMoreDetails,
+  searchQuery = '',
+}: CategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
 
@@ -404,19 +417,19 @@ export function CategoryBlock({ category, index, isExpanded, isHovered, onToggle
                 </div>
                 <ServiceItemsContainer showMoreDetails={showMoreDetails}>
                   {subcategory.items.map((item) => (
-                    <ServiceItemWrapper key={item.id} showMoreDetails={showMoreDetails}>
-                      <ServiceCardItem
-                        service={{
-                          id: item.id,
-                          icon: subcategory.icon,
-                          title: item.title,
-                          subtitle: ''
-                        }}
-                        onAddToFavorites={toggleFavorite}
-                        isFavorite={favorites.includes(item.id)}
-                        showMoreDetails={showMoreDetails}
-                      />
-                    </ServiceItemWrapper>
+                    <ServiceWithSubservices
+                      key={item.id}
+                      service={{
+                        id: item.id,
+                        icon: subcategory.icon,
+                        title: item.title,
+                        subtitle: '',
+                      }}
+                      searchQuery={searchQuery}
+                      onAddToFavorites={toggleFavorite}
+                      isFavorite={favorites.includes(item.id)}
+                      showMoreDetails={showMoreDetails}
+                    />
                   ))}
                 </ServiceItemsContainer>
               </div>

@@ -270,7 +270,7 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
                             style={{ maskImage: `url('${category.megaservice.icon}')` }}
                           />
                         </div>
-                        <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
+                        <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] font-semibold justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
                           <p className="leading-[20px] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
                         </div>
                         <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">

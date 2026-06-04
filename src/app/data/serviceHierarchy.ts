@@ -112,15 +112,15 @@ export function matchesSearchQuery(text: string, query: string): boolean {
   );
 }
 
-export function filterSubservicesForSearch(
-  parentId: string,
-  query: string,
-): ServiceHierarchyNode[] {
+export function getVisibleSubservices(parentId: string, query: string): ServiceHierarchyNode[] {
   const children = getSubservicesForParent(parentId);
   const q = normalizeSearchQuery(query);
-  if (!q) return children;
-  return children.filter((child) => matchesSearchQuery(child.title, query));
+  if (!q) return [];
+  return children.filter((child) => matchesSearchQuery(child.title, q));
 }
+
+/** @deprecated Используйте getVisibleSubservices */
+export const filterSubservicesForSearch = getVisibleSubservices;
 
 export function serviceMatchesSearch(
   serviceId: string,
@@ -132,5 +132,5 @@ export function serviceMatchesSearch(
   if (matchesSearchQuery(title, query) || matchesSearchQuery(subtitle, query)) {
     return true;
   }
-  return filterSubservicesForSearch(serviceId, query).length > 0;
+  return getVisibleSubservices(serviceId, query).length > 0;
 }
