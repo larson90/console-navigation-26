@@ -294,7 +294,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   },
   {
     id: 'monitoring',
-    title: 'Мониторинг',
+    title: 'Обсерватория',
     services: [
       svc('dashboards', 'Дашборды'),
       svc('monitoring-alerts', 'Алерты мониторинга'),
@@ -380,7 +380,7 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
   },
   {
     id: 'monitoring',
-    title: 'Мониторинг',
+    title: 'Обсерватория',
     subcategories: [
       {
         title: 'Мониторинг',

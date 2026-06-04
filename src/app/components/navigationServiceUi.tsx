@@ -90,6 +90,28 @@ export interface ServiceCardItemProps {
   showMoreDetails?: boolean;
 }
 
+/** PromoTagPredefined decor blu — как в макете меню. */
+function ServicePreviewTag({ label }: { label: string }) {
+  return (
+    <div className="content-stretch flex flex-col items-start relative shrink-0" data-name="PromoTagPredefined">
+      <div
+        className="bg-[#d6e2f4] content-stretch flex h-[16px] items-center justify-center relative rounded-[4px] shrink-0"
+        data-name="PromoTagXxs"
+      >
+        <div
+          aria-hidden="true"
+          className="absolute border border-[#aac4ea] border-solid inset-0 pointer-events-none rounded-[4px]"
+        />
+        <div className="content-stretch flex items-center justify-center px-[4px] relative shrink-0" data-name="LabelWrapper">
+          <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[14px] not-italic relative shrink-0 text-[#2b537e] text-[11px] whitespace-nowrap">
+            {label}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ServiceCardTitle({
   title,
   subtitle,
@@ -101,6 +123,24 @@ function ServiceCardTitle({
 }) {
   if (!subtitle) {
     return <p className={className}>{title}</p>;
+  }
+
+  if (subtitle === 'Preview') {
+    const titleClassName = className
+      .replace(/\bw-full\b/g, '')
+      .replace(/\bshrink-0\b/g, '')
+      .replace(/\boverflow-hidden\b/g, '')
+      .trim();
+
+    return (
+      <div
+        className="flex gap-[4px] items-center max-w-full min-w-0 w-max"
+        data-name="Title & Tag"
+      >
+        <p className={`${titleClassName} min-w-0 truncate whitespace-nowrap`}>{title}</p>
+        <ServicePreviewTag label={subtitle} />
+      </div>
+    );
   }
 
   return (
@@ -250,14 +290,14 @@ export function ServiceCardItem({
           arrowLeft={tooltipPosition.arrowLeft}
         />
       )}
-      <div className="flex flex-row items-center min-h-[inherit] overflow-clip rounded-[inherit] size-full">
-        <div className="content-stretch flex gap-[8px] items-center min-h-[inherit] p-[4px] relative size-full">
+      <div className="flex flex-row items-center min-h-[inherit] min-w-0 rounded-[inherit] size-full">
+        <div className="content-stretch flex gap-[8px] items-center min-h-[inherit] min-w-0 flex-1 p-[4px] relative">
           <ServiceIcon icon={service.icon} size={24} />
-          <div className="content-stretch flex flex-[1_0_0] flex-col items-start min-w-px relative">
+          <div className="flex min-w-0 max-w-full flex-1 flex-col items-start">
             <ServiceCardTitle
               title={service.title}
               subtitle={service.subtitle}
-              className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[13px] text-ellipsis tracking-[0.1px] whitespace-nowrap w-full"
+              className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic relative text-[#41424e] text-[13px] text-ellipsis tracking-[0.1px] whitespace-nowrap"
             />
           </div>
           {isHovered && (

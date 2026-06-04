@@ -37,7 +37,7 @@ export const SERVICE_HIERARCHY_ROOTS: ServiceHierarchyRoot[] = [
   },
   {
     categoryId: 'monitoring',
-    categoryTitle: 'Мониторинг',
+    categoryTitle: 'Обсерватория',
     icon: hierarchyIcon,
     root: {
       id: 'monitoring-megaservice',
