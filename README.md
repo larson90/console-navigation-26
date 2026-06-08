@@ -52,4 +52,11 @@ npm run dev
 
 ## Деплой
 
-Пуш в `main` → GitLab CI → Vercel (`deploy-vercel`). Локальные правки на проде не появятся, пока не закоммитите и не запушите.
+Пуш в `main` → GitLab CI:
+
+| Job | Куда |
+|-----|------|
+| `pages` | **Sbercloud Pages** — https://console-navigation-26-a0e237.pages.sbercloud.tech/ |
+| `deploy-vercel` | **Vercel** — https://console-navigation-26.vercel.app/ |
+
+Локальные правки на проде не появятся, пока не закоммитите и не запушите.

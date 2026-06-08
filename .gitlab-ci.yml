@@ -28,6 +28,11 @@ pages:
   artifacts:
     paths:
       - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  environment:
+    name: production/sbercloud-pages
+    url: $CI_PAGES_URL
 
 deploy-vercel:
   stage: deploy
