@@ -25,6 +25,17 @@ export interface ServiceHierarchyRoot {
  */
 export const SERVICE_HIERARCHY_ROOTS: ServiceHierarchyRoot[] = [
   {
+    categoryId: 'infrastructure',
+    categoryTitle: 'Инфраструктура',
+    icon: hierarchyIcon,
+    root: {
+      id: 'bare-metal',
+      title: 'Bare Metal',
+      kind: 'service',
+      children: [{ id: 'storage-bare-metal-disks', title: 'Диски', kind: 'subservice' }],
+    },
+  },
+  {
     categoryId: 'containers',
     categoryTitle: 'Контейнеры',
     icon: hierarchyIcon,

@@ -45,6 +45,29 @@ function nextIcon(): string {
   return icon;
 }
 
+/** Один сервис в каталоге может встречаться под разными id — иконка общая. */
+const SERVICE_ICON_ALIASES: Record<string, string> = {
+  images: 'compute-images',
+  'storage-compute-disks': 'compute-disks',
+  'subnets-net': 'compute-subnets',
+  'public-ip-net': 'compute-public-ip',
+  'storage-bare-metal-disks': 'compute-disks',
+};
+
+const iconByCanonicalId = new Map<string, string>();
+
+function getCanonicalServiceId(id: string): string {
+  return SERVICE_ICON_ALIASES[id] ?? id;
+}
+
+function resolveServiceIcon(id: string): string {
+  const canonicalId = getCanonicalServiceId(id);
+  if (!iconByCanonicalId.has(canonicalId)) {
+    iconByCanonicalId.set(canonicalId, nextIcon());
+  }
+  return iconByCanonicalId.get(canonicalId)!;
+}
+
 const PREVIEW = 'Preview';
 
 export interface ServiceCard {
@@ -74,6 +97,10 @@ export interface ServiceCategory {
   subcategories?: ServiceSubcategory[];
 }
 
+export function getMegaserviceCategoryIds(categories: ServiceCategory[]): string[] {
+  return categories.filter((category) => category.megaservice).map((category) => category.id);
+}
+
 export interface ControlItem {
   id: string;
   title: string;
@@ -92,7 +119,7 @@ export interface ControlCategory {
 }
 
 function svc(id: string, title: string, subtitle = ''): ServiceCard {
-  return { id, icon: nextIcon(), title, subtitle };
+  return { id, icon: resolveServiceIcon(id), title, subtitle };
 }
 
 /** Бледные акценты категорий (смягчённые относительно базовой палитры, ~62% к фону #eef0f5) */
@@ -186,8 +213,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     id: 'storage',
     title: 'Хранение данных',
     services: [
-      svc('storage-compute-disks', 'Диски', 'Compute'),
-      svc('storage-bare-metal-disks', 'Диски', 'Bare Metal'),
+      svc('storage-compute-disks', 'Диски'),
       svc('object-storage', 'Object Storage'),
     ],
   },

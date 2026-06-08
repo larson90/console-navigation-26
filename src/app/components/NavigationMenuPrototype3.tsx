@@ -13,6 +13,7 @@ import {
   usePlatformServiceSearch,
 } from '../hooks/usePlatformServiceSearch';
 import { useExpandCategoriesOnSearch } from '../hooks/useExpandCategoriesOnSearch';
+import { getMegaserviceCategoryIds } from '../data/serviceCatalog';
 
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import {
@@ -48,6 +49,9 @@ export default function NavigationMenuPrototype3() {
   const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
   );
+  const [expandedMegaservices, setExpandedMegaservices] = useState<string[]>(
+    getMegaserviceCategoryIds(PLATFORM_SERVICE_CATEGORIES),
+  );
   const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
@@ -76,16 +80,19 @@ export default function NavigationMenuPrototype3() {
   const expandAllPlatform = () => {
     const allCategoryIds = PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id);
     setExpandedPlatformCategories(allCategoryIds);
+    setExpandedMegaservices(getMegaserviceCategoryIds(PLATFORM_SERVICE_CATEGORIES));
   };
 
   const collapseAllPlatform = () => {
     setExpandedPlatformCategories([]);
+    setExpandedMegaservices([]);
   };
 
 
   const isAllExpanded =
     activeTab === 'platform'
-      ? PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id))
+      ? PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id)) &&
+        getMegaserviceCategoryIds(PLATFORM_SERVICE_CATEGORIES).every((id) => expandedMegaservices.includes(id))
       : activeTab === 'control'
         ? CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id))
         : SOLUTIONS.every((s) => expandedSolutions.includes(s.id));
@@ -118,6 +125,14 @@ export default function NavigationMenuPrototype3() {
       setExpandedPlatformCategories(expandedPlatformCategories.filter(id => id !== categoryId));
     } else {
       setExpandedPlatformCategories([...expandedPlatformCategories, categoryId]);
+    }
+  };
+
+  const toggleMegaservice = (categoryId: string) => {
+    if (expandedMegaservices.includes(categoryId)) {
+      setExpandedMegaservices(expandedMegaservices.filter((id) => id !== categoryId));
+    } else {
+      setExpandedMegaservices([...expandedMegaservices, categoryId]);
     }
   };
 
@@ -165,8 +180,10 @@ export default function NavigationMenuPrototype3() {
     searchQuery,
     platformCategoryIds: filteredCategories.map((c) => c.id),
     controlCategoryIds: filteredControlCategories.map((c) => c.id),
+    megaserviceCategoryIds: getMegaserviceCategoryIds(filteredCategories),
     setExpandedPlatformCategories,
     setExpandedCategories,
+    setExpandedMegaservices,
   });
 
   return (
@@ -176,13 +193,13 @@ export default function NavigationMenuPrototype3() {
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
               <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] pl-[16px] relative size-full">
-                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2] flex-[1_0_0] min-h-0">
+                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2]">
                   {showPlatformSelector && <PlatformSelector />}
 
                   {/* Favorites */}
                   <div
                     ref={drop}
-                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full flex-[1_0_0] min-h-0 overflow-hidden ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
+                    className={`nav-favorites-block bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full shrink-0 ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
                   >
                     <div className="relative shrink-0 w-full">
                       <div className="content-stretch flex flex-col gap-[4px] items-start p-[8px] relative size-full">
@@ -198,11 +215,11 @@ export default function NavigationMenuPrototype3() {
                       </div>
                     </div>
 
-                    <div className="relative w-full flex-[1_0_0] min-h-0 overflow-y-auto px-[8px] pb-[8px]">
+                    <div className="nav-favorites-block__content relative w-full shrink-0 px-[8px] pb-[8px]">
                       {favoriteServices.length === 0 ? (
                         <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[2px] shrink-0 w-full">
-                          <div className="flex flex-col items-center overflow-clip rounded-[inherit] size-full">
-                            <div className="content-stretch flex flex-col gap-[8px] items-center p-[12px] relative size-full">
+                          <div className="flex flex-col items-center overflow-clip rounded-[inherit] w-full">
+                            <div className="content-stretch flex flex-col gap-[8px] items-center p-[12px] relative w-full">
                               <div className="bg-white content-stretch flex items-center overflow-clip p-[4px] relative rounded-[4px] shrink-0">
                                 <div className="relative shrink-0 size-[24px]">
                                   <div className="absolute bg-[#99d7ba] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIconColor2}')` }} />
@@ -395,6 +412,8 @@ export default function NavigationMenuPrototype3() {
                           favorites={favorites}
                           showMoreDetails={moreDetails}
                           searchQuery={searchQuery}
+                          isMegaserviceExpanded={expandedMegaservices.includes(category.id)}
+                          onToggleMegaservice={toggleMegaservice}
                         />
                       );
                     })}

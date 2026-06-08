@@ -12,6 +12,7 @@ import {
   usePlatformServiceSearch,
 } from '../hooks/usePlatformServiceSearch';
 import { useExpandCategoriesOnSearch } from '../hooks/useExpandCategoriesOnSearch';
+import { getMegaserviceCategoryIds } from '../data/serviceCatalog';
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
 import imgSolutionObservatory from "figma:asset/13a87ebe8d52252380a917437a7ba97c4d34355e.png";
@@ -205,8 +206,8 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
             <div className="flex-[1_0_0] min-w-px relative">
               <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
-                  <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                    <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
+                  <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                    <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
@@ -270,8 +271,8 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
                             style={{ maskImage: `url('${category.megaservice.icon}')` }}
                           />
                         </div>
-                        <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] font-semibold justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                          <p className="leading-[20px] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
+                        <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                          <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
                         </div>
                         <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
                           <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
@@ -376,8 +377,8 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
             <div className="flex-[1_0_0] min-w-px relative">
               <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
-                  <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                    <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
+                  <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                    <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
@@ -442,8 +443,8 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
                               style={{ maskImage: `url('${subcategory.icon}')` }}
                             />
                           </div>
-                          <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] font-semibold justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                            <p className="leading-[20px] overflow-hidden text-ellipsis">{subcategory.title}</p>
+                          <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                            <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{subcategory.title}</p>
                           </div>
                         </div>
                         <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
@@ -705,6 +706,9 @@ export default function NavigationMenuPrototype1() {
   const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
   );
+  const [expandedMegaservices, setExpandedMegaservices] = useState<string[]>(
+    getMegaserviceCategoryIds(PLATFORM_SERVICE_CATEGORIES),
+  );
   const [categoryOrder, setCategoryOrder] = useState<string[]>(
     PROTOTYPE1_CONTROL_CATEGORIES.map((c) => c.id),
   );
@@ -725,16 +729,19 @@ export default function NavigationMenuPrototype1() {
   const expandAll = () => {
     setExpandedPlatformCategories(PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id));
     setExpandedCategories(PROTOTYPE1_CONTROL_CATEGORIES.map((cat) => cat.id));
+    setExpandedMegaservices(getMegaserviceCategoryIds(PLATFORM_SERVICE_CATEGORIES));
   };
 
   const collapseAll = () => {
     setExpandedPlatformCategories([]);
     setExpandedCategories([]);
+    setExpandedMegaservices([]);
   };
 
   const isAllExpanded =
     PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id)) &&
-    PROTOTYPE1_CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id));
+    PROTOTYPE1_CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id)) &&
+    getMegaserviceCategoryIds(PLATFORM_SERVICE_CATEGORIES).every((id) => expandedMegaservices.includes(id));
 
   const toggleExpandAllCategories = () => {
     if (isAllExpanded) {
@@ -758,6 +765,14 @@ export default function NavigationMenuPrototype1() {
       setExpandedPlatformCategories(expandedPlatformCategories.filter(id => id !== categoryId));
     } else {
       setExpandedPlatformCategories([...expandedPlatformCategories, categoryId]);
+    }
+  };
+
+  const toggleMegaservice = (categoryId: string) => {
+    if (expandedMegaservices.includes(categoryId)) {
+      setExpandedMegaservices(expandedMegaservices.filter((id) => id !== categoryId));
+    } else {
+      setExpandedMegaservices([...expandedMegaservices, categoryId]);
     }
   };
 
@@ -797,8 +812,10 @@ export default function NavigationMenuPrototype1() {
     searchQuery,
     platformCategoryIds: filteredCategories.map((c) => c.id),
     controlCategoryIds: filteredControlCategories.map((c) => c.id),
+    megaserviceCategoryIds: getMegaserviceCategoryIds(filteredCategories),
     setExpandedPlatformCategories,
     setExpandedCategories,
+    setExpandedMegaservices,
   });
 
   return (
@@ -808,7 +825,7 @@ export default function NavigationMenuPrototype1() {
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
               <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] pl-[16px] relative size-full">
-                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2] flex-[1_0_0] min-h-0 overflow-hidden">
+                <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2]">
 
                   {/* Platform Selector */}
                   {showPlatformSelector && (
@@ -847,7 +864,7 @@ export default function NavigationMenuPrototype1() {
                   {/* Favorites */}
                   <div
                     ref={drop}
-                    className={`bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full flex-[1_0_0] min-h-0 overflow-hidden ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
+                    className={`nav-favorites-block bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full shrink-0 ${isOver ? 'ring-2 ring-[#389f74]' : ''}`}
                   >
                     <div className="relative shrink-0 w-full">
                       <div className="content-stretch flex flex-col gap-[4px] items-start p-[8px] relative size-full">
@@ -863,11 +880,11 @@ export default function NavigationMenuPrototype1() {
                       </div>
                     </div>
 
-                    <div className="relative w-full flex-[1_0_0] min-h-0 overflow-y-auto px-[8px] pb-[8px]">
+                    <div className="nav-favorites-block__content relative w-full shrink-0 px-[8px] pb-[8px]">
                       {favoriteServices.length === 0 ? (
                         <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[2px] shrink-0 w-full">
-                          <div className="flex flex-col items-center overflow-clip rounded-[inherit] size-full">
-                            <div className="content-stretch flex flex-col gap-[8px] items-center p-[12px] relative size-full">
+                          <div className="flex flex-col items-center overflow-clip rounded-[inherit] w-full">
+                            <div className="content-stretch flex flex-col gap-[8px] items-center p-[12px] relative w-full">
                               <div className="bg-white content-stretch flex items-center overflow-clip p-[4px] relative rounded-[4px] shrink-0">
                                 <div className="relative shrink-0 size-[24px]">
                                   <div className="absolute bg-[#99d7ba] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIconColor2}')` }} />
@@ -1007,6 +1024,8 @@ export default function NavigationMenuPrototype1() {
                       favorites={favorites}
                       showMoreDetails={moreDetails}
                       searchQuery={searchQuery}
+                      isMegaserviceExpanded={expandedMegaservices.includes(category.id)}
+                      onToggleMegaservice={toggleMegaservice}
                     />
                   );
                 })}

@@ -26,6 +26,8 @@ export interface PlatformCategoryBlockProps {
   favorites: string[];
   showMoreDetails: boolean;
   searchQuery?: string;
+  isMegaserviceExpanded: boolean;
+  onToggleMegaservice: (categoryId: string) => void;
 }
 
 export interface CategoryBlockProps {
@@ -54,6 +56,8 @@ export function PlatformCategoryBlock({
   favorites,
   showMoreDetails,
   searchQuery = '',
+  isMegaserviceExpanded,
+  onToggleMegaservice,
 }: PlatformCategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -107,8 +111,8 @@ export function PlatformCategoryBlock({
             <div className="flex-[1_0_0] min-w-px relative">
               <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
-                  <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                    <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
+                  <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                    <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
@@ -162,24 +166,43 @@ export function PlatformCategoryBlock({
           <div className="content-stretch flex flex-col items-start overflow-clip relative shrink-0 w-full">
             <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[4px] shrink-0 w-full">
               <div className="content-stretch flex flex-col gap-[8px] items-start justify-center pb-[8px] pt-[12px] px-[8px] relative size-full">
-                <div className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onToggleMegaservice(category.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onToggleMegaservice(category.id);
+                    }
+                  }}
+                  className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+                >
                   <div className="flex-[1_0_0] min-w-px relative">
-                    <div className="content-stretch flex items-start pl-[4px] relative size-full">
-                      <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                    <div className="content-stretch flex items-center pl-[4px] relative size-full min-h-[28px]">
+                      <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                         <div className="relative shrink-0 size-[24px]">
                           <div
                             className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
                             style={{ maskImage: `url('${category.megaservice.icon}')` }}
                           />
                         </div>
-                        <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] font-semibold justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                          <p className="leading-[20px] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
+                        <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                          <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
                         </div>
+                      </div>
+                      <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] ml-auto">
                         <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
                           <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
                             <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
                               <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 5.34099 8.56066">
+                                <svg
+                                  className="block size-full"
+                                  fill="none"
+                                  preserveAspectRatio="none"
+                                  viewBox="0 0 5.34099 8.56066"
+                                  style={{ transform: isMegaserviceExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
+                                >
                                   <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
                                 </svg>
                               </div>
@@ -190,18 +213,20 @@ export function PlatformCategoryBlock({
                     </div>
                   </div>
                 </div>
-                <ServiceItemsContainer showMoreDetails={showMoreDetails}>
-                  {category.megaservice.services.map((service) => (
-                    <ServiceWithSubservices
-                      key={service.id}
-                      service={service}
-                      searchQuery={searchQuery}
-                      onAddToFavorites={toggleFavorite}
-                      isFavorite={favorites.includes(service.id)}
-                      showMoreDetails={showMoreDetails}
-                    />
-                  ))}
-                </ServiceItemsContainer>
+                {isMegaserviceExpanded && (
+                  <ServiceItemsContainer showMoreDetails={showMoreDetails}>
+                    {category.megaservice.services.map((service) => (
+                      <ServiceWithSubservices
+                        key={service.id}
+                        service={service}
+                        searchQuery={searchQuery}
+                        onAddToFavorites={toggleFavorite}
+                        isFavorite={favorites.includes(service.id)}
+                        showMoreDetails={showMoreDetails}
+                      />
+                    ))}
+                  </ServiceItemsContainer>
+                )}
               </div>
             </div>
           </div>
@@ -236,8 +261,8 @@ export function PlatformCategoryBlock({
                               style={{ maskImage: `url('${subcategory.icon}')` }}
                             />
                           </div>
-                          <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] font-semibold justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                            <p className="leading-[20px] overflow-hidden text-ellipsis">{subcategory.title}</p>
+                          <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                            <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{subcategory.title}</p>
                           </div>
                         </div>
                       </div>
@@ -330,8 +355,8 @@ export function CategoryBlock({
             <div className="flex-[1_0_0] min-w-px relative">
               <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
-                  <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[16px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                    <p className="leading-[24px] overflow-hidden text-ellipsis">{category.title}</p>
+                  <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                    <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
@@ -396,8 +421,8 @@ export function CategoryBlock({
                               style={{ maskImage: `url('${subcategory.icon}')` }}
                             />
                           </div>
-                          <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] font-semibold justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                            <p className="leading-[20px] overflow-hidden text-ellipsis">{subcategory.title}</p>
+                          <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                            <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{subcategory.title}</p>
                           </div>
                         </div>
                         <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
