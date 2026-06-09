@@ -213,6 +213,16 @@
   margin: 0;
 }
 
+.nav-proto-overlay .nav-solution-title {
+  font-family: 'SB Sans Interface', 'SB Sans Text', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.15px;
+  color: #41424e;
+  margin: 0;
+}
+
 .nav-proto-overlay__panel {
   position: absolute;
   inset: 0;

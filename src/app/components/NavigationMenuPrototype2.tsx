@@ -543,8 +543,8 @@ export default function NavigationMenuPrototype2() {
                                         style={{ maskImage: `url('${solution.icon}')` }}
                                       />
                                     </div>
-                                    <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                                      <p className="leading-[20px] overflow-hidden text-ellipsis">{solution.title}</p>
+                                    <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                                      <p className="nav-solution-title font-medium text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{solution.title}</p>
                                     </div>
                                     <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
                                       <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
@@ -590,8 +590,8 @@ export default function NavigationMenuPrototype2() {
                                           style={{ maskImage: `url('${solution.icon}')` }}
                                         />
                                       </div>
-                                      <div className="flex flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] not-italic overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] whitespace-nowrap">
-                                        <p className="leading-[20px] overflow-hidden text-ellipsis">{solution.title}</p>
+                                      <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
+                                        <p className="nav-solution-title font-medium text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{solution.title}</p>
                                       </div>
                                       <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
                                         <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">

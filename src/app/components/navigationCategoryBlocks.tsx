@@ -502,7 +502,7 @@ export function SolutionBlock({
         </div>
 
         <div className="flex min-w-0 flex-[1_0_0] flex-col gap-[4px]">
-          <p className="font-['SB_Sans_Interface:Semibold',sans-serif] font-medium text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e]">
+          <p className="nav-solution-title font-medium text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e]">
             {solution.title}
           </p>
           <p className="font-['SB_Sans_Interface:Regular',sans-serif] text-[12px] leading-[16px] tracking-[0.1px] text-[#6d707f]">
