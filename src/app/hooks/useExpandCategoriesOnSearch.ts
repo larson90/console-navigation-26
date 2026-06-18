@@ -4,7 +4,7 @@ interface UseExpandCategoriesOnSearchOptions {
   searchQuery: string;
   platformCategoryIds: string[];
   controlCategoryIds: string[];
-  megaserviceCategoryIds?: string[];
+  megaserviceIds?: string[];
   setExpandedPlatformCategories: Dispatch<SetStateAction<string[]>>;
   setExpandedCategories: Dispatch<SetStateAction<string[]>>;
   setExpandedMegaservices?: Dispatch<SetStateAction<string[]>>;
@@ -15,14 +15,14 @@ export function useExpandCategoriesOnSearch({
   searchQuery,
   platformCategoryIds,
   controlCategoryIds,
-  megaserviceCategoryIds = [],
+  megaserviceIds = [],
   setExpandedPlatformCategories,
   setExpandedCategories,
   setExpandedMegaservices,
 }: UseExpandCategoriesOnSearchOptions) {
   const platformIdsKey = platformCategoryIds.join('\0');
   const controlIdsKey = controlCategoryIds.join('\0');
-  const megaserviceIdsKey = megaserviceCategoryIds.join('\0');
+  const megaserviceIdsKey = megaserviceIds.join('\0');
 
   useEffect(() => {
     const trimmed = searchQuery.trim();
@@ -30,7 +30,7 @@ export function useExpandCategoriesOnSearch({
 
     setExpandedPlatformCategories(platformCategoryIds);
     setExpandedCategories(controlCategoryIds);
-    setExpandedMegaservices?.(megaserviceCategoryIds);
+    setExpandedMegaservices?.(megaserviceIds);
   }, [
     searchQuery,
     platformIdsKey,
@@ -38,7 +38,7 @@ export function useExpandCategoriesOnSearch({
     megaserviceIdsKey,
     platformCategoryIds,
     controlCategoryIds,
-    megaserviceCategoryIds,
+    megaserviceIds,
     setExpandedPlatformCategories,
     setExpandedCategories,
     setExpandedMegaservices,

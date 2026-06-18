@@ -5,8 +5,11 @@ import type { PlatformId } from '../data/platformCatalog';
 /** Фон плиток платформ — приглушённые акценты (~58% к #eef0f5) */
 const PLATFORM_ICON_BG = '#bcbfc8';
 
+/** Подложка Evolution — как у иконки проекта на главном экране (.proj-head__icon) */
+const PLATFORM_ICON_BG_EVOLUTION = '#dde0ea';
+
 const PLATFORM_ICON_BG_BY_ID: Partial<Record<PlatformId, string>> = {
-  evolution: '#a5a7af',
+  evolution: PLATFORM_ICON_BG_EVOLUTION,
   advanced: '#cae6dc',
   vmware: '#aabff5',
   marketplace: '#c4b2ef',

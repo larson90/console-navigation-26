@@ -48,25 +48,20 @@ export function NavigationMenuMainPanel({ children, className = '' }: Navigation
         transition: isResizing ? 'none' : 'width 0.2s ease',
       }}
     >
-      <div className="nav-menu-main-panel__scroll h-full overflow-y-auto">
-        {children}
-      </div>
-      <div
-        ref={handleRef}
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Изменить ширину меню"
-        title="Потяните, чтобы изменить ширину меню"
-        className={`nav-menu-resize-handle${isResizing ? ' nav-menu-resize-handle--active' : ''}`}
-        onPointerDown={handlePointerDown}
-      >
-        <div className="nav-menu-resize-handle__control" aria-hidden="true">
-          <span className="nav-menu-resize-handle__arrows">↔</span>
-          <span className="nav-menu-resize-handle__grip">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <span key={index} className="nav-menu-resize-handle__dot" />
-            ))}
-          </span>
+      <div className="nav-menu-main-panel__body h-full min-w-0">
+        <div className="nav-menu-main-panel__scroll h-full min-w-0 overflow-y-auto">
+          {children}
+        </div>
+        <div
+          ref={handleRef}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Изменить ширину меню"
+          title="Потяните, чтобы изменить ширину"
+          className={`nav-menu-resize-handle${isResizing ? ' nav-menu-resize-handle--active' : ''}`}
+          onPointerDown={handlePointerDown}
+        >
+          <span className="nav-menu-resize-handle__line" aria-hidden="true" />
         </div>
       </div>
     </div>

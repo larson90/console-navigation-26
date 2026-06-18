@@ -22,16 +22,9 @@ export function ServiceItemsContainer({
 
   return (
     <div
-      className={
-        showMoreDetails
-          ? `nav-service-items-grid gap-[8px] items-start relative shrink-0 w-full ${className}`
-          : `content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full ${className}`
-      }
-      style={
-        showMoreDetails
-          ? ({ '--nav-service-cols': serviceColumns } as React.CSSProperties)
-          : undefined
-      }
+      className={`nav-service-items-grid w-full ${className}`}
+      data-density={showMoreDetails ? 'detailed' : 'compact'}
+      style={{ '--nav-service-cols': serviceColumns } as React.CSSProperties}
     >
       {children}
     </div>
@@ -39,20 +32,39 @@ export function ServiceItemsContainer({
 }
 
 export function ServiceItemWrapper({
+  children,
+}: {
+  showMoreDetails?: boolean;
+  children: React.ReactNode;
+}) {
+  return <div className="nav-service-item min-w-0 w-full">{children}</div>;
+}
+
+export function CategoryServicesSection({
   showMoreDetails,
+  className = '',
   children,
 }: {
   showMoreDetails: boolean;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className={showMoreDetails ? 'nav-service-item relative min-w-0' : 'flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative'}>
-      {children}
+    <div className={`nav-category-services-section ${className}`}>
+      <ServiceItemsContainer showMoreDetails={showMoreDetails}>{children}</ServiceItemsContainer>
     </div>
   );
 }
 
-export function ServiceIcon({ icon, size = 24 }: { icon: string; size?: number }) {
+export const COMPACT_SERVICE_ICON_SIZE = 24;
+
+export function ServiceIcon({
+  icon,
+  size = COMPACT_SERVICE_ICON_SIZE,
+}: {
+  icon: string;
+  size?: number;
+}) {
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <div
@@ -60,6 +72,42 @@ export function ServiceIcon({ icon, size = 24 }: { icon: string; size?: number }
         style={{ maskImage: `url('${icon}')`, maskSize: `${size}px ${size}px` }}
       />
     </div>
+  );
+}
+
+function ServiceInfoIcon({ size }: { size: number }) {
+  return (
+    <svg
+      className="block shrink-0"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="9" stroke="#8b8e9b" strokeWidth="1.5" fill="none" />
+      <path d="M12 16V12M12 8H12.01" stroke="#8b8e9b" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ServiceFavoriteIcon({ size, isFavorite }: { size: number; isFavorite: boolean }) {
+  return (
+    <svg
+      className="block shrink-0"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+        fill={isFavorite ? '#fbbf24' : 'none'}
+        stroke={isFavorite ? '#fbbf24' : '#8b8e9b'}
+        strokeWidth="1.5"
+      />
+    </svg>
   );
 }
 
@@ -96,6 +144,7 @@ export interface ServiceCardItemProps {
   onAddToFavorites: (id: string) => void;
   isFavorite: boolean;
   showMoreDetails?: boolean;
+  enableDrag?: boolean;
 }
 
 /** PromoTagPredefined decor blu — как в макете меню. */
@@ -164,8 +213,8 @@ export function ServiceCardItem({
   onAddToFavorites,
   isFavorite,
   showMoreDetails = false,
+  enableDrag = true,
 }: ServiceCardItemProps) {
-  const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const infoIconRef = useRef<HTMLDivElement | null>(null);
@@ -210,12 +259,7 @@ export function ServiceCardItem({
     };
   }, [showTooltip]);
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
   const handleMouseLeave = () => {
-    setIsHovered(false);
     setShowTooltip(false);
   };
 
@@ -228,44 +272,40 @@ export function ServiceCardItem({
     setShowTooltip(false);
   };
 
-  const favoriteButton = (
+  const favoriteButton = (iconSize: number) => (
     <button
       type="button"
       onClick={(e) => {
         e.stopPropagation();
         onAddToFavorites(service.id);
       }}
-      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] hover:bg-[rgba(0,0,0,0.05)]"
+      className="nav-icon-btn nav-service-actions__btn flex items-center justify-center rounded-[4px] shrink-0 cursor-pointer"
+      style={{ width: iconSize, height: iconSize }}
+      aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
     >
-      <div className="relative shrink-0 size-[24px]">
-        <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-            fill={isFavorite ? '#fbbf24' : 'none'}
-            stroke={isFavorite ? '#fbbf24' : '#8b8e9b'}
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
+      <ServiceFavoriteIcon size={iconSize} isFavorite={isFavorite} />
     </button>
   );
 
   const setCompactCardRef = (node: HTMLDivElement | null) => {
     cardRef.current = node;
-    drag(node);
+    if (enableDrag) {
+      drag(node);
+    }
   };
+
+  const dragCursorClass = enableDrag ? 'cursor-move' : 'cursor-default';
 
   if (showMoreDetails) {
     return (
       <div
-        ref={drag}
-        onMouseEnter={handleMouseEnter}
+        ref={enableDrag ? drag : undefined}
         onMouseLeave={handleMouseLeave}
-        className={`relative h-full cursor-move ${isDragging ? 'opacity-50' : ''}`}
+        className={`relative h-full ${dragCursorClass} ${isDragging ? 'opacity-50' : ''}`}
       >
-        <div className="bg-[#fdfdfd] border border-[#e6e8ef] content-stretch flex flex-col gap-[8px] h-full min-h-[96px] p-[12px] relative rounded-[6px] hover:shadow-[0px_2px_8px_rgba(0,0,0,0.06)] transition-shadow">
+        <div className="nav-service-card nav-service-card--detailed bg-[#fdfdfd] border border-[#e6e8ef] content-stretch flex flex-col gap-[8px] h-full min-h-[96px] p-[12px] relative rounded-[6px]">
           <div className="content-stretch flex gap-[10px] items-start relative flex-[1_0_0]">
-            <ServiceIcon icon={service.icon} size={28} />
+            <ServiceIcon icon={service.icon} size={COMPACT_SERVICE_ICON_SIZE} />
             <div className="content-stretch flex flex-[1_0_0] flex-col gap-[4px] items-start min-w-px relative">
               <ServiceCardTitle
                 title={service.title}
@@ -277,7 +317,9 @@ export function ServiceCardItem({
               </p>
             </div>
           </div>
-          {isHovered && <div className="absolute top-[8px] right-[8px]">{favoriteButton}</div>}
+          <div className="nav-service-actions nav-service-actions--detailed">
+            {favoriteButton(COMPACT_SERVICE_ICON_SIZE)}
+          </div>
         </div>
       </div>
     );
@@ -286,9 +328,8 @@ export function ServiceCardItem({
   return (
     <div
       ref={setCompactCardRef}
-      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`min-h-[32px] relative rounded-[4px] cursor-move hover:bg-[rgba(0,0,0,0.02)] ${isDragging ? 'opacity-50' : ''}`}
+      className={`nav-service-card min-h-[32px] relative rounded-[4px] ${dragCursorClass} ${isDragging ? 'opacity-50' : ''}`}
     >
       {showTooltip && (
         <ServiceDescriptionTooltip
@@ -300,7 +341,7 @@ export function ServiceCardItem({
       )}
       <div className="flex flex-row items-center min-h-[inherit] min-w-0 rounded-[inherit] size-full">
         <div className="content-stretch flex gap-[8px] items-center min-h-[inherit] min-w-0 flex-1 p-[4px] relative">
-          <ServiceIcon icon={service.icon} size={24} />
+          <ServiceIcon icon={service.icon} size={COMPACT_SERVICE_ICON_SIZE} />
           <div className="flex min-w-0 max-w-full flex-1 flex-col items-start">
             <ServiceCardTitle
               title={service.title}
@@ -308,26 +349,18 @@ export function ServiceCardItem({
               className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] not-italic relative text-[#41424e] text-[13px] text-ellipsis tracking-[0.1px] whitespace-nowrap"
             />
           </div>
-          {isHovered && (
-            <>
-              <div
-                className="relative shrink-0"
-                ref={infoIconRef}
-                onMouseEnter={handleInfoMouseEnter}
-                onMouseLeave={handleInfoMouseLeave}
-              >
-                <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
-                  <div className="relative shrink-0 size-[24px]">
-                    <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="#8b8e9b" strokeWidth="2" fill="none" />
-                      <path d="M12 16V12M12 8H12.01" stroke="#8b8e9b" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              {favoriteButton}
-            </>
-          )}
+          <div className="nav-service-actions">
+            <div
+              className="nav-service-actions__btn flex items-center justify-center shrink-0 rounded-[4px]"
+              style={{ width: COMPACT_SERVICE_ICON_SIZE, height: COMPACT_SERVICE_ICON_SIZE }}
+              ref={infoIconRef}
+              onMouseEnter={handleInfoMouseEnter}
+              onMouseLeave={handleInfoMouseLeave}
+            >
+              <ServiceInfoIcon size={COMPACT_SERVICE_ICON_SIZE} />
+            </div>
+            {favoriteButton(COMPACT_SERVICE_ICON_SIZE)}
+          </div>
         </div>
       </div>
     </div>
@@ -395,13 +428,7 @@ export function ServiceWithSubservices({
   const showSubservices = Boolean(normalizeSearchQuery(searchQuery)) && subservices.length > 0;
 
   return (
-    <div
-      className={
-        showMoreDetails
-          ? 'relative min-w-0 w-full'
-          : 'flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative w-full'
-      }
-    >
+    <div className="nav-service-cell min-w-0 w-full">
       <ServiceCardItem
         service={service}
         onAddToFavorites={onAddToFavorites}

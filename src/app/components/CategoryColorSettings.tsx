@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -56,9 +56,9 @@ function ColorSwatch({
       aria-label={label}
       aria-pressed={selected}
       className={cn(
-        'relative shrink-0 size-[28px] rounded-full border-2 transition-shadow cursor-pointer',
+        'relative shrink-0 size-[28px] rounded-full border-2 transition-colors cursor-pointer',
         'disabled:cursor-not-allowed disabled:opacity-40',
-        selected ? 'border-[#41424e] shadow-[0_0_0_2px_#fff,0_0_0_4px_#41424e]' : 'border-transparent hover:border-[#aaaebd]',
+        selected ? 'border-[#389f74]' : 'border-transparent hover:border-[#aaaebd]',
       )}
       style={color ? { backgroundColor: color } : undefined}
     >
@@ -86,10 +86,10 @@ export function CategoryColorSettings({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Настройки цвета категорий"
-        className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-pointer hover:bg-[rgba(0,0,0,0.05)]"
+        aria-label="Настройки"
+        className="nav-icon-btn nav-toolbar-btn cursor-pointer p-[2px]"
       >
-        <Palette className="size-[16px] text-[#8b8e9b]" strokeWidth={1.75} />
+        <Settings className="size-[20px] text-[#8b8e9b]" strokeWidth={1.5} />
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -130,24 +130,20 @@ export function CategoryColorSettings({
                   <li
                     key={category.id}
                     className={cn(
-                      'flex flex-col gap-3 rounded-[4px] border border-[#e6e8ef] bg-[#fdfdfd] px-3 py-3',
+                      'relative flex flex-col gap-3 overflow-hidden rounded-[4px] border border-[#e6e8ef] bg-[#fdfdfd] py-3 pr-3 pl-[14px]',
                       !colorsEnabled && 'opacity-50',
                     )}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {previewAccent && (
-                        <div
-                          className="h-[24px] w-[6px] shrink-0 rounded-full"
-                          style={{ backgroundColor: previewAccent }}
-                          aria-hidden
-                        />
-                      )}
-                      <span className="font-['SB_Sans_Interface:Regular',sans-serif] text-[14px] leading-[20px] text-[#41424e]">
-                        {category.title}
-                      </span>
-                    </div>
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-0 left-0 w-[6px]"
+                      style={{ backgroundColor: previewAccent ?? 'transparent' }}
+                    />
+                    <span className="font-['SB_Sans_Interface:Regular',sans-serif] text-[14px] leading-[20px] text-[#41424e]">
+                      {category.title}
+                    </span>
 
-                    <div className={`flex flex-wrap items-center gap-[8px] ${previewAccent ? 'pl-[14px]' : ''}`}>
+                    <div className="flex flex-wrap items-center gap-[8px]">
                       <ColorSwatch
                         selected={currentColor === null}
                         disabled={!colorsEnabled}

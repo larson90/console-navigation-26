@@ -1,18 +1,31 @@
 import React from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import { motion } from 'motion/react';
 import {
   ServiceCardItem,
   ServiceItemWrapper,
-  ServiceItemsContainer,
   ServiceWithSubservices,
+  CategoryServicesSection,
 } from './navigationServiceUi';
 import {
   type ServiceCategory,
   type ControlCategory,
   resolveCategoryAccentColor,
+  categoryHasAccentSlot,
 } from '../data/serviceCatalog';
 import { type Solution } from '../data/solutionsCatalog';
 import { SolutionIllustration } from './solutionIllustrations';
+import { NavCollapse } from './NavCollapse';
+import { CONTROL_CATEGORY_TYPE, PLATFORM_CATEGORY_TYPE } from './categoryDnd';
+import { useCategoryBlockDrag } from './useCategoryBlockDrag';
+import { CategoryDragHandle, CategoryHeaderChevron } from './categoryBlockHeaderUi';
+import { useCategoryDrag } from './CategoryDragContext';
+import { MegaserviceBlock } from './MegaserviceBlock';
+import { navigateToMegaservice } from '../utils/megaserviceNavigation';
+
+const CATEGORY_LAYOUT_TRANSITION = {
+  duration: 0.32,
+  ease: [0.22, 1, 0.36, 1] as const,
+};
 
 function CategoryAccentStripe({ color }: { color: string }) {
   return (
@@ -36,8 +49,9 @@ export interface PlatformCategoryBlockProps {
   favorites: string[];
   showMoreDetails: boolean;
   searchQuery?: string;
-  isMegaserviceExpanded: boolean;
-  onToggleMegaservice: (categoryId: string) => void;
+  expandedMegaservices: string[];
+  onToggleMegaservice: (megaserviceId: string) => void;
+  onMegaserviceNavigate?: (megaserviceId: string) => void;
   categoryColors?: Record<string, string | null>;
   colorsEnabled?: boolean;
 }
@@ -54,8 +68,19 @@ export interface CategoryBlockProps {
   favorites: string[];
   showMoreDetails: boolean;
   searchQuery?: string;
+  expandedMegaservices: string[];
+  onToggleMegaservice: (megaserviceId: string) => void;
+  onMegaserviceNavigate?: (megaserviceId: string) => void;
   categoryColors?: Record<string, string | null>;
   colorsEnabled?: boolean;
+}
+
+function isMegaserviceExpanded(
+  megaserviceId: string,
+  expandedMegaservices: string[],
+  isForceCollapsed: boolean,
+): boolean {
+  return expandedMegaservices.includes(megaserviceId) && !isForceCollapsed;
 }
 
 export function PlatformCategoryBlock({
@@ -70,48 +95,38 @@ export function PlatformCategoryBlock({
   favorites,
   showMoreDetails,
   searchQuery = '',
-  isMegaserviceExpanded,
+  expandedMegaservices,
   onToggleMegaservice,
+  onMegaserviceNavigate = navigateToMegaservice,
   categoryColors,
   colorsEnabled = true,
 }: PlatformCategoryBlockProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
-
+  const { isForceCollapsed } = useCategoryDrag();
   const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
-  const hasAccent = accentColor !== null;
+  const showAccentStripe = accentColor !== null;
+  const hasAccentPadding = colorsEnabled && categoryHasAccentSlot(category.id);
+  const effectiveExpanded = isExpanded && !isForceCollapsed;
 
-  const [{ isDragging }, drag] = useDrag({
-    type: 'PLATFORM_CATEGORY',
-    item: { index },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
+  const { ref, dragHandleRef, isDragging } = useCategoryBlockDrag({
+    type: PLATFORM_CATEGORY_TYPE,
+    index,
+    title: category.title,
+    accentColor,
+    hasAccentPadding,
+    onMove,
   });
-
-  const [, drop] = useDrop({
-    accept: 'PLATFORM_CATEGORY',
-    hover: (item: { index: number }) => {
-      if (!ref.current) return;
-      const dragIndex = item.index;
-      const hoverIndex = index;
-      if (dragIndex === hoverIndex) return;
-      onMove(dragIndex, hoverIndex);
-      item.index = hoverIndex;
-    },
-  });
-
-  drag(drop(ref));
 
   return (
-    <div
+    <motion.div
       ref={ref}
+      layout={!isDragging ? 'position' : false}
+      transition={CATEGORY_LAYOUT_TRANSITION}
       onMouseEnter={() => onHover(category.id)}
       onMouseLeave={() => onHover(null)}
-      className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full"
-      style={{ opacity: isDragging ? 0.5 : 1 }}
+      className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered ? ' nav-category-block--hovered' : ''}`}
     >
-      {hasAccent && <CategoryAccentStripe color={accentColor} />}
-      <div className={`content-stretch flex flex-col gap-[4px] items-start pr-[8px] py-[8px] relative size-full ${hasAccent ? 'pl-[14px]' : 'pl-[8px]'}`}>
+      {showAccentStripe && <CategoryAccentStripe color={accentColor} />}
+      <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative size-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
             role="button"
@@ -123,188 +138,96 @@ export function PlatformCategoryBlock({
                 onToggle(category.id);
               }
             }}
-            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+            className="nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccent ? 'pl-[12px]' : 'pl-[8px]'}`}>
+              <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccentPadding ? 'pl-[12px]' : 'pl-[8px]'}`}>
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
                     <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
-                  {isHovered && (
-                    <button
-                      type="button"
-                      onClick={(e) => e.stopPropagation()}
-                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]"
-                    >
-                      <div className="relative shrink-0 size-[24px]">
-                        <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
-                          <circle cx="7" cy="5" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="12" cy="5" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="17" cy="5" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="7" cy="12" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="12" cy="12" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="17" cy="12" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="7" cy="19" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="12" cy="19" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="17" cy="19" r="1.5" fill="#8b8e9b"/>
-                        </svg>
-                      </div>
-                    </button>
-                  )}
-                  <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
-                    <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                      <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                        <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                          <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                            <svg
-                              className="block size-full"
-                              fill="none"
-                              preserveAspectRatio="none"
-                              viewBox="0 0 5.34099 8.56066"
-                              style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                            >
-                              <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <CategoryDragHandle handleRef={dragHandleRef} />
+                  <CategoryHeaderChevron expanded={effectiveExpanded} />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {isExpanded && category.megaservice && (
-          <div className="content-stretch flex flex-col items-start overflow-clip relative shrink-0 w-full">
-            <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[4px] shrink-0 w-full">
-              <div className="content-stretch flex flex-col gap-[8px] items-start justify-center pb-[8px] pt-[12px] px-[8px] relative size-full">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onToggleMegaservice(category.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onToggleMegaservice(category.id);
-                    }
-                  }}
-                  className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
-                >
-                  <div className="flex-[1_0_0] min-w-px relative">
-                    <div className="content-stretch flex items-center pl-[4px] relative size-full min-h-[28px]">
-                      <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div
-                            className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-                            style={{ maskImage: `url('${category.megaservice.icon}')` }}
-                          />
-                        </div>
-                        <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
-                          <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.megaservice.title}</p>
-                        </div>
-                      </div>
-                      <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] ml-auto">
-                        <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                          <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                            <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                              <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                                <svg
-                                  className="block size-full"
-                                  fill="none"
-                                  preserveAspectRatio="none"
-                                  viewBox="0 0 5.34099 8.56066"
-                                  style={{ transform: isMegaserviceExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                                >
-                                  <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                                </svg>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {isMegaserviceExpanded && (
-                  <ServiceItemsContainer showMoreDetails={showMoreDetails}>
-                    {category.megaservice.services.map((service) => (
-                      <ServiceWithSubservices
-                        key={service.id}
-                        service={service}
-                        searchQuery={searchQuery}
-                        onAddToFavorites={toggleFavorite}
-                        isFavorite={favorites.includes(service.id)}
-                        showMoreDetails={showMoreDetails}
-                      />
-                    ))}
-                  </ServiceItemsContainer>
-                )}
-              </div>
-            </div>
-          </div>
+        <NavCollapse open={effectiveExpanded} className="w-full">
+          <div className="nav-category-block__body flex w-full flex-col gap-[4px] pt-[4px]">
+        {category.megaservice && (
+          <MegaserviceBlock
+            id={category.megaservice.id}
+            title={category.megaservice.title}
+            icon={category.megaservice.icon}
+            isExpanded={isMegaserviceExpanded(category.megaservice.id, expandedMegaservices, isForceCollapsed)}
+            showMoreDetails={showMoreDetails}
+            onToggle={onToggleMegaservice}
+            onNavigate={onMegaserviceNavigate}
+          >
+            {category.megaservice.services.map((service) => (
+              <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
+                <ServiceWithSubservices
+                  service={service}
+                  searchQuery={searchQuery}
+                  onAddToFavorites={toggleFavorite}
+                  isFavorite={favorites.includes(service.id)}
+                  showMoreDetails={showMoreDetails}
+                />
+              </ServiceItemWrapper>
+            ))}
+          </MegaserviceBlock>
         )}
 
-        {isExpanded && category.services.length > 0 && (
-          <ServiceItemsContainer showMoreDetails={showMoreDetails} className="px-[8px]">
+        {category.services.length > 0 && (
+          <CategoryServicesSection showMoreDetails={showMoreDetails}>
             {category.services.map((service) => (
-              <ServiceWithSubservices
-                key={service.id}
-                service={service}
-                searchQuery={searchQuery}
-                onAddToFavorites={toggleFavorite}
-                isFavorite={favorites.includes(service.id)}
-                showMoreDetails={showMoreDetails}
-              />
+              <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
+                <ServiceWithSubservices
+                  service={service}
+                  searchQuery={searchQuery}
+                  onAddToFavorites={toggleFavorite}
+                  isFavorite={favorites.includes(service.id)}
+                  showMoreDetails={showMoreDetails}
+                />
+              </ServiceItemWrapper>
             ))}
-          </ServiceItemsContainer>
+          </CategoryServicesSection>
         )}
-        {isExpanded && category.subcategories?.map((subcategory, idx) => (
-          <div key={idx} className="content-stretch flex flex-col items-start overflow-clip relative shrink-0 w-full">
-            <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[4px] shrink-0 w-full">
-              <div className="content-stretch flex flex-col gap-[8px] items-start justify-center pb-[8px] pt-[12px] px-[8px] relative size-full">
-                <div className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full">
-                  <div className="flex-[1_0_0] min-w-px relative">
-                    <div className="content-stretch flex items-start pl-[4px] relative size-full">
-                      <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                        <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                          <div className="relative shrink-0 size-[24px]">
-                            <div
-                              className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-                              style={{ maskImage: `url('${subcategory.icon}')` }}
-                            />
-                          </div>
-                          <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
-                            <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{subcategory.title}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <ServiceItemsContainer showMoreDetails={showMoreDetails}>
-                  {subcategory.services.map((service) => (
-                    <ServiceWithSubservices
-                      key={service.id}
-                      service={service}
-                      searchQuery={searchQuery}
-                      onAddToFavorites={toggleFavorite}
-                      isFavorite={favorites.includes(service.id)}
-                      showMoreDetails={showMoreDetails}
-                    />
-                  ))}
-                </ServiceItemsContainer>
-              </div>
-            </div>
-          </div>
+
+        {category.subcategories?.map((subcategory) => (
+          <MegaserviceBlock
+            key={subcategory.id}
+            id={subcategory.id}
+            title={subcategory.title}
+            icon={subcategory.icon}
+            isExpanded={isMegaserviceExpanded(subcategory.id, expandedMegaservices, isForceCollapsed)}
+            showMoreDetails={showMoreDetails}
+            onToggle={onToggleMegaservice}
+            onNavigate={onMegaserviceNavigate}
+          >
+            {subcategory.services.map((service) => (
+              <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
+                <ServiceWithSubservices
+                  service={service}
+                  searchQuery={searchQuery}
+                  onAddToFavorites={toggleFavorite}
+                  isFavorite={favorites.includes(service.id)}
+                  showMoreDetails={showMoreDetails}
+                />
+              </ServiceItemWrapper>
+            ))}
+          </MegaserviceBlock>
         ))}
 
+          </div>
+        </NavCollapse>
+
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -320,45 +243,38 @@ export function CategoryBlock({
   favorites,
   showMoreDetails,
   searchQuery = '',
+  expandedMegaservices,
+  onToggleMegaservice,
+  onMegaserviceNavigate = navigateToMegaservice,
   categoryColors,
   colorsEnabled = true,
 }: CategoryBlockProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
+  const { isForceCollapsed } = useCategoryDrag();
   const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
-  const hasAccent = accentColor !== null;
+  const showAccentStripe = accentColor !== null;
+  const hasAccentPadding = colorsEnabled && categoryHasAccentSlot(category.id);
+  const effectiveExpanded = isExpanded && !isForceCollapsed;
 
-  const [{ isDragging }, drag] = useDrag({
-    type: 'CATEGORY',
-    item: { index },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
+  const { ref, dragHandleRef, isDragging } = useCategoryBlockDrag({
+    type: CONTROL_CATEGORY_TYPE,
+    index,
+    title: category.title,
+    accentColor,
+    hasAccentPadding,
+    onMove,
   });
-
-  const [, drop] = useDrop({
-    accept: 'CATEGORY',
-    hover: (item: { index: number }) => {
-      if (!ref.current) return;
-      const dragIndex = item.index;
-      const hoverIndex = index;
-      if (dragIndex === hoverIndex) return;
-      onMove(dragIndex, hoverIndex);
-      item.index = hoverIndex;
-    },
-  });
-
-  drag(drop(ref));
 
   return (
-    <div
+    <motion.div
       ref={ref}
+      layout={!isDragging ? 'position' : false}
+      transition={CATEGORY_LAYOUT_TRANSITION}
       onMouseEnter={() => onHover(category.id)}
       onMouseLeave={() => onHover(null)}
-      className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full"
-      style={{ opacity: isDragging ? 0.5 : 1 }}
+      className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered ? ' nav-category-block--hovered' : ''}`}
     >
-      {hasAccent && <CategoryAccentStripe color={accentColor} />}
-      <div className={`content-stretch flex flex-col gap-[4px] items-start pr-[8px] py-[8px] relative size-full ${hasAccent ? 'pl-[14px]' : 'pl-[8px]'}`}>
+      {showAccentStripe && <CategoryAccentStripe color={accentColor} />}
+      <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative size-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
             role="button"
@@ -370,119 +286,60 @@ export function CategoryBlock({
                 onToggle(category.id);
               }
             }}
-            className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
+            className="nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccent ? 'pl-[12px]' : 'pl-[8px]'}`}>
+              <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccentPadding ? 'pl-[12px]' : 'pl-[8px]'}`}>
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
                     <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
-                  {isHovered && (
-                    <button
-                      type="button"
-                      onClick={(e) => e.stopPropagation()}
-                      className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move hover:bg-[rgba(0,0,0,0.05)]"
-                    >
-                      <div className="relative shrink-0 size-[24px]">
-                        <svg className="absolute inset-0 size-full" viewBox="0 0 24 24" fill="none">
-                          <circle cx="7" cy="5" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="12" cy="5" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="17" cy="5" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="7" cy="12" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="12" cy="12" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="17" cy="12" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="7" cy="19" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="12" cy="19" r="1.5" fill="#8b8e9b"/>
-                          <circle cx="17" cy="19" r="1.5" fill="#8b8e9b"/>
-                        </svg>
-                      </div>
-                    </button>
-                  )}
-                  <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
-                    <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                      <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                        <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                          <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                            <svg
-                              className="block size-full"
-                              fill="none"
-                              preserveAspectRatio="none"
-                              viewBox="0 0 5.34099 8.56066"
-                              style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                            >
-                              <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <CategoryDragHandle handleRef={dragHandleRef} />
+                  <CategoryHeaderChevron expanded={effectiveExpanded} />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {isExpanded && category.subcategories.map((subcategory, idx) => (
-          <div key={idx} className="content-stretch flex flex-col items-start overflow-clip relative shrink-0 w-full">
-            <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[4px] shrink-0 w-full">
-              <div className="content-stretch flex flex-col gap-[8px] items-start justify-center pb-[8px] pt-[12px] px-[8px] relative size-full">
-                <div className="content-stretch flex gap-[8px] items-start relative shrink-0 w-full">
-                  <div className="flex-[1_0_0] min-w-px relative">
-                    <div className="content-stretch flex items-start pl-[4px] relative size-full">
-                      <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                        <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-                          <div className="relative shrink-0 size-[24px]">
-                            <div
-                              className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]"
-                              style={{ maskImage: `url('${subcategory.icon}')` }}
-                            />
-                          </div>
-                          <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
-                            <p className="nav-megaservice-title font-semibold text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{subcategory.title}</p>
-                          </div>
-                        </div>
-                        <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-                          <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-                            <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                              <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 5.34099 8.56066">
-                                  <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                                </svg>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <ServiceItemsContainer showMoreDetails={showMoreDetails}>
-                  {subcategory.items.map((item) => (
-                    <ServiceWithSubservices
-                      key={item.id}
-                      service={{
-                        id: item.id,
-                        icon: subcategory.icon,
-                        title: item.title,
-                        subtitle: '',
-                      }}
-                      searchQuery={searchQuery}
-                      onAddToFavorites={toggleFavorite}
-                      isFavorite={favorites.includes(item.id)}
-                      showMoreDetails={showMoreDetails}
-                    />
-                  ))}
-                </ServiceItemsContainer>
-              </div>
-            </div>
-          </div>
+        <NavCollapse open={effectiveExpanded} className="w-full">
+          <div className="nav-category-block__body flex w-full flex-col gap-[4px] pt-[4px]">
+        {category.subcategories.map((subcategory) => (
+          <MegaserviceBlock
+            key={subcategory.id}
+            id={subcategory.id}
+            title={subcategory.title}
+            icon={subcategory.icon}
+            isExpanded={isMegaserviceExpanded(subcategory.id, expandedMegaservices, isForceCollapsed)}
+            showMoreDetails={showMoreDetails}
+            onToggle={onToggleMegaservice}
+            onNavigate={onMegaserviceNavigate}
+          >
+            {subcategory.items.map((item) => (
+              <ServiceItemWrapper key={item.id} showMoreDetails={showMoreDetails}>
+                <ServiceWithSubservices
+                  service={{
+                    id: item.id,
+                    icon: subcategory.icon,
+                    title: item.title,
+                    subtitle: '',
+                  }}
+                  searchQuery={searchQuery}
+                  onAddToFavorites={toggleFavorite}
+                  isFavorite={favorites.includes(item.id)}
+                  showMoreDetails={showMoreDetails}
+                />
+              </ServiceItemWrapper>
+            ))}
+          </MegaserviceBlock>
         ))}
+
+          </div>
+        </NavCollapse>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -515,7 +372,7 @@ export function SolutionBlock({
             onToggle(solution.id);
           }
         }}
-        className="solution-block__header relative flex w-full shrink-0 cursor-pointer items-center gap-[12px] overflow-hidden rounded-[4px] px-[14px] py-[8px] hover:bg-[rgba(0,0,0,0.03)]"
+        className="solution-block__header nav-interactive relative flex w-full shrink-0 cursor-pointer items-center gap-[12px] overflow-hidden rounded-[4px] px-[14px] py-[8px]"
       >
         <div className="pointer-events-none flex h-[32px] w-[48px] shrink-0 items-center justify-center opacity-[0.85]">
           <SolutionIllustration id={solution.illustrationId} />
@@ -531,42 +388,24 @@ export function SolutionBlock({
         </div>
 
         <div className="flex shrink-0 items-center">
-          <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
-            <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
-              <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">
-                <div className="absolute inset-[-7.07%_-28.28%_-7.07%_-14.14%]">
-                  <svg
-                    className="block size-full"
-                    fill="none"
-                    preserveAspectRatio="none"
-                    viewBox="0 0 5.34099 8.56066"
-                    style={{ transform: isExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s' }}
-                  >
-                    <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CategoryHeaderChevron expanded={isExpanded} />
         </div>
       </div>
 
-      {isExpanded && solution.services.length > 0 && (
-        <div className="px-[14px] pb-[8px]">
-          <ServiceItemsContainer showMoreDetails={showMoreDetails}>
-            {solution.services.map((service) => (
-              <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
-                <ServiceCardItem
-                  service={service}
-                  onAddToFavorites={toggleFavorite}
-                  isFavorite={favorites.includes(service.id)}
-                  showMoreDetails={showMoreDetails}
-                />
-              </ServiceItemWrapper>
-            ))}
-          </ServiceItemsContainer>
-        </div>
-      )}
+      <NavCollapse open={isExpanded && solution.services.length > 0}>
+        <CategoryServicesSection showMoreDetails={showMoreDetails ?? false}>
+          {solution.services.map((service) => (
+            <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
+              <ServiceCardItem
+                service={service}
+                onAddToFavorites={toggleFavorite}
+                isFavorite={favorites.includes(service.id)}
+                showMoreDetails={showMoreDetails}
+              />
+            </ServiceItemWrapper>
+          ))}
+        </CategoryServicesSection>
+      </NavCollapse>
     </div>
   );
 }

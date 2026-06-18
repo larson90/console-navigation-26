@@ -7,6 +7,7 @@ import {
 import { usePlatform } from '../../context/PlatformContext';
 import { Chips } from '../ui/chips';
 import { HeaderPlatformSelector } from '../HeaderPlatformSelector';
+import { HeaderLogoMorph } from '../HeaderLogoMorph';
 import type { LkHeaderConfig } from './lkHeaderConfig';
 
 const ASSETS = '/assets/lk-header';
@@ -132,13 +133,14 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
       <a
         href="/"
         className="lk-header__logo lk-header__logo--leading"
-        aria-label="Cloud.ru"
+        aria-label="На главную"
+        title="На главную"
         onClick={(e) => {
           e.preventDefault();
           navigate('/');
         }}
       >
-        <img src={`${ASSETS}/lk-header-logo-c.svg`} alt="cloud.ru" width={20} height={20} />
+        <HeaderLogoMorph />
       </a>
 
       {config.showPlatformSelector && (

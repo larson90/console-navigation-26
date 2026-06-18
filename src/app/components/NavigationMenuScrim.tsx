@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigationOverlayClose } from '../context/NavigationOverlayContext';
 import { NavigationMenuWidthProvider, useNavigationMenuWidth } from '../context/NavigationMenuWidthContext';
+import { CategoryDragLayer } from './CategoryDragLayer';
 
 interface NavigationMenuScrimProps {
   children: React.ReactNode;
@@ -15,8 +16,10 @@ function NavigationMenuScrimInner({ children }: NavigationMenuScrimProps) {
   };
 
   return (
-    <div
-      className={`bg-[rgba(0,0,0,0.32)] absolute inset-0 ${closeOverlay ? 'nav-proto-scrim' : ''}`}
+    <>
+      <CategoryDragLayer />
+      <div
+      className={`absolute inset-0 ${closeOverlay ? 'nav-proto-scrim' : 'bg-[rgba(0,0,0,0.32)]'}`}
       onClick={closeOverlay ? handleScrimClick : undefined}
       onKeyDown={undefined}
     >
@@ -37,6 +40,7 @@ function NavigationMenuScrimInner({ children }: NavigationMenuScrimProps) {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

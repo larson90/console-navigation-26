@@ -78,12 +78,14 @@ export interface ServiceCard {
 }
 
 export interface MegaService {
+  id: string;
   title: string;
   icon: string;
   services: ServiceCard[];
 }
 
 export interface ServiceSubcategory {
+  id: string;
   title: string;
   icon: string;
   services: ServiceCard[];
@@ -97,8 +99,22 @@ export interface ServiceCategory {
   subcategories?: ServiceSubcategory[];
 }
 
+export function getMegaserviceIdsFromPlatformCategories(categories: ServiceCategory[]): string[] {
+  const ids: string[] = [];
+  for (const category of categories) {
+    if (category.megaservice) ids.push(category.megaservice.id);
+    for (const subcategory of category.subcategories ?? []) ids.push(subcategory.id);
+  }
+  return ids;
+}
+
+export function getMegaserviceIdsFromControlCategories(categories: ControlCategory[]): string[] {
+  return categories.flatMap((category) => category.subcategories.map((subcategory) => subcategory.id));
+}
+
+/** @deprecated Используйте getMegaserviceIdsFromPlatformCategories */
 export function getMegaserviceCategoryIds(categories: ServiceCategory[]): string[] {
-  return categories.filter((category) => category.megaservice).map((category) => category.id);
+  return getMegaserviceIdsFromPlatformCategories(categories);
 }
 
 export interface ControlItem {
@@ -107,6 +123,7 @@ export interface ControlItem {
 }
 
 export interface ControlSubcategory {
+  id: string;
   title: string;
   icon: string;
   items: ControlItem[];
@@ -187,11 +204,16 @@ export function resolveCategoryAccentColor(
   return DEFAULT_CATEGORY_COLORS[categoryId] ?? CATEGORY_COLORS[categoryId] ?? null;
 }
 
+export function categoryHasAccentSlot(categoryId: string): boolean {
+  return categoryId in DEFAULT_CATEGORY_COLORS;
+}
+
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
   {
     id: 'infrastructure',
     title: 'Инфраструктура',
     megaservice: {
+      id: 'compute',
       title: 'Compute',
       icon: imgIcon2Color13,
       services: [
@@ -233,6 +255,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     id: 'ai-factory',
     title: 'AI Factory',
     megaservice: {
+      id: 'distributed-train',
       title: 'Distributed Train',
       icon: imgIcon2Color34,
       services: [
@@ -303,6 +326,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     id: 'development',
     title: 'Инструменты разработчика',
     megaservice: {
+      id: 'repo',
       title: 'Repo',
       icon: imgIcon2Color35,
       services: [
@@ -332,6 +356,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     services: [],
     subcategories: [
       {
+        id: 'access-rights',
         title: 'Права доступа',
         icon: imgIcon2Color5,
         services: [
@@ -343,6 +368,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
       {
+        id: 'administration',
         title: 'Администрирование',
         icon: imgIcon2Color6,
         services: [
@@ -353,6 +379,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         ],
       },
       {
+        id: 'security',
         title: 'Безопасность',
         icon: imgIcon2Color5,
         services: [
@@ -382,6 +409,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     id: 'resource-management',
     title: 'Управление ресурсами',
     megaservice: {
+      id: 'resource-manager',
       title: 'Менеджер ресурсов',
       icon: imgIcon2Color8,
       services: [
@@ -401,6 +429,7 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
     title: 'Финансы',
     subcategories: [
       {
+        id: 'cost-control',
         title: 'Контроль затрат',
         icon: imgIcon2Color4,
         items: [
@@ -418,6 +447,7 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
     title: 'Безопасность и администрирование',
     subcategories: [
       {
+        id: 'access-rights',
         title: 'Права доступа',
         icon: imgIcon2Color5,
         items: [
@@ -429,6 +459,7 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
         ],
       },
       {
+        id: 'administration',
         title: 'Администрирование',
         icon: imgIcon2Color6,
         items: [
@@ -439,6 +470,7 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
         ],
       },
       {
+        id: 'security',
         title: 'Безопасность',
         icon: imgIcon2Color5,
         items: [
@@ -457,6 +489,7 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
     title: 'Обсерватория',
     subcategories: [
       {
+        id: 'monitoring',
         title: 'Мониторинг',
         icon: imgIcon2Color7,
         items: [
@@ -476,6 +509,7 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
     title: 'Управление ресурсами',
     subcategories: [
       {
+        id: 'resource-manager',
         title: 'Менеджер ресурсов',
         icon: imgIcon2Color8,
         items: [

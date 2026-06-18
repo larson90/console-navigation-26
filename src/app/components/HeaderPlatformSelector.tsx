@@ -3,6 +3,8 @@ import { PLATFORMS, type PlatformOption } from '../data/platformCatalog';
 import { usePlatform } from '../context/PlatformContext';
 import { PlatformItemIcon } from './PlatformIcons';
 
+const ASSETS = '/assets/lk-header';
+
 interface HeaderPlatformSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -67,6 +69,14 @@ export function HeaderPlatformSelector({ open, onOpenChange }: HeaderPlatformSel
         onClick={() => onOpenChange(!open)}
       >
         <PlatformItemIcon id={selectedId} size="sm" />
+        <img
+          src={`${ASSETS}/lk-header-chev-down.svg`}
+          alt=""
+          width={16}
+          height={16}
+          className={`lk-header__platform-chev${open ? ' lk-header__platform-chev--up' : ''}`}
+          aria-hidden
+        />
       </button>
 
       {open && (

@@ -31,7 +31,7 @@ function LkLayoutContent() {
   const activePrototype = getPrototypeIdFromPath(pathname);
 
   return (
-    <div className="min-h-screen bg-[#f5f6f8]">
+    <div className="min-h-screen bg-[#eeeff3]">
       <LkHeader prototypeId={selectedPrototypeId} />
       <Outlet />
       {activePrototype && (
