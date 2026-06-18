@@ -2,8 +2,9 @@ import { createBrowserRouter } from 'react-router';
 import LkLayout from './layouts/LkLayout';
 import LkDashboard from './pages/LkDashboard';
 
+/** Дашборд остаётся под оверлеем меню — виден через затемнение. */
 function PrototypeRoutePlaceholder() {
-  return null;
+  return <LkDashboard />;
 }
 
 export const router = createBrowserRouter(

@@ -294,14 +294,12 @@ export function ServiceCardItem({
     }
   };
 
-  const dragCursorClass = enableDrag ? 'cursor-move' : 'cursor-default';
-
   if (showMoreDetails) {
     return (
       <div
         ref={enableDrag ? drag : undefined}
         onMouseLeave={handleMouseLeave}
-        className={`relative h-full ${dragCursorClass} ${isDragging ? 'opacity-50' : ''}`}
+        className={`relative h-full ${isDragging ? 'opacity-50' : ''}`}
       >
         <div className="nav-service-card nav-service-card--detailed bg-[#fdfdfd] border border-[#e6e8ef] content-stretch flex flex-col gap-[8px] h-full min-h-[96px] p-[12px] relative rounded-[6px]">
           <div className="content-stretch flex gap-[10px] items-start relative flex-[1_0_0]">
@@ -329,7 +327,7 @@ export function ServiceCardItem({
     <div
       ref={setCompactCardRef}
       onMouseLeave={handleMouseLeave}
-      className={`nav-service-card min-h-[32px] relative rounded-[4px] ${dragCursorClass} ${isDragging ? 'opacity-50' : ''}`}
+      className={`nav-service-card min-h-[32px] relative rounded-[4px] ${isDragging ? 'opacity-50' : ''}`}
     >
       {showTooltip && (
         <ServiceDescriptionTooltip
