@@ -4,10 +4,13 @@ import { ServiceCardItem } from './navigationServiceUi';
 import { CategoryBlock, PlatformCategoryBlock } from './navigationCategoryBlocks';
 import { FavoritesList } from './FavoritesList';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
+import { NavigationMenuMainPanel } from './NavigationMenuMainPanel';
 import { NavTabServicesGridIcon } from './navigationTabIcons';
 import { NavigationMiniBanners } from './navigationMiniBanners';
 import { PlatformSelector } from './PlatformSelector';
+import { CategoryColorSettings } from './CategoryColorSettings';
 import { useFavorites } from '../hooks/useFavorites';
+import { useCategoryColors } from '../hooks/useCategoryColors';
 import {
   PLATFORM_SERVICE_CATEGORIES,
   usePlatformServiceSearch,
@@ -47,7 +50,6 @@ import {
   type ControlCategory,
   SERVICE_CATEGORIES,
   CONTROL_CATEGORIES,
-  CATEGORY_COLORS,
 } from '../data/serviceCatalog';
 
 interface SolutionCard {
@@ -135,6 +137,8 @@ export default function NavigationMenuPrototype2() {
   const showSolutionsTab = false;
   const { favorites, favoriteServices, isOver, drop, toggleFavorite } =
     useFavorites(imgIcon2Color13);
+  const { categoryColors, colorsEnabled, setCategoryColor, setColorsEnabled, resetCategoryColors } =
+    useCategoryColors();
   const [searchQuery, setSearchQuery] = useState('');
   const [moreDetails, setMoreDetails] = useState(false);
   const [activeTab, setActiveTab] = useState<'platform' | 'control' | 'solutions'>('platform');
@@ -267,7 +271,7 @@ export default function NavigationMenuPrototype2() {
 
   return (
     <NavigationMenuScrim>
-          <div className="content-stretch flex items-start justify-center max-w-[inherit] min-w-[inherit] pl-[16px] pt-0 relative size-full">
+          <div className="flex items-start w-full h-full pl-[16px] pt-0 relative">
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
@@ -358,7 +362,7 @@ export default function NavigationMenuPrototype2() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-[1_0_0] h-full min-w-px relative overflow-y-auto">
+            <NavigationMenuMainPanel>
               <div className="content-stretch flex flex-col gap-[8px] items-start pt-[16px] pb-0 relative pr-[16px]">
 
                 {/* Quick access cards */}
@@ -460,6 +464,13 @@ export default function NavigationMenuPrototype2() {
                           </span>
                         </label>
                       )}
+                      <CategoryColorSettings
+                        categoryColors={categoryColors}
+                        colorsEnabled={colorsEnabled}
+                        onColorChange={setCategoryColor}
+                        onColorsEnabledChange={setColorsEnabled}
+                        onReset={resetCategoryColors}
+                      />
                       <button
                         type="button"
                         onClick={toggleExpandAllCategories}
@@ -501,6 +512,8 @@ export default function NavigationMenuPrototype2() {
                         searchQuery={searchQuery}
                         isMegaserviceExpanded={expandedMegaservices.includes(category.id)}
                         onToggleMegaservice={toggleMegaservice}
+                        categoryColors={categoryColors}
+                        colorsEnabled={colorsEnabled}
                       />
                     );
                   })}
@@ -523,6 +536,8 @@ export default function NavigationMenuPrototype2() {
                       favorites={favorites}
                       showMoreDetails={false}
                       searchQuery={searchQuery}
+                      categoryColors={categoryColors}
+                      colorsEnabled={colorsEnabled}
                     />
                   );
                 })}
@@ -626,7 +641,7 @@ export default function NavigationMenuPrototype2() {
                   </div>
                 )}
               </div>
-            </div>
+            </NavigationMenuMainPanel>
 
           </div>
     </NavigationMenuScrim>

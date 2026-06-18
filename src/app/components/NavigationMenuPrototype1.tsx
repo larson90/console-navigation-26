@@ -4,9 +4,12 @@ import { useDrag, useDrop } from 'react-dnd';
 import { Switch } from './ui/switch';
 import { FavoritesList } from './FavoritesList';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
+import { NavigationMenuMainPanel } from './NavigationMenuMainPanel';
 import { NavigationMiniBanners } from './navigationMiniBanners';
 import { PlatformCategoryBlock as SharedPlatformCategoryBlock } from './navigationCategoryBlocks';
+import { CategoryColorSettings } from './CategoryColorSettings';
 import { useFavorites } from '../hooks/useFavorites';
+import { useCategoryColors } from '../hooks/useCategoryColors';
 import {
   PLATFORM_SERVICE_CATEGORIES,
   usePlatformServiceSearch,
@@ -41,6 +44,7 @@ import {
   CONTROL_CATEGORIES,
   CATEGORY_COLORS,
   getServiceDescription,
+  resolveCategoryAccentColor,
 } from '../data/serviceCatalog';
 
 /** В прототипе 1 «Центр управления» не дублирует platform-категории (Мониторинг, Менеджер ресурсов). */
@@ -138,6 +142,8 @@ interface PlatformCategoryBlockProps {
   toggleFavorite: (id: string) => void;
   favorites: string[];
   showMoreDetails: boolean;
+  categoryColors?: Record<string, string | null>;
+  colorsEnabled?: boolean;
 }
 
 interface CategoryBlockProps {
@@ -151,6 +157,8 @@ interface CategoryBlockProps {
   toggleFavorite: (id: string) => void;
   favorites: string[];
   showMoreDetails: boolean;
+  categoryColors?: Record<string, string | null>;
+  colorsEnabled?: boolean;
 }
 
 function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails }: PlatformCategoryBlockProps) {
@@ -325,9 +333,10 @@ function PlatformCategoryBlock({ category, index, isExpanded, isHovered, onToggl
   );
 }
 
-function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails }: CategoryBlockProps) {
+function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMove, onHover, toggleFavorite, favorites, showMoreDetails, categoryColors, colorsEnabled = true }: CategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
+  const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
+  const hasAccent = accentColor !== null;
 
   const [{ isDragging }, drag] = useDrag({
     type: 'CATEGORY',
@@ -359,8 +368,14 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
       className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full"
       style={{ opacity: isDragging ? 0.5 : 1 }}
     >
-      <div aria-hidden="true" className="absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]" style={{ borderColor }} />
-      <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
+      {hasAccent && (
+        <div
+          aria-hidden="true"
+          className="absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]"
+          style={{ borderColor: accentColor }}
+        />
+      )}
+      <div className={`content-stretch flex flex-col gap-[4px] items-start pr-[8px] py-[8px] relative size-full ${hasAccent ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
             role="button"
@@ -375,7 +390,7 @@ function CategoryBlock({ category, index, isExpanded, isHovered, onToggle, onMov
             className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
+              <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccent ? 'pl-[12px]' : 'pl-[8px]'}`}>
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
                     <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
@@ -698,6 +713,8 @@ export default function NavigationMenuPrototype1() {
   const showSolutionsTab = false;
   const { favorites, favoriteServices, isOver, drop, toggleFavorite } =
     useFavorites(imgIcon2Color13);
+  const { categoryColors, colorsEnabled, setCategoryColor, setColorsEnabled, resetCategoryColors } =
+    useCategoryColors();
   const [searchQuery, setSearchQuery] = useState('');
   const [moreDetails, setMoreDetails] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>(
@@ -820,7 +837,7 @@ export default function NavigationMenuPrototype1() {
 
   return (
     <NavigationMenuScrim>
-          <div className="content-stretch flex items-start justify-center max-w-[inherit] min-w-[inherit] pt-0 relative size-full">
+          <div className="flex items-start w-full h-full pt-0 relative">
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
@@ -944,7 +961,7 @@ export default function NavigationMenuPrototype1() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-[1_0_0] h-full min-w-px relative overflow-y-auto">
+            <NavigationMenuMainPanel>
               <div className="content-stretch flex flex-col gap-[8px] items-start pb-0 relative pr-[20px]">
 
                 {/* Search and Controls */}
@@ -989,6 +1006,13 @@ export default function NavigationMenuPrototype1() {
                         Больше деталей
                       </span>
                     </label>
+                    <CategoryColorSettings
+                      categoryColors={categoryColors}
+                      colorsEnabled={colorsEnabled}
+                      onColorChange={setCategoryColor}
+                      onColorsEnabledChange={setColorsEnabled}
+                      onReset={resetCategoryColors}
+                    />
                     <button
                       type="button"
                       onClick={toggleExpandAllCategories}
@@ -1026,6 +1050,8 @@ export default function NavigationMenuPrototype1() {
                       searchQuery={searchQuery}
                       isMegaserviceExpanded={expandedMegaservices.includes(category.id)}
                       onToggleMegaservice={toggleMegaservice}
+                      categoryColors={categoryColors}
+                      colorsEnabled={colorsEnabled}
                     />
                   );
                 })}
@@ -1047,6 +1073,8 @@ export default function NavigationMenuPrototype1() {
                       toggleFavorite={toggleFavorite}
                       favorites={favorites}
                       showMoreDetails={moreDetails}
+                      categoryColors={categoryColors}
+                      colorsEnabled={colorsEnabled}
                     />
                   );
                 })}
@@ -1150,7 +1178,7 @@ export default function NavigationMenuPrototype1() {
                   </div>
                 )}
               </div>
-            </div>
+            </NavigationMenuMainPanel>
 
           </div>
     </NavigationMenuScrim>

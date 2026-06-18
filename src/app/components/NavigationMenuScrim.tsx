@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigationOverlayClose } from '../context/NavigationOverlayContext';
+import { NavigationMenuWidthProvider, useNavigationMenuWidth } from '../context/NavigationMenuWidthContext';
 
 interface NavigationMenuScrimProps {
   children: React.ReactNode;
 }
 
-/** Обёртка меню: клик по затемнённой области справа от дровера закрывает оверлей. */
-export function NavigationMenuScrim({ children }: NavigationMenuScrimProps) {
+function NavigationMenuScrimInner({ children }: NavigationMenuScrimProps) {
   const closeOverlay = useNavigationOverlayClose();
+  const { drawerWidth, isResizing } = useNavigationMenuWidth();
 
   const handleScrimClick = () => {
     closeOverlay?.();
@@ -24,7 +25,11 @@ export function NavigationMenuScrim({ children }: NavigationMenuScrimProps) {
         onClick={closeOverlay ? handleScrimClick : undefined}
       >
         <div
-          className="bg-[#eeeff3] flex-[1_0_0] h-full max-w-[900px] min-w-[744px] relative shadow-[0px_0px_16px_0px_rgba(0,0,0,0.08),0px_24px_16px_0px_rgba(0,0,0,0.08)]"
+          className="nav-menu-drawer bg-[#eeeff3] h-full relative shadow-[0px_0px_16px_0px_rgba(0,0,0,0.08),0px_24px_16px_0px_rgba(0,0,0,0.08)] shrink-0"
+          style={{
+            width: drawerWidth,
+            transition: isResizing ? 'none' : 'width 0.2s ease',
+          }}
           onClick={(e) => e.stopPropagation()}
           role="presentation"
         >
@@ -32,5 +37,14 @@ export function NavigationMenuScrim({ children }: NavigationMenuScrimProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** Обёртка меню: клик по затемнённой области справа от дровера закрывает оверлей. */
+export function NavigationMenuScrim({ children }: NavigationMenuScrimProps) {
+  return (
+    <NavigationMenuWidthProvider>
+      <NavigationMenuScrimInner>{children}</NavigationMenuScrimInner>
+    </NavigationMenuWidthProvider>
   );
 }

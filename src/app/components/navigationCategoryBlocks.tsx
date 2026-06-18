@@ -9,10 +9,20 @@ import {
 import {
   type ServiceCategory,
   type ControlCategory,
-  CATEGORY_COLORS,
+  resolveCategoryAccentColor,
 } from '../data/serviceCatalog';
 import { type Solution } from '../data/solutionsCatalog';
 import { SolutionIllustration } from './solutionIllustrations';
+
+function CategoryAccentStripe({ color }: { color: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]"
+      style={{ borderColor: color }}
+    />
+  );
+}
 
 export interface PlatformCategoryBlockProps {
   category: ServiceCategory;
@@ -28,6 +38,8 @@ export interface PlatformCategoryBlockProps {
   searchQuery?: string;
   isMegaserviceExpanded: boolean;
   onToggleMegaservice: (categoryId: string) => void;
+  categoryColors?: Record<string, string | null>;
+  colorsEnabled?: boolean;
 }
 
 export interface CategoryBlockProps {
@@ -42,6 +54,8 @@ export interface CategoryBlockProps {
   favorites: string[];
   showMoreDetails: boolean;
   searchQuery?: string;
+  categoryColors?: Record<string, string | null>;
+  colorsEnabled?: boolean;
 }
 
 export function PlatformCategoryBlock({
@@ -58,10 +72,13 @@ export function PlatformCategoryBlock({
   searchQuery = '',
   isMegaserviceExpanded,
   onToggleMegaservice,
+  categoryColors,
+  colorsEnabled = true,
 }: PlatformCategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
 
-  const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
+  const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
+  const hasAccent = accentColor !== null;
 
   const [{ isDragging }, drag] = useDrag({
     type: 'PLATFORM_CATEGORY',
@@ -93,8 +110,8 @@ export function PlatformCategoryBlock({
       className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full"
       style={{ opacity: isDragging ? 0.5 : 1 }}
     >
-      <div aria-hidden="true" className={`absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]`} style={{ borderColor }} />
-      <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
+      {hasAccent && <CategoryAccentStripe color={accentColor} />}
+      <div className={`content-stretch flex flex-col gap-[4px] items-start pr-[8px] py-[8px] relative size-full ${hasAccent ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
             role="button"
@@ -109,7 +126,7 @@ export function PlatformCategoryBlock({
             className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
+              <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccent ? 'pl-[12px]' : 'pl-[8px]'}`}>
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
                     <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>
@@ -303,9 +320,12 @@ export function CategoryBlock({
   favorites,
   showMoreDetails,
   searchQuery = '',
+  categoryColors,
+  colorsEnabled = true,
 }: CategoryBlockProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const borderColor = CATEGORY_COLORS[category.id] || '#dde0ea';
+  const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
+  const hasAccent = accentColor !== null;
 
   const [{ isDragging }, drag] = useDrag({
     type: 'CATEGORY',
@@ -337,8 +357,8 @@ export function CategoryBlock({
       className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full"
       style={{ opacity: isDragging ? 0.5 : 1 }}
     >
-      <div aria-hidden="true" className="absolute border-l-6 border-solid inset-0 pointer-events-none rounded-[4px]" style={{ borderColor }} />
-      <div className="content-stretch flex flex-col gap-[4px] items-start pl-[14px] pr-[8px] py-[8px] relative size-full">
+      {hasAccent && <CategoryAccentStripe color={accentColor} />}
+      <div className={`content-stretch flex flex-col gap-[4px] items-start pr-[8px] py-[8px] relative size-full ${hasAccent ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
             role="button"
@@ -353,7 +373,7 @@ export function CategoryBlock({
             className="content-stretch flex gap-[8px] items-start pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px] hover:bg-[rgba(0,0,0,0.03)]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
-              <div className="content-stretch flex items-center pl-[12px] relative size-full min-h-[32px]">
+              <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccent ? 'pl-[12px]' : 'pl-[8px]'}`}>
                 <div className="content-stretch flex gap-[8px] items-center relative shrink-0 flex-[1_0_0]">
                   <div className="flex flex-col justify-center not-italic overflow-hidden relative shrink-0 text-ellipsis whitespace-nowrap">
                     <p className="nav-category-title font-semibold text-[16px] leading-[24px] tracking-[0.15px] text-[#41424e] overflow-hidden text-ellipsis">{category.title}</p>

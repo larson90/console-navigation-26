@@ -139,6 +139,54 @@ export const CATEGORY_COLORS: Record<string, string> = {
   finance: '#f2cea3',
 };
 
+/** 10 пресетов для настройки цветов категорий */
+export const CATEGORY_COLOR_PRESETS = [
+  '#f4bdc1',
+  '#abe3ce',
+  '#ceb8ef',
+  '#f2e0b6',
+  '#adbaf2',
+  '#efb7dd',
+  '#94dcf7',
+  '#96e6d5',
+  '#f4e4bf',
+  '#b5c1cf',
+] as const;
+
+export const CATEGORY_BORDER_NEUTRAL = '#dde0ea';
+
+const PRESET_FALLBACK_MAP: Record<string, string> = {
+  '#b0e1f3': '#94dcf7',
+  '#eeb0c2': '#f4bdc1',
+  '#f2cea3': '#f2e0b6',
+};
+
+function mapColorToPreset(color: string): string {
+  if ((CATEGORY_COLOR_PRESETS as readonly string[]).includes(color)) return color;
+  return PRESET_FALLBACK_MAP[color] ?? CATEGORY_COLOR_PRESETS[0];
+}
+
+export const DEFAULT_CATEGORY_COLORS: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_COLORS).map(([id, color]) => [id, mapColorToPreset(color)]),
+);
+
+export function resolveCategoryAccentColor(
+  categoryId: string,
+  options?: {
+    categoryColors?: Record<string, string | null>;
+    colorsEnabled?: boolean;
+  },
+): string | null {
+  const { categoryColors, colorsEnabled = true } = options ?? {};
+  if (!colorsEnabled) return null;
+
+  if (categoryColors && categoryId in categoryColors) {
+    return categoryColors[categoryId];
+  }
+
+  return DEFAULT_CATEGORY_COLORS[categoryId] ?? CATEGORY_COLORS[categoryId] ?? null;
+}
+
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
   {
     id: 'infrastructure',
@@ -441,6 +489,24 @@ export const CONTROL_CATEGORIES: ControlCategory[] = [
     ],
   },
 ];
+
+export interface ColorConfigurableCategory {
+  id: string;
+  title: string;
+  defaultColor: string;
+}
+
+export function getColorConfigurableCategories(): ColorConfigurableCategory[] {
+  const titles = new Map<string, string>();
+  for (const category of SERVICE_CATEGORIES) titles.set(category.id, category.title);
+  for (const category of CONTROL_CATEGORIES) titles.set(category.id, category.title);
+
+  return Object.entries(DEFAULT_CATEGORY_COLORS).map(([id, defaultColor]) => ({
+    id,
+    title: titles.get(id) ?? id,
+    defaultColor,
+  }));
+}
 
 export const SERVICE_DESCRIPTIONS: Record<string, string> = {
   vm: 'Создание и управление виртуальными машинами: конфигурации, запуск, остановка и масштабирование.',

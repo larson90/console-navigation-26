@@ -7,6 +7,7 @@ import {
   normalizeSearchQuery,
   type ServiceHierarchyNode,
 } from '../data/serviceHierarchy';
+import { useNavigationMenuWidth } from '../context/NavigationMenuWidthContext';
 
 export function ServiceItemsContainer({
   showMoreDetails,
@@ -17,12 +18,19 @@ export function ServiceItemsContainer({
   className?: string;
   children: React.ReactNode;
 }) {
+  const { serviceColumns } = useNavigationMenuWidth();
+
   return (
     <div
       className={
         showMoreDetails
-          ? `grid grid-cols-[repeat(2,minmax(0,1fr))] gap-[8px] items-start relative shrink-0 w-full ${className}`
+          ? `nav-service-items-grid gap-[8px] items-start relative shrink-0 w-full ${className}`
           : `content-start flex flex-wrap gap-0 items-start relative shrink-0 w-full ${className}`
+      }
+      style={
+        showMoreDetails
+          ? ({ '--nav-service-cols': serviceColumns } as React.CSSProperties)
+          : undefined
       }
     >
       {children}
@@ -38,7 +46,7 @@ export function ServiceItemWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <div className={showMoreDetails ? 'relative min-w-0' : 'flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative'}>
+    <div className={showMoreDetails ? 'nav-service-item relative min-w-0' : 'flex-[1_0_0] max-w-[286.5px] min-w-[200px] relative'}>
       {children}
     </div>
   );
