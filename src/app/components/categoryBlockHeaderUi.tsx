@@ -65,6 +65,22 @@ export function CategoryHeaderChevron({ expanded }: { expanded: boolean }) {
   );
 }
 
+/** Шеврон рядом с кликабельным заголовком — всегда вправо, без подложки. */
+export function ClickableTitleChevron() {
+  return (
+    <span className="nav-title-chevron-wrap" aria-hidden="true">
+      <svg
+        className="nav-title-chevron"
+        fill="none"
+        preserveAspectRatio="none"
+        viewBox="0 0 5.34099 8.56066"
+      >
+        <path d="M0.53033 0.53033L4.28033 4.28033L0.53033 8.03033" stroke="#787B8A" strokeWidth="1.5" />
+      </svg>
+    </span>
+  );
+}
+
 export function CategoryCollapsedHeader({
   title,
   hasAccentPadding,
