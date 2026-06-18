@@ -91,19 +91,22 @@ export default function NavigationMenuPrototype3() {
   const expandAllPlatform = () => {
     const allCategoryIds = PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id);
     setExpandedPlatformCategories(allCategoryIds);
-    setExpandedMegaservices((prev) => [...new Set([...prev, ...PLATFORM_MEGASERVICE_IDS])]);
+    setExpandedCategories(CONTROL_CATEGORIES.map((cat) => cat.id));
+    setExpandedMegaservices((prev) => [...new Set([...prev, ...ALL_MEGASERVICE_IDS])]);
   };
 
   const collapseAllPlatform = () => {
     setExpandedPlatformCategories([]);
-    setExpandedMegaservices((prev) => prev.filter((id) => !PLATFORM_MEGASERVICE_IDS.includes(id)));
+    setExpandedCategories([]);
+    setExpandedMegaservices((prev) => prev.filter((id) => !ALL_MEGASERVICE_IDS.includes(id)));
   };
 
 
   const isAllExpanded =
     activeTab === 'platform'
       ? PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id)) &&
-        PLATFORM_MEGASERVICE_IDS.every((id) => expandedMegaservices.includes(id))
+        CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id)) &&
+        ALL_MEGASERVICE_IDS.every((id) => expandedMegaservices.includes(id))
       : activeTab === 'control'
         ? CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id)) &&
           CONTROL_MEGASERVICE_IDS.every((id) => expandedMegaservices.includes(id))
@@ -397,7 +400,8 @@ export default function NavigationMenuPrototype3() {
                   </div>
                 </div>
 
-                {activeTab === 'platform' && (showFilteredCatalog || !searchQuery.trim()) && (
+                {activeTab === 'platform' &&
+                  (showFilteredCatalog || filteredControlCategories.length > 0 || !searchQuery.trim()) && (
                   <CategorySortableList className="nav-tab-panel w-full">
                   {platformCategoryOrder
                     .filter((categoryId) => categoryId !== 'security-administration')
@@ -426,6 +430,35 @@ export default function NavigationMenuPrototype3() {
                         />
                       );
                     })}
+                  {categoryOrder.map((categoryId, index) => {
+                    const category = filteredControlCategories.find((c) => c.id === categoryId);
+                    if (!category) return null;
+
+                    const platformCount = platformCategoryOrder.filter(
+                      (id) => id !== 'security-administration' && filteredCategories.some((c) => c.id === id),
+                    ).length;
+
+                    return (
+                      <CategoryBlock
+                        key={`control-${category.id}`}
+                        category={category}
+                        index={platformCount + index}
+                        isExpanded={expandedCategories.includes(category.id)}
+                        isHovered={hoveredCategory === category.id}
+                        onToggle={toggleCategory}
+                        onMove={moveCategory}
+                        onHover={setHoveredCategory}
+                        toggleFavorite={toggleFavorite}
+                        favorites={favorites}
+                        showMoreDetails={moreDetails}
+                        searchQuery={searchQuery}
+                        expandedMegaservices={expandedMegaservices}
+                        onToggleMegaservice={toggleMegaservice}
+                        categoryColors={categoryColors}
+                        colorsEnabled={colorsEnabled}
+                      />
+                    );
+                  })}
                   </CategorySortableList>
                 )}
 
