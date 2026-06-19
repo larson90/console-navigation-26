@@ -1,5 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { useNavigationMenuWidth } from '../context/NavigationMenuWidthContext';
+import { AppTooltip } from './AppTooltip';
 
 interface NavigationMenuMainPanelProps {
   children: React.ReactNode;
@@ -52,17 +53,18 @@ export function NavigationMenuMainPanel({ children, className = '' }: Navigation
         <div className="nav-menu-main-panel__scroll h-full min-w-0 overflow-y-auto">
           {children}
         </div>
-        <div
-          ref={handleRef}
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Изменить ширину меню"
-          title="Потяните, чтобы изменить ширину"
-          className={`nav-menu-resize-handle${isResizing ? ' nav-menu-resize-handle--active' : ''}`}
-          onPointerDown={handlePointerDown}
-        >
-          <span className="nav-menu-resize-handle__line" aria-hidden="true" />
-        </div>
+        <AppTooltip label="Потяните, чтобы изменить ширину" side="left">
+          <div
+            ref={handleRef}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Изменить ширину меню"
+            className={`nav-menu-resize-handle${isResizing ? ' nav-menu-resize-handle--active' : ''}`}
+            onPointerDown={handlePointerDown}
+          >
+            <span className="nav-menu-resize-handle__line" aria-hidden="true" />
+          </div>
+        </AppTooltip>
       </div>
     </div>
   );

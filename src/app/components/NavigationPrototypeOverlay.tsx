@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import { NavigationOverlayContext } from '../context/NavigationOverlayContext';
+import { useNavigationPrototype } from '../context/NavigationPrototypeContext';
 import type { NavigationPrototypeId } from '../navigationPrototype';
 
 interface NavigationPrototypeOverlayProps {
@@ -9,9 +9,11 @@ interface NavigationPrototypeOverlayProps {
 }
 
 export function NavigationPrototypeOverlay({ prototypeId, children }: NavigationPrototypeOverlayProps) {
-  const navigate = useNavigate();
+  const { closeMenu } = useNavigationPrototype();
 
-  const close = useCallback(() => navigate('/'), [navigate]);
+  const close = useCallback(() => {
+    closeMenu();
+  }, [closeMenu]);
 
   useEffect(() => {
     const prev = document.documentElement.style.overflow;

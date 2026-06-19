@@ -1,0 +1,55 @@
+.user-action-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 10000;
+  max-width: calc(100vw - 32px);
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--lk-tooltip-bg);
+  color: var(--lk-tooltip-fg);
+  font: 400 13px/16px system-ui, sans-serif;
+  letter-spacing: 0.1px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.user-action-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.screen-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(238, 239, 243, 0.76);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: auto;
+}
+
+.screen-loading--visible {
+  opacity: 1;
+}
+
+.screen-loading__spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(65, 66, 78, 0.16);
+  border-top-color: #41424e;
+  border-radius: 50%;
+  animation: screen-loading-spin 0.7s linear infinite;
+}
+
+@keyframes screen-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

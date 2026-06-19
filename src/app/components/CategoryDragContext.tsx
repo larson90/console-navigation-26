@@ -4,7 +4,8 @@ import { CATEGORY_COLLAPSE_MS } from './categoryDnd';
 export interface CategoryExpandSnapshot {
   platformCategories: string[];
   controlCategories: string[];
-  megaservices: string[];
+  platformMegaservices: string[];
+  controlMegaservices: string[];
 }
 
 interface CategoryDragContextValue {

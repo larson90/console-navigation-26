@@ -87,7 +87,9 @@ export function MegaserviceBlock({
             <CategoryHeaderChevron expanded={isExpanded} />
           </div>
           <NavCollapse open={isExpanded}>
-            <CategoryServicesSection showMoreDetails={showMoreDetails}>{children}</CategoryServicesSection>
+            {isExpanded ? (
+              <CategoryServicesSection showMoreDetails={showMoreDetails}>{children}</CategoryServicesSection>
+            ) : null}
           </NavCollapse>
         </div>
       </div>

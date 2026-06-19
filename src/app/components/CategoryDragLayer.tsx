@@ -2,6 +2,7 @@ import { useDragLayer } from 'react-dnd';
 import { CategoryCollapsedHeader } from './categoryBlockHeaderUi';
 import {
   CONTROL_CATEGORY_TYPE,
+  NAV_CATEGORY_TYPE,
   PLATFORM_CATEGORY_TYPE,
   type CategoryDragItem,
 } from './categoryDnd';
@@ -37,7 +38,9 @@ export function CategoryDragLayer() {
   }));
 
   const isCategoryDrag =
-    itemType === PLATFORM_CATEGORY_TYPE || itemType === CONTROL_CATEGORY_TYPE;
+    itemType === PLATFORM_CATEGORY_TYPE ||
+    itemType === CONTROL_CATEGORY_TYPE ||
+    itemType === NAV_CATEGORY_TYPE;
 
   if (!isDragging || !isCategoryDrag || !item || !clientOffset) {
     return null;

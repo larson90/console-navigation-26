@@ -1,14 +1,27 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import { usePlatform } from '../context/PlatformContext';
+import { navigateToServiceTarget } from '../navigation/serviceNavigation';
 
 const FIGMA = '/assets/lk-figma';
 
+const PROJECT_QUICK_LINKS = [
+  { label: 'Пользователи', serviceId: 'users-control' },
+  { label: 'Квоты', serviceId: 'admin-quotas' },
+  { label: 'Мониторинг', serviceId: 'monitoring' },
+] as const;
+
 export default function LkDashboard() {
+  const navigate = useNavigate();
   const { pageTitle, selectedProjectName } = usePlatform();
 
   useEffect(() => {
     document.title = pageTitle;
   }, [pageTitle]);
+
+  const openQuickLink = (serviceId: string) => {
+    navigateToServiceTarget(navigate, serviceId);
+  };
 
   return (
     <div className="lk-page">
@@ -30,18 +43,17 @@ export default function LkDashboard() {
                 </button>
               </div>
               <div className="stat-row">
-                <div className="stat-cell">
-                  <span>Пользователи</span>
-                  <span>›</span>
-                </div>
-                <div className="stat-cell">
-                  <span>Квоты</span>
-                  <span>›</span>
-                </div>
-                <div className="stat-cell">
-                  <span>Мониторинг</span>
-                  <span>›</span>
-                </div>
+                {PROJECT_QUICK_LINKS.map((link) => (
+                  <button
+                    key={link.serviceId}
+                    type="button"
+                    className="stat-cell"
+                    onClick={() => openQuickLink(link.serviceId)}
+                  >
+                    <span>{link.label}</span>
+                    <span aria-hidden>›</span>
+                  </button>
+                ))}
               </div>
             </div>
 

@@ -39,7 +39,7 @@ export function CategoryDragHandle({
 
 export function CategoryHeaderChevron({ expanded }: { expanded: boolean }) {
   return (
-    <div className="content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
+    <div className="nav-collapse-chevron content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px]">
       <div className="bg-[#e6e8ef] content-stretch flex items-center relative rounded-[4px] shrink-0 size-[20px]">
         <div className="flex-[1_0_0] h-full min-w-px overflow-clip relative">
           <div className="absolute inset-[31.25%_37.5%_31.25%_43.75%]">

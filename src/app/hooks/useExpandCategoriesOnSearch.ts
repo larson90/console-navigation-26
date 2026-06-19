@@ -4,10 +4,12 @@ interface UseExpandCategoriesOnSearchOptions {
   searchQuery: string;
   platformCategoryIds: string[];
   controlCategoryIds: string[];
-  megaserviceIds?: string[];
+  platformMegaserviceIds?: string[];
+  controlMegaserviceIds?: string[];
   setExpandedPlatformCategories: Dispatch<SetStateAction<string[]>>;
   setExpandedCategories: Dispatch<SetStateAction<string[]>>;
-  setExpandedMegaservices?: Dispatch<SetStateAction<string[]>>;
+  setExpandedPlatformMegaservices?: (ids: string[] | null) => void;
+  setExpandedControlMegaservices?: (ids: string[] | null) => void;
 }
 
 /** Раскрывает категории с результатами при активном поиске. */
@@ -15,32 +17,43 @@ export function useExpandCategoriesOnSearch({
   searchQuery,
   platformCategoryIds,
   controlCategoryIds,
-  megaserviceIds = [],
+  platformMegaserviceIds = [],
+  controlMegaserviceIds = [],
   setExpandedPlatformCategories,
   setExpandedCategories,
-  setExpandedMegaservices,
+  setExpandedPlatformMegaservices,
+  setExpandedControlMegaservices,
 }: UseExpandCategoriesOnSearchOptions) {
   const platformIdsKey = platformCategoryIds.join('\0');
   const controlIdsKey = controlCategoryIds.join('\0');
-  const megaserviceIdsKey = megaserviceIds.join('\0');
+  const platformMegaserviceIdsKey = platformMegaserviceIds.join('\0');
+  const controlMegaserviceIdsKey = controlMegaserviceIds.join('\0');
 
   useEffect(() => {
     const trimmed = searchQuery.trim();
-    if (!trimmed) return;
+    if (!trimmed) {
+      setExpandedPlatformMegaservices?.(null);
+      setExpandedControlMegaservices?.(null);
+      return;
+    }
 
     setExpandedPlatformCategories(platformCategoryIds);
     setExpandedCategories(controlCategoryIds);
-    setExpandedMegaservices?.(megaserviceIds);
+    setExpandedPlatformMegaservices?.(platformMegaserviceIds);
+    setExpandedControlMegaservices?.(controlMegaserviceIds);
   }, [
     searchQuery,
     platformIdsKey,
     controlIdsKey,
-    megaserviceIdsKey,
+    platformMegaserviceIdsKey,
+    controlMegaserviceIdsKey,
     platformCategoryIds,
     controlCategoryIds,
-    megaserviceIds,
+    platformMegaserviceIds,
+    controlMegaserviceIds,
     setExpandedPlatformCategories,
     setExpandedCategories,
-    setExpandedMegaservices,
+    setExpandedPlatformMegaservices,
+    setExpandedControlMegaservices,
   ]);
 }

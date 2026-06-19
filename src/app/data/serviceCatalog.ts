@@ -29,6 +29,7 @@ import {
   imgIconColor35 as imgIcon2Color35,
   imgIconColor36 as imgIcon2Color36,
 } from '../../imports/MainMenuDesktop-1/svg-vz3cs';
+import type { MegaservicePageContext, ServiceSubpageNavItem } from '../components/servicePage/types';
 
 const ICONS = [
   imgIcon2Color13, imgIcon2Color14, imgIcon2Color15, imgIcon2Color16, imgIcon2Color17,
@@ -110,6 +111,61 @@ export function getMegaserviceIdsFromPlatformCategories(categories: ServiceCateg
 
 export function getMegaserviceIdsFromControlCategories(categories: ControlCategory[]): string[] {
   return categories.flatMap((category) => category.subcategories.map((subcategory) => subcategory.id));
+}
+
+let cachedAllScopeServiceIds: Set<string> | null = null;
+
+function collectMegaserviceServiceTitles(): Set<string> {
+  const titles = new Set<string>();
+  for (const category of SERVICE_CATEGORIES) {
+    for (const service of category.megaservice?.services ?? []) {
+      titles.add(service.title);
+    }
+  }
+  return titles;
+}
+
+function collectMegaserviceServiceIds(): Set<string> {
+  const ids = new Set<string>();
+  for (const category of SERVICE_CATEGORIES) {
+    for (const service of category.megaservice?.services ?? []) {
+      ids.add(service.id);
+    }
+    for (const subcategory of category.subcategories ?? []) {
+      for (const service of subcategory.services) {
+        ids.add(service.id);
+      }
+    }
+  }
+  return ids;
+}
+
+function buildAllScopeServiceIds(): Set<string> {
+  const ids = new Set<string>();
+  const megaserviceTitles = collectMegaserviceServiceTitles();
+  const megaserviceServiceIds = collectMegaserviceServiceIds();
+
+  for (const aliasId of Object.keys(SERVICE_ICON_ALIASES)) {
+    ids.add(aliasId);
+  }
+
+  for (const category of SERVICE_CATEGORIES) {
+    for (const service of category.services) {
+      if (megaserviceTitles.has(service.title) && !megaserviceServiceIds.has(service.id)) {
+        ids.add(service.id);
+      }
+    }
+  }
+
+  return ids;
+}
+
+/** Сервис вне мегасервиса, дублирующий одноимённый сервис внутри мегасервиса — показываем приписку «Все». */
+export function isAllScopeServiceCard(serviceId: string): boolean {
+  if (!cachedAllScopeServiceIds) {
+    cachedAllScopeServiceIds = buildAllScopeServiceIds();
+  }
+  return cachedAllScopeServiceIds.has(serviceId);
 }
 
 /** @deprecated Используйте getMegaserviceIdsFromPlatformCategories */
@@ -206,6 +262,21 @@ export function resolveCategoryAccentColor(
 
 export function categoryHasAccentSlot(categoryId: string): boolean {
   return categoryId in DEFAULT_CATEGORY_COLORS;
+}
+
+export function isCategoryColorPreset(color: string): boolean {
+  return (CATEGORY_COLOR_PRESETS as readonly string[]).includes(color);
+}
+
+export function isCategoryCustomColor(color: string | null): boolean {
+  return color !== null && !isCategoryColorPreset(color);
+}
+
+export function normalizeCategoryColorInput(value: string): string {
+  const trimmed = value.trim().toLowerCase();
+  if (/^#[0-9a-f]{6}$/.test(trimmed)) return trimmed;
+  if (/^[0-9a-f]{6}$/.test(trimmed)) return `#${trimmed}`;
+  return trimmed;
 }
 
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
@@ -685,6 +756,17 @@ export function buildServicesIndex(controlItemIcon: string): Map<string, Service
   return byId;
 }
 
+let cachedServicesIndex: Map<string, ServiceCard> | null = null;
+let cachedServicesIndexIcon = '';
+
+export function lookupServiceById(serviceId: string, controlItemIcon: string): ServiceCard | null {
+  if (!cachedServicesIndex || cachedServicesIndexIcon !== controlItemIcon) {
+    cachedServicesIndex = buildServicesIndex(controlItemIcon);
+    cachedServicesIndexIcon = controlItemIcon;
+  }
+  return cachedServicesIndex.get(serviceId) ?? null;
+}
+
 /** Список избранного в порядке добавления, без дубликатов по id. */
 export function resolveFavoriteServices(
   favoriteIds: string[],
@@ -711,4 +793,63 @@ export function findServicesByIds(ids: string[]): ServiceCard[] {
     }
   }
   return resolveFavoriteServices(ids, byId);
+}
+
+function toSubpages(services: ServiceCard[]): ServiceSubpageNavItem[] {
+  return services.map((service) => ({
+    id: service.id,
+    title: service.title,
+    icon: service.icon,
+  }));
+}
+
+function toSubpagesFromItems(items: ControlItem[], icon: string): ServiceSubpageNavItem[] {
+  return items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    icon,
+  }));
+}
+
+/** Находит контекст мегасервиса по id блока или id дочернего сервиса. */
+export function lookupMegaservicePageContext(id: string): MegaservicePageContext | null {
+  for (const category of SERVICE_CATEGORIES) {
+    if (category.megaservice) {
+      const megaservice = category.megaservice;
+      if (megaservice.id === id || megaservice.services.some((service) => service.id === id)) {
+        return {
+          id: megaservice.id,
+          title: megaservice.title,
+          icon: megaservice.icon,
+          subpages: toSubpages(megaservice.services),
+        };
+      }
+    }
+
+    for (const subcategory of category.subcategories ?? []) {
+      if (subcategory.id === id || subcategory.services.some((service) => service.id === id)) {
+        return {
+          id: subcategory.id,
+          title: subcategory.title,
+          icon: subcategory.icon,
+          subpages: toSubpages(subcategory.services),
+        };
+      }
+    }
+  }
+
+  for (const category of CONTROL_CATEGORIES) {
+    for (const subcategory of category.subcategories) {
+      if (subcategory.id === id || subcategory.items.some((item) => item.id === id)) {
+        return {
+          id: subcategory.id,
+          title: subcategory.title,
+          icon: subcategory.icon,
+          subpages: toSubpagesFromItems(subcategory.items, subcategory.icon),
+        };
+      }
+    }
+  }
+
+  return null;
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Settings } from 'lucide-react';
 import {
   Dialog,
@@ -13,6 +13,8 @@ import { cn } from './ui/utils';
 import {
   CATEGORY_COLOR_PRESETS,
   getColorConfigurableCategories,
+  isCategoryCustomColor,
+  normalizeCategoryColorInput,
   resolveCategoryAccentColor,
 } from '../data/serviceCatalog';
 
@@ -26,6 +28,9 @@ interface CategoryColorSettingsProps {
 
 const CONFIGURABLE_CATEGORIES = getColorConfigurableCategories();
 
+const SWATCH_SELECTED_CLASS = 'ring-2 ring-[#389f74] ring-offset-1';
+const SWATCH_IDLE_CLASS = 'hover:ring-2 hover:ring-[#aaaebd] hover:ring-offset-1';
+
 function getCategoryColor(
   categoryId: string,
   categoryColors: Record<string, string | null>,
@@ -35,14 +40,12 @@ function getCategoryColor(
   return defaultColor;
 }
 
-function ColorSwatch({
-  color,
+function NoColorSwatch({
   selected,
   disabled,
   label,
   onClick,
 }: {
-  color?: string;
   selected: boolean;
   disabled?: boolean;
   label: string;
@@ -56,19 +59,98 @@ function ColorSwatch({
       aria-label={label}
       aria-pressed={selected}
       className={cn(
-        'relative shrink-0 size-[28px] rounded-full border-2 transition-colors cursor-pointer',
+        'relative shrink-0 size-[28px] rounded-full bg-white border-2 border-dashed border-[#cdd0dc] transition-shadow cursor-pointer',
         'disabled:cursor-not-allowed disabled:opacity-40',
-        selected ? 'border-[#389f74]' : 'border-transparent hover:border-[#aaaebd]',
+        selected ? SWATCH_SELECTED_CLASS : SWATCH_IDLE_CLASS,
       )}
-      style={color ? { backgroundColor: color } : undefined}
-    >
-      {!color && (
-        <>
-          <span className="absolute inset-[3px] rounded-full bg-[#f5f6f8] border border-[#dde0ea]" />
-          <span className="absolute inset-[6px] rotate-45 border-t border-[#aaaebd]" aria-hidden />
-        </>
+    />
+  );
+}
+
+function PresetColorSwatch({
+  color,
+  selected,
+  disabled,
+  label,
+  onClick,
+}: {
+  color: string;
+  selected: boolean;
+  disabled?: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      aria-pressed={selected}
+      className={cn(
+        'relative shrink-0 size-[28px] rounded-full border border-black/10 transition-shadow cursor-pointer',
+        'disabled:cursor-not-allowed disabled:opacity-40',
+        selected ? SWATCH_SELECTED_CLASS : SWATCH_IDLE_CLASS,
       )}
-    </button>
+      style={{ backgroundColor: color }}
+    />
+  );
+}
+
+function CustomColorSwatch({
+  color,
+  selected,
+  disabled,
+  label,
+  onChange,
+}: {
+  color: string | null;
+  selected: boolean;
+  disabled?: boolean;
+  label: string;
+  onChange: (color: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const hasCustomColor = isCategoryCustomColor(color);
+  const inputValue = hasCustomColor ? color! : '#c5c9d4';
+
+  return (
+    <>
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label={label}
+        aria-pressed={selected}
+        onClick={() => inputRef.current?.click()}
+        className={cn(
+          'relative shrink-0 size-[28px] rounded-full p-[2px] transition-shadow cursor-pointer',
+          'disabled:cursor-not-allowed disabled:opacity-40',
+          selected ? SWATCH_SELECTED_CLASS : SWATCH_IDLE_CLASS,
+        )}
+      >
+        <span
+          className="block size-full rounded-full border border-black/10"
+          style={
+            hasCustomColor
+              ? { backgroundColor: color! }
+              : {
+                  background:
+                    'conic-gradient(from 90deg, #f4bdc1, #abe3ce, #ceb8ef, #adbaf2, #94dcf7, #f4bdc1)',
+                }
+          }
+        />
+      </button>
+      <input
+        ref={inputRef}
+        type="color"
+        value={inputValue}
+        disabled={disabled}
+        onChange={(event) => onChange(normalizeCategoryColorInput(event.target.value))}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
+      />
+    </>
   );
 }
 
@@ -125,6 +207,7 @@ export function CategoryColorSettings({
                   categoryColors,
                   colorsEnabled,
                 });
+                const isCustomColor = isCategoryCustomColor(currentColor);
 
                 return (
                   <li
@@ -144,14 +227,14 @@ export function CategoryColorSettings({
                     </span>
 
                     <div className="flex flex-wrap items-center gap-[8px]">
-                      <ColorSwatch
+                      <NoColorSwatch
                         selected={currentColor === null}
                         disabled={!colorsEnabled}
                         label={`Без цвета: ${category.title}`}
                         onClick={() => onColorChange(category.id, null)}
                       />
                       {CATEGORY_COLOR_PRESETS.map((preset) => (
-                        <ColorSwatch
+                        <PresetColorSwatch
                           key={preset}
                           color={preset}
                           selected={currentColor === preset}
@@ -160,6 +243,13 @@ export function CategoryColorSettings({
                           onClick={() => onColorChange(category.id, preset)}
                         />
                       ))}
+                      <CustomColorSwatch
+                        color={currentColor}
+                        selected={isCustomColor}
+                        disabled={!colorsEnabled}
+                        label={`Свой цвет: ${category.title}`}
+                        onChange={(color) => onColorChange(category.id, color)}
+                      />
                     </div>
                   </li>
                 );

@@ -1,6 +1,7 @@
 import React from 'react';
 import svgPaths from '../../imports/MainMenuDesktop/svg-znqodigjzs';
 import type { PlatformId } from '../data/platformCatalog';
+import { MarketplaceServicesIcon } from './MarketplaceServicesIcon';
 
 /** Фон плиток платформ — приглушённые акценты (~58% к #eef0f5) */
 const PLATFORM_ICON_BG = '#bcbfc8';
@@ -116,28 +117,6 @@ function PartnerGlyph({ className }: { className: string }) {
   );
 }
 
-/** Маркетплейс — иконка магазина */
-function MarketplaceGlyph({ className }: { className: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M5 9V19H9V14H15V19H19V9"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M4 9H20L18 4.5H6L4 9Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-      <path d="M12 4.5V9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 const GLYPH_CLASS = {
   sm: { svg: 'size-[14px]', text: 'text-[9px]' },
   md: { svg: 'size-[20px]', text: 'text-[11px]' },
@@ -156,7 +135,7 @@ function PlatformGlyph({ id, size }: { id: PlatformId; size: keyof typeof SHELL_
     case 'partner':
       return <PartnerGlyph className={c.svg} />;
     case 'marketplace':
-      return <MarketplaceGlyph className={c.svg} />;
+      return <MarketplaceServicesIcon className={c.svg} />;
     default:
       return <EvolutionGlyph className={c.svg} />;
   }

@@ -1,6 +1,8 @@
 import { createBrowserRouter } from 'react-router';
 import LkLayout from './layouts/LkLayout';
 import LkDashboard from './pages/LkDashboard';
+import MarketplacePage from './pages/MarketplacePage';
+import ServicePage from './pages/ServicePage';
 
 /** Дашборд остаётся под оверлеем меню — виден через затемнение. */
 function PrototypeRoutePlaceholder() {
@@ -28,6 +30,14 @@ export const router = createBrowserRouter(
         {
           path: 'prototype-3',
           Component: PrototypeRoutePlaceholder,
+        },
+        {
+          path: 'marketplace',
+          Component: MarketplacePage,
+        },
+        {
+          path: 'service/:serviceId',
+          Component: ServicePage,
         },
       ],
     },

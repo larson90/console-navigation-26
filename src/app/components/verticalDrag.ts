@@ -60,7 +60,7 @@ export function getCategoryDragBounds(
 
 export function getCategorySlotCenterY(row: HTMLElement) {
   const rowRect = row.getBoundingClientRect();
-  return rowRect.top + CATEGORY_SLOT_HEIGHT / 2;
+  return rowRect.top + rowRect.height / 2;
 }
 
 export { CATEGORY_LIST_GAP, CATEGORY_SLOT_HEIGHT };

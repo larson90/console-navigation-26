@@ -86,6 +86,7 @@ function FavoriteListRow({
         onAddToFavorites={onToggleFavorite}
         isFavorite
         enableDrag={false}
+        inFavorites
       />
     </div>
   );

@@ -663,12 +663,25 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .lk-header__project-org-chip-icon {
   display: inline-flex;
   transform: scale(0.75);
   transform-origin: center;
+}
+
+.lk-header__project-org-chev {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  opacity: 0.75;
+  transition: transform 0.15s ease;
+}
+
+.lk-header__project-org-chev--up {
+  transform: rotate(180deg);
 }
 
 .lk-header__project-org-select {

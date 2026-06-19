@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Switch } from './ui/switch';
 import { ServiceCardItem } from './navigationServiceUi';
+import { NavTabInfoBlock } from './NavTabInfoBlock';
+import { CONTROL_CENTER_INTRO, SOLUTIONS_INTRO } from '../data/tabIntroContent';
 import { CategoryBlock, PlatformCategoryBlock, SolutionBlock } from './navigationCategoryBlocks';
 import { CategoryDragProvider } from './CategoryDragContext';
 import { CategorySortableList } from './CategorySortableList';
-import { FavoritesList } from './FavoritesList';
+import { CategoryListEndDropZone } from './CategoryListEndDropZone';
+import { CONTROL_CATEGORY_TYPE, NAV_CATEGORY_TYPE } from './categoryDnd';
+import {
+  applyCategoryMoveToOrders,
+  buildVisibleCategoryEntries,
+} from './unifiedCategoryOrder';
+import { NavigationFavoritesBlock } from './NavigationFavoritesBlock';
+import { NavigationMenuCloseButton } from './NavigationMenuCloseButton';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
 import { NavigationMenuMainPanel } from './NavigationMenuMainPanel';
-import { NavTabServicesGridIcon } from './navigationTabIcons';
+import { NavTabControlCenterIcon, NavTabServicesGridIcon, NavTabSolutionsIcon } from './navigationTabIcons';
 import { NavigationSidebarBottomMenu } from './navigationSidebarBottom';
 import { PlatformSelector } from './PlatformSelector';
+import { SolutionsMarketplaceBanner } from './SolutionsMarketplaceBanner';
 import { CategoryColorSettings } from './CategoryColorSettings';
 import { useFavorites } from '../hooks/useFavorites';
 import { useCategoryColors } from '../hooks/useCategoryColors';
@@ -18,6 +28,7 @@ import {
   usePlatformServiceSearch,
 } from '../hooks/usePlatformServiceSearch';
 import { useExpandCategoriesOnSearch } from '../hooks/useExpandCategoriesOnSearch';
+import { useMegaserviceExpansion } from '../hooks/useMegaserviceExpansion';
 
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import {
@@ -46,6 +57,8 @@ const PLATFORM_MEGASERVICE_IDS = getMegaserviceIdsFromPlatformCategories(PLATFOR
 const CONTROL_MEGASERVICE_IDS = getMegaserviceIdsFromControlCategories(CONTROL_CATEGORIES);
 const ALL_MEGASERVICE_IDS = [...PLATFORM_MEGASERVICE_IDS, ...CONTROL_MEGASERVICE_IDS];
 
+const MEGASERVICE_EXPANSION_STORAGE_KEY = 'lk-megaservice-expansion:3';
+
 export default function NavigationMenuPrototype3() {
   const showPlatformSelector = false;
   const showSolutionsTab = true;
@@ -60,14 +73,28 @@ export default function NavigationMenuPrototype3() {
   const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
   );
-  const [expandedMegaservices, setExpandedMegaservices] = useState<string[]>(ALL_MEGASERVICE_IDS);
+  const {
+    expandedPlatformMegaservices,
+    expandedControlMegaservices,
+    togglePlatformMegaservice,
+    toggleControlMegaservice,
+    setAllPlatformMegaservicesExpanded,
+    setAllControlMegaservicesExpanded,
+    setExpandedPlatformMegaservices,
+    setExpandedControlMegaservices,
+    restoreMegaserviceExpansion,
+  } = useMegaserviceExpansion({
+    storageKey: MEGASERVICE_EXPANSION_STORAGE_KEY,
+    platformIds: PLATFORM_MEGASERVICE_IDS,
+    controlIds: CONTROL_MEGASERVICE_IDS,
+    controlDefaultExpanded: activeTab === 'control',
+  });
   const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
   );
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [hoveredPlatformCategory, setHoveredPlatformCategory] = useState<string | null>(null);
-  const [expandedSolutions, setExpandedSolutions] = useState<string[]>(SOLUTIONS.map(s => s.id));
 
   const toggleCategory = (categoryId: string) => {
     if (expandedCategories.includes(categoryId)) {
@@ -80,25 +107,27 @@ export default function NavigationMenuPrototype3() {
   const expandAll = () => {
     const allCategoryIds = CONTROL_CATEGORIES.map(cat => cat.id);
     setExpandedCategories(allCategoryIds);
-    setExpandedMegaservices((prev) => [...new Set([...prev, ...CONTROL_MEGASERVICE_IDS])]);
+    setAllControlMegaservicesExpanded(true);
   };
 
   const collapseAll = () => {
     setExpandedCategories([]);
-    setExpandedMegaservices((prev) => prev.filter((id) => !CONTROL_MEGASERVICE_IDS.includes(id)));
+    setAllControlMegaservicesExpanded(false);
   };
 
   const expandAllPlatform = () => {
     const allCategoryIds = PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id);
     setExpandedPlatformCategories(allCategoryIds);
     setExpandedCategories(CONTROL_CATEGORIES.map((cat) => cat.id));
-    setExpandedMegaservices((prev) => [...new Set([...prev, ...ALL_MEGASERVICE_IDS])]);
+    setAllPlatformMegaservicesExpanded(true);
+    setAllControlMegaservicesExpanded(true);
   };
 
   const collapseAllPlatform = () => {
     setExpandedPlatformCategories([]);
     setExpandedCategories([]);
-    setExpandedMegaservices((prev) => prev.filter((id) => !ALL_MEGASERVICE_IDS.includes(id)));
+    setAllPlatformMegaservicesExpanded(false);
+    setAllControlMegaservicesExpanded(false);
   };
 
 
@@ -106,23 +135,25 @@ export default function NavigationMenuPrototype3() {
     activeTab === 'platform'
       ? PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id)) &&
         CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id)) &&
-        ALL_MEGASERVICE_IDS.every((id) => expandedMegaservices.includes(id))
+        PLATFORM_MEGASERVICE_IDS.every((id) => expandedPlatformMegaservices.includes(id)) &&
+        CONTROL_MEGASERVICE_IDS.every((id) => expandedControlMegaservices.includes(id))
       : activeTab === 'control'
         ? CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id)) &&
-          CONTROL_MEGASERVICE_IDS.every((id) => expandedMegaservices.includes(id))
-        : SOLUTIONS.every((s) => expandedSolutions.includes(s.id));
+          CONTROL_MEGASERVICE_IDS.every((id) => expandedControlMegaservices.includes(id))
+        : false;
+
+  const selectTab = (tab: 'platform' | 'control' | 'solutions') => {
+    setActiveTab(tab);
+  };
 
   const toggleExpandAllCategories = () => {
     if (activeTab === 'platform') {
       if (isAllExpanded) collapseAllPlatform();
       else expandAllPlatform();
-    } else if (activeTab === 'control') {
-      if (isAllExpanded) collapseAll();
-      else expandAll();
     } else if (isAllExpanded) {
-      setExpandedSolutions([]);
+      collapseAll();
     } else {
-      setExpandedSolutions(SOLUTIONS.map((s) => s.id));
+      expandAll();
     }
   };
 
@@ -135,22 +166,6 @@ export default function NavigationMenuPrototype3() {
       setExpandedPlatformCategories(expandedPlatformCategories.filter(id => id !== categoryId));
     } else {
       setExpandedPlatformCategories([...expandedPlatformCategories, categoryId]);
-    }
-  };
-
-  const toggleMegaservice = (megaserviceId: string) => {
-    if (expandedMegaservices.includes(megaserviceId)) {
-      setExpandedMegaservices(expandedMegaservices.filter((id) => id !== megaserviceId));
-    } else {
-      setExpandedMegaservices([...expandedMegaservices, megaserviceId]);
-    }
-  };
-
-  const toggleSolution = (solutionId: string) => {
-    if (expandedSolutions.includes(solutionId)) {
-      setExpandedSolutions(expandedSolutions.filter(id => id !== solutionId));
-    } else {
-      setExpandedSolutions([...expandedSolutions, solutionId]);
     }
   };
 
@@ -190,26 +205,80 @@ export default function NavigationMenuPrototype3() {
     searchQuery,
     platformCategoryIds: filteredCategories.map((c) => c.id),
     controlCategoryIds: filteredControlCategories.map((c) => c.id),
-    megaserviceIds: [
-      ...getMegaserviceIdsFromPlatformCategories(filteredCategories),
-      ...getMegaserviceIdsFromControlCategories(filteredControlCategories),
-    ],
+    platformMegaserviceIds: getMegaserviceIdsFromPlatformCategories(filteredCategories),
+    controlMegaserviceIds: getMegaserviceIdsFromControlCategories(filteredControlCategories),
     setExpandedPlatformCategories,
     setExpandedCategories,
-    setExpandedMegaservices,
+    setExpandedPlatformMegaservices,
+    setExpandedControlMegaservices,
   });
+
+  const visiblePlatformIds = useMemo(
+    () => new Set(filteredCategories.map((category) => category.id)),
+    [filteredCategories],
+  );
+  const visibleControlIds = useMemo(
+    () => new Set(filteredControlCategories.map((category) => category.id)),
+    [filteredControlCategories],
+  );
+
+  const visiblePlatformCategoryEntries = useMemo(
+    () =>
+      buildVisibleCategoryEntries({
+        platformOrder: platformCategoryOrder,
+        controlOrder: categoryOrder,
+        visiblePlatformIds: showFilteredCatalog || !searchQuery.trim() ? visiblePlatformIds : new Set(),
+        visibleControlIds,
+        excludePlatformIds: ['security-administration'],
+      }),
+    [
+      platformCategoryOrder,
+      categoryOrder,
+      showFilteredCatalog,
+      searchQuery,
+      visiblePlatformIds,
+      visibleControlIds,
+    ],
+  );
+
+  const visibleControlCategoryEntries = useMemo(
+    () =>
+      buildVisibleCategoryEntries({
+        platformOrder: [],
+        controlOrder: categoryOrder,
+        visiblePlatformIds: new Set(),
+        visibleControlIds,
+      }),
+    [categoryOrder, visibleControlIds],
+  );
+
+  const moveUnifiedPlatformCategory = useCallback(
+    (dragIndex: number, hoverIndex: number) => {
+      const next = applyCategoryMoveToOrders(
+        platformCategoryOrder,
+        categoryOrder,
+        visiblePlatformCategoryEntries,
+        dragIndex,
+        hoverIndex,
+      );
+      setPlatformCategoryOrder(next.platformOrder);
+      setCategoryOrder(next.controlOrder);
+    },
+    [platformCategoryOrder, categoryOrder, visiblePlatformCategoryEntries],
+  );
 
   return (
     <CategoryDragProvider
       onSessionStart={() => ({
         platformCategories: expandedPlatformCategories,
         controlCategories: expandedCategories,
-        megaservices: expandedMegaservices,
+        platformMegaservices: expandedPlatformMegaservices,
+        controlMegaservices: expandedControlMegaservices,
       })}
       onSessionEnd={(snapshot) => {
         setExpandedPlatformCategories(snapshot.platformCategories);
         setExpandedCategories(snapshot.controlCategories);
-        setExpandedMegaservices(snapshot.megaservices);
+        restoreMegaserviceExpansion(snapshot.platformMegaservices, snapshot.controlMegaservices);
       }}
     >
     <NavigationMenuScrim>
@@ -217,54 +286,19 @@ export default function NavigationMenuPrototype3() {
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
-              <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] pl-[16px] relative size-full">
+              <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] relative size-full">
                 <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2]">
                   {showPlatformSelector && <PlatformSelector />}
 
-                  {/* Favorites */}
-                  <div
-                    ref={drop}
-                    className={`nav-favorites-block bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full shrink-0 ${favoritesDragClassName}`}
-                  >
-                    <div className="relative shrink-0 w-full">
-                      <div className="content-stretch flex flex-col gap-[4px] items-start p-[8px] relative size-full">
-                        <div className="relative shrink-0 w-full">
-                          <div className="flex flex-row items-center size-full">
-                            <div className="content-stretch flex gap-[4px] items-center pl-[4px] relative size-full">
-                              <div className="flex flex-[1_0_0] flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] min-w-px not-italic overflow-hidden relative text-[#6d707f] text-[12px] text-ellipsis text-left whitespace-nowrap">
-                                <p className="leading-[16px] overflow-hidden text-ellipsis">Избранное</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  <NavigationMenuCloseButton />
 
-                    <div className="nav-favorites-block__content relative w-full shrink-0 px-[8px] pb-[8px]">
-                      {favoriteServices.length === 0 ? (
-                        <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[2px] shrink-0 w-full">
-                          <div className="flex flex-col items-center overflow-clip rounded-[inherit] w-full">
-                            <div className="content-stretch flex flex-col gap-[8px] items-center p-[12px] relative w-full">
-                              <div className="bg-white content-stretch flex items-center overflow-clip p-[4px] relative rounded-[4px] shrink-0">
-                                <div className="relative shrink-0 size-[24px]">
-                                  <div className="absolute bg-[#99d7ba] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIconColor2}')` }} />
-                                </div>
-                              </div>
-                              <div className="flex flex-col font-['SB_Sans_Interface:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#8b8e9b] text-[12px] text-center tracking-[0.1px] w-[153.494px]">
-                                <p className="leading-[16px]">Перетащите сюда карточки сервисов, расположенные справа</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <FavoritesList
-                          favoriteServices={favoriteServices}
-                          onToggleFavorite={toggleFavorite}
-                          onMoveFavorite={moveFavorite}
-                        />
-                      )}
-                    </div>
-                  </div>
+                  <NavigationFavoritesBlock
+                    dropRef={drop}
+                    dragClassName={favoritesDragClassName}
+                    favoriteServices={favoriteServices}
+                    onToggleFavorite={toggleFavorite}
+                    onMoveFavorite={moveFavorite}
+                  />
                 </div>
 
                 <NavigationSidebarBottomMenu showMarketplace />
@@ -316,8 +350,8 @@ export default function NavigationMenuPrototype3() {
                       <div className="relative shrink-0">
                         <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
                           <button
-                            onClick={() => setActiveTab('platform')}
-                            className={`${activeTab === 'platform' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
+                            onClick={() => selectTab('platform')}
+                            className={`${activeTab === 'platform' ? 'bg-white' : ''} content-stretch flex h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
                           >
                             <span
                               className={`inline-flex shrink-0 size-[14px] ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
@@ -328,33 +362,27 @@ export default function NavigationMenuPrototype3() {
                             <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Все сервисы</p>
                           </button>
                           <button
-                            onClick={() => setActiveTab('control')}
-                            className={`${activeTab === 'control' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
+                            onClick={() => selectTab('control')}
+                            className={`${activeTab === 'control' ? 'bg-white' : ''} content-stretch flex h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
                           >
                             <span
                               className={`inline-flex shrink-0 size-[14px] ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
                               aria-hidden
                             >
-                              <svg viewBox="0 0 12 12" fill="none" className="size-full">
-                                <circle cx="6" cy="6" r="2" stroke="currentColor" strokeWidth="1" />
-                                <path d="M6 1.5V3M6 9V10.5M1.5 6H3M9 6H10.5M2.8 2.8L3.8 3.8M8.2 8.2L9.2 9.2M9.2 2.8L8.2 3.8M3.8 8.2L2.8 9.2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                              </svg>
+                              <NavTabControlCenterIcon />
                             </span>
                             <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Центр управления</p>
                           </button>
                           {showSolutionsTab && (
                             <button
-                              onClick={() => setActiveTab('solutions')}
-                              className={`${activeTab === 'solutions' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
+                              onClick={() => selectTab('solutions')}
+                              className={`${activeTab === 'solutions' ? 'bg-white' : ''} content-stretch flex h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
                             >
                             <span
                                 className={`inline-flex shrink-0 size-[14px] ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
                                 aria-hidden
                               >
-                                <svg viewBox="0 0 12 12" fill="none" className="size-full">
-                                  <path d="M6 1.2L7.1 4.1L10 5.2L7.1 6.3L6 9.2L4.9 6.3L2 5.2L4.9 4.1L6 1.2Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
-                                  <path d="M9.8 8.2L10.2 9.2L11.2 9.6L10.2 10L9.8 11L9.4 10L8.4 9.6L9.4 9.2L9.8 8.2Z" fill="currentColor" />
-                                </svg>
+                                <NavTabSolutionsIcon />
                               </span>
                               <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Решения</p>
                             </button>
@@ -363,6 +391,7 @@ export default function NavigationMenuPrototype3() {
                       </div>
                     </div>
 
+                    {activeTab !== 'solutions' && (
                     <div className="content-stretch flex gap-[8px] items-center shrink-0">
                       {(activeTab === 'platform' || activeTab === 'control') && (
                         <label className="content-stretch flex gap-[8px] items-center cursor-pointer select-none">
@@ -397,75 +426,80 @@ export default function NavigationMenuPrototype3() {
                         </div>
                       </button>
                     </div>
+                    )}
                   </div>
                 </div>
 
                 {activeTab === 'platform' &&
                   (showFilteredCatalog || filteredControlCategories.length > 0 || !searchQuery.trim()) && (
                   <CategorySortableList className="nav-tab-panel w-full">
-                  {platformCategoryOrder
-                    .filter((categoryId) => categoryId !== 'security-administration')
-                    .map((categoryId, index) => {
-                      const category = filteredCategories.find((c) => c.id === categoryId);
+                  {visiblePlatformCategoryEntries.map((entry, index) => {
+                    if (entry.scope === 'platform') {
+                      const category = filteredCategories.find((item) => item.id === entry.id);
                       if (!category) return null;
 
                       return (
                         <PlatformCategoryBlock
-                          key={category.id}
+                          key={`platform-${entry.id}`}
                           category={category}
                           index={index}
                           isExpanded={expandedPlatformCategories.includes(category.id)}
                           isHovered={hoveredPlatformCategory === category.id}
                           onToggle={togglePlatformCategory}
-                          onMove={movePlatformCategory}
+                          onMove={moveUnifiedPlatformCategory}
                           onHover={setHoveredPlatformCategory}
                           toggleFavorite={toggleFavorite}
                           favorites={favorites}
                           showMoreDetails={moreDetails}
                           searchQuery={searchQuery}
-                          expandedMegaservices={expandedMegaservices}
-                          onToggleMegaservice={toggleMegaservice}
+                          expandedMegaservices={expandedPlatformMegaservices}
+                          onToggleMegaservice={togglePlatformMegaservice}
                           categoryColors={categoryColors}
                           colorsEnabled={colorsEnabled}
+                          dragType={NAV_CATEGORY_TYPE}
                         />
                       );
-                    })}
-                  {categoryOrder.map((categoryId, index) => {
-                    const category = filteredControlCategories.find((c) => c.id === categoryId);
-                    if (!category) return null;
+                    }
 
-                    const platformCount = platformCategoryOrder.filter(
-                      (id) => id !== 'security-administration' && filteredCategories.some((c) => c.id === id),
-                    ).length;
+                    const category = filteredControlCategories.find((item) => item.id === entry.id);
+                    if (!category) return null;
 
                     return (
                       <CategoryBlock
-                        key={`control-${category.id}`}
+                        key={`control-${entry.id}`}
                         category={category}
-                        index={platformCount + index}
+                        index={index}
                         isExpanded={expandedCategories.includes(category.id)}
                         isHovered={hoveredCategory === category.id}
                         onToggle={toggleCategory}
-                        onMove={moveCategory}
+                        onMove={moveUnifiedPlatformCategory}
                         onHover={setHoveredCategory}
                         toggleFavorite={toggleFavorite}
                         favorites={favorites}
                         showMoreDetails={moreDetails}
                         searchQuery={searchQuery}
-                        expandedMegaservices={expandedMegaservices}
-                        onToggleMegaservice={toggleMegaservice}
+                        expandedMegaservices={expandedControlMegaservices}
+                        onToggleMegaservice={toggleControlMegaservice}
                         categoryColors={categoryColors}
                         colorsEnabled={colorsEnabled}
+                        dragType={NAV_CATEGORY_TYPE}
                       />
                     );
                   })}
+                  <CategoryListEndDropZone
+                    type={NAV_CATEGORY_TYPE}
+                    itemCount={visiblePlatformCategoryEntries.length}
+                    onMove={moveUnifiedPlatformCategory}
+                  />
                   </CategorySortableList>
                 )}
 
                 {activeTab === 'control' && (
+                  <>
+                  <NavTabInfoBlock text={CONTROL_CENTER_INTRO} />
                   <CategorySortableList className="nav-tab-panel w-full">
-                {categoryOrder.map((categoryId, index) => {
-                  const category = filteredControlCategories.find(c => c.id === categoryId);
+                {visibleControlCategoryEntries.map((entry, index) => {
+                  const category = filteredControlCategories.find((item) => item.id === entry.id);
                   if (!category) return null;
 
                   return (
@@ -482,26 +516,33 @@ export default function NavigationMenuPrototype3() {
                       favorites={favorites}
                       showMoreDetails={moreDetails}
                       searchQuery={searchQuery}
-                      expandedMegaservices={expandedMegaservices}
-                      onToggleMegaservice={toggleMegaservice}
+                      expandedMegaservices={expandedControlMegaservices}
+                      onToggleMegaservice={toggleControlMegaservice}
                       categoryColors={categoryColors}
                       colorsEnabled={colorsEnabled}
                     />
                   );
                 })}
+                  <CategoryListEndDropZone
+                    type={CONTROL_CATEGORY_TYPE}
+                    itemCount={visibleControlCategoryEntries.length}
+                    onMove={moveCategory}
+                  />
                   </CategorySortableList>
+                  </>
                 )}
 
                 {activeTab === 'solutions' && (
-                  <div className="nav-tab-panel content-stretch flex flex-col gap-[8px] items-start relative w-full">
+                  <div className="nav-tab-panel nav-solution-list content-stretch flex flex-col items-start relative w-full">
+                    <NavTabInfoBlock text={SOLUTIONS_INTRO} />
+                    <SolutionsMarketplaceBanner />
                     {SOLUTIONS.map((solution) => (
                       <SolutionBlock
                         key={solution.id}
                         solution={solution}
-                        isExpanded={expandedSolutions.includes(solution.id)}
-                        onToggle={toggleSolution}
                         toggleFavorite={toggleFavorite}
                         favorites={favorites}
+                        showMoreDetails={moreDetails}
                       />
                     ))}
                   </div>

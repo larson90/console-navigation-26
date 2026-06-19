@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { Switch } from './ui/switch';
 import { ServiceCardItem } from './navigationServiceUi';
 import { CategoryBlock, PlatformCategoryBlock } from './navigationCategoryBlocks';
+import { NavTabInfoBlock } from './NavTabInfoBlock';
+import { CONTROL_CENTER_INTRO, SOLUTIONS_INTRO } from '../data/tabIntroContent';
 import { CategoryDragProvider } from './CategoryDragContext';
 import { CategorySortableList } from './CategorySortableList';
-import { FavoritesList } from './FavoritesList';
+import { CategoryListEndDropZone } from './CategoryListEndDropZone';
+import { CONTROL_CATEGORY_TYPE, PLATFORM_CATEGORY_TYPE } from './categoryDnd';
+import { NavigationFavoritesBlock } from './NavigationFavoritesBlock';
+import { NavigationMenuCloseButton } from './NavigationMenuCloseButton';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
 import { NavigationMenuMainPanel } from './NavigationMenuMainPanel';
-import { NavTabServicesGridIcon } from './navigationTabIcons';
+import { NavTabControlCenterIcon, NavTabServicesGridIcon, NavTabSolutionsIcon } from './navigationTabIcons';
 import { NavigationMiniBanners } from './navigationMiniBanners';
+import { SolutionsMarketplaceBanner } from './SolutionsMarketplaceBanner';
 import { PlatformSelector } from './PlatformSelector';
 import { CategoryColorSettings } from './CategoryColorSettings';
 import { useFavorites } from '../hooks/useFavorites';
@@ -18,6 +24,7 @@ import {
   usePlatformServiceSearch,
 } from '../hooks/usePlatformServiceSearch';
 import { useExpandCategoriesOnSearch } from '../hooks/useExpandCategoriesOnSearch';
+import { useMegaserviceExpansion } from '../hooks/useMegaserviceExpansion';
 
 import svgPaths from "../../imports/MainMenuDesktop/svg-znqodigjzs";
 import imgSolutionEvolutionCompute from "figma:asset/d03a307bb2b6acb25a22f23a9520f7d71f4670fb.png";
@@ -139,6 +146,8 @@ function QuickAccessCard({
   );
 }
 
+const MEGASERVICE_EXPANSION_STORAGE_KEY = 'lk-megaservice-expansion:2';
+
 export default function NavigationMenuPrototype2() {
   const showPlatformSelector = false;
   const showSolutionsTab = false;
@@ -153,7 +162,22 @@ export default function NavigationMenuPrototype2() {
   const [expandedPlatformCategories, setExpandedPlatformCategories] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
   );
-  const [expandedMegaservices, setExpandedMegaservices] = useState<string[]>(ALL_MEGASERVICE_IDS);
+  const {
+    expandedPlatformMegaservices,
+    expandedControlMegaservices,
+    togglePlatformMegaservice,
+    toggleControlMegaservice,
+    setAllPlatformMegaservicesExpanded,
+    setAllControlMegaservicesExpanded,
+    setExpandedPlatformMegaservices,
+    setExpandedControlMegaservices,
+    restoreMegaserviceExpansion,
+  } = useMegaserviceExpansion({
+    storageKey: MEGASERVICE_EXPANSION_STORAGE_KEY,
+    platformIds: PLATFORM_MEGASERVICE_IDS,
+    controlIds: CONTROL_MEGASERVICE_IDS,
+    controlDefaultExpanded: activeTab === 'control',
+  });
   const [categoryOrder, setCategoryOrder] = useState<string[]>(CONTROL_CATEGORIES.map(c => c.id));
   const [platformCategoryOrder, setPlatformCategoryOrder] = useState<string[]>(
     PLATFORM_SERVICE_CATEGORIES.map((c) => c.id),
@@ -172,32 +196,36 @@ export default function NavigationMenuPrototype2() {
   const expandAll = () => {
     const allCategoryIds = CONTROL_CATEGORIES.map(cat => cat.id);
     setExpandedCategories(allCategoryIds);
-    setExpandedMegaservices((prev) => [...new Set([...prev, ...CONTROL_MEGASERVICE_IDS])]);
+    setAllControlMegaservicesExpanded(true);
   };
 
   const collapseAll = () => {
     setExpandedCategories([]);
-    setExpandedMegaservices((prev) => prev.filter((id) => !CONTROL_MEGASERVICE_IDS.includes(id)));
+    setAllControlMegaservicesExpanded(false);
   };
 
   const expandAllPlatform = () => {
     const allCategoryIds = PLATFORM_SERVICE_CATEGORIES.map((cat) => cat.id);
     setExpandedPlatformCategories(allCategoryIds);
-    setExpandedMegaservices((prev) => [...new Set([...prev, ...PLATFORM_MEGASERVICE_IDS])]);
+    setAllPlatformMegaservicesExpanded(true);
   };
 
   const collapseAllPlatform = () => {
     setExpandedPlatformCategories([]);
-    setExpandedMegaservices((prev) => prev.filter((id) => !PLATFORM_MEGASERVICE_IDS.includes(id)));
+    setAllPlatformMegaservicesExpanded(false);
   };
 
 
   const isAllExpanded =
     activeTab === 'platform'
       ? PLATFORM_SERVICE_CATEGORIES.every((c) => expandedPlatformCategories.includes(c.id)) &&
-        PLATFORM_MEGASERVICE_IDS.every((id) => expandedMegaservices.includes(id))
+        PLATFORM_MEGASERVICE_IDS.every((id) => expandedPlatformMegaservices.includes(id))
       : CONTROL_CATEGORIES.every((c) => expandedCategories.includes(c.id)) &&
-        CONTROL_MEGASERVICE_IDS.every((id) => expandedMegaservices.includes(id));
+        CONTROL_MEGASERVICE_IDS.every((id) => expandedControlMegaservices.includes(id));
+
+  const selectTab = (tab: 'platform' | 'control' | 'solutions') => {
+    setActiveTab(tab);
+  };
 
   const toggleExpandAllCategories = () => {
     if (activeTab === 'platform') {
@@ -219,14 +247,6 @@ export default function NavigationMenuPrototype2() {
       setExpandedPlatformCategories(expandedPlatformCategories.filter(id => id !== categoryId));
     } else {
       setExpandedPlatformCategories([...expandedPlatformCategories, categoryId]);
-    }
-  };
-
-  const toggleMegaservice = (megaserviceId: string) => {
-    if (expandedMegaservices.includes(megaserviceId)) {
-      setExpandedMegaservices(expandedMegaservices.filter((id) => id !== megaserviceId));
-    } else {
-      setExpandedMegaservices([...expandedMegaservices, megaserviceId]);
     }
   };
 
@@ -266,26 +286,37 @@ export default function NavigationMenuPrototype2() {
     searchQuery,
     platformCategoryIds: filteredCategories.map((c) => c.id),
     controlCategoryIds: filteredControlCategories.map((c) => c.id),
-    megaserviceIds: [
-      ...getMegaserviceIdsFromPlatformCategories(filteredCategories),
-      ...getMegaserviceIdsFromControlCategories(filteredControlCategories),
-    ],
+    platformMegaserviceIds: getMegaserviceIdsFromPlatformCategories(filteredCategories),
+    controlMegaserviceIds: getMegaserviceIdsFromControlCategories(filteredControlCategories),
     setExpandedPlatformCategories,
     setExpandedCategories,
-    setExpandedMegaservices,
+    setExpandedPlatformMegaservices,
+    setExpandedControlMegaservices,
   });
+
+  const visiblePlatformCategoryCount =
+    showFilteredCatalog || !searchQuery.trim()
+      ? platformCategoryOrder.filter((categoryId) =>
+          filteredCategories.some((category) => category.id === categoryId),
+        ).length
+      : 0;
+
+  const visibleControlCategoryCount = categoryOrder.filter((categoryId) =>
+    filteredControlCategories.some((category) => category.id === categoryId),
+  ).length;
 
   return (
     <CategoryDragProvider
       onSessionStart={() => ({
         platformCategories: expandedPlatformCategories,
         controlCategories: expandedCategories,
-        megaservices: expandedMegaservices,
+        platformMegaservices: expandedPlatformMegaservices,
+        controlMegaservices: expandedControlMegaservices,
       })}
       onSessionEnd={(snapshot) => {
         setExpandedPlatformCategories(snapshot.platformCategories);
         setExpandedCategories(snapshot.controlCategories);
-        setExpandedMegaservices(snapshot.megaservices);
+        restoreMegaserviceExpansion(snapshot.platformMegaservices, snapshot.controlMegaservices);
       }}
     >
     <NavigationMenuScrim>
@@ -293,54 +324,19 @@ export default function NavigationMenuPrototype2() {
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
-              <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] pl-[16px] relative size-full">
+              <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] relative size-full">
                 <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2]">
                   {showPlatformSelector && <PlatformSelector />}
 
-                  {/* Favorites */}
-                  <div
-                    ref={drop}
-                    className={`nav-favorites-block bg-[#fdfdfd] content-stretch flex flex-col items-start relative rounded-[4px] w-full shrink-0 ${favoritesDragClassName}`}
-                  >
-                    <div className="relative shrink-0 w-full">
-                      <div className="content-stretch flex flex-col gap-[4px] items-start p-[8px] relative size-full">
-                        <div className="relative shrink-0 w-full">
-                          <div className="flex flex-row items-center size-full">
-                            <div className="content-stretch flex gap-[4px] items-center pl-[4px] relative size-full">
-                              <div className="flex flex-[1_0_0] flex-col font-['SB_Sans_Interface:Semibold',sans-serif] justify-center leading-[0] min-w-px not-italic overflow-hidden relative text-[#6d707f] text-[12px] text-ellipsis text-left whitespace-nowrap">
-                                <p className="leading-[16px] overflow-hidden text-ellipsis">Избранное</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  <NavigationMenuCloseButton />
 
-                    <div className="nav-favorites-block__content relative w-full shrink-0 px-[8px] pb-[8px]">
-                      {favoriteServices.length === 0 ? (
-                        <div className="bg-[rgba(238,239,243,0.5)] relative rounded-[2px] shrink-0 w-full">
-                          <div className="flex flex-col items-center overflow-clip rounded-[inherit] w-full">
-                            <div className="content-stretch flex flex-col gap-[8px] items-center p-[12px] relative w-full">
-                              <div className="bg-white content-stretch flex items-center overflow-clip p-[4px] relative rounded-[4px] shrink-0">
-                                <div className="relative shrink-0 size-[24px]">
-                                  <div className="absolute bg-[#99d7ba] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIconColor2}')` }} />
-                                </div>
-                              </div>
-                              <div className="flex flex-col font-['SB_Sans_Interface:Regular',sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#8b8e9b] text-[12px] text-center tracking-[0.1px] w-[153.494px]">
-                                <p className="leading-[16px]">Перетащите сюда карточки сервисов, расположенные справа</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <FavoritesList
-                          favoriteServices={favoriteServices}
-                          onToggleFavorite={toggleFavorite}
-                          onMoveFavorite={moveFavorite}
-                        />
-                      )}
-                    </div>
-                  </div>
+                  <NavigationFavoritesBlock
+                    dropRef={drop}
+                    dragClassName={favoritesDragClassName}
+                    favoriteServices={favoriteServices}
+                    onToggleFavorite={toggleFavorite}
+                    onMoveFavorite={moveFavorite}
+                  />
                 </div>
 
                 {/* Bottom Menu */}
@@ -424,8 +420,8 @@ export default function NavigationMenuPrototype2() {
                       <div className="relative shrink-0">
                         <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex items-center relative size-full">
                           <button
-                            onClick={() => setActiveTab('platform')}
-                            className={`${activeTab === 'platform' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
+                            onClick={() => selectTab('platform')}
+                            className={`${activeTab === 'platform' ? 'bg-white' : ''} content-stretch flex h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
                           >
                             <span
                               className={`inline-flex shrink-0 size-[14px] ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
@@ -436,33 +432,27 @@ export default function NavigationMenuPrototype2() {
                             <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Сервисы</p>
                           </button>
                           <button
-                            onClick={() => setActiveTab('control')}
-                            className={`${activeTab === 'control' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
+                            onClick={() => selectTab('control')}
+                            className={`${activeTab === 'control' ? 'bg-white' : ''} content-stretch flex h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
                           >
                             <span
                               className={`inline-flex shrink-0 size-[14px] ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
                               aria-hidden
                             >
-                              <svg viewBox="0 0 12 12" fill="none" className="size-full">
-                                <circle cx="6" cy="6" r="2" stroke="currentColor" strokeWidth="1" />
-                                <path d="M6 1.5V3M6 9V10.5M1.5 6H3M9 6H10.5M2.8 2.8L3.8 3.8M8.2 8.2L9.2 9.2M9.2 2.8L8.2 3.8M3.8 8.2L2.8 9.2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                              </svg>
+                              <NavTabControlCenterIcon />
                             </span>
                             <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Центр управления</p>
                           </button>
                           {showSolutionsTab && (
                             <button
-                              onClick={() => setActiveTab('solutions')}
-                              className={`${activeTab === 'solutions' ? 'bg-white' : ''} content-stretch flex gap-[4px] h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
+                              onClick={() => selectTab('solutions')}
+                              className={`${activeTab === 'solutions' ? 'bg-white' : ''} content-stretch flex h-[28px] items-center justify-center min-w-[28px] overflow-clip px-[16px] relative rounded-[2px] shrink-0 cursor-pointer nav-tab-btn`}
                             >
                             <span
                                 className={`inline-flex shrink-0 size-[14px] ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'}`}
                                 aria-hidden
                               >
-                                <svg viewBox="0 0 12 12" fill="none" className="size-full">
-                                  <path d="M6 1.2L7.1 4.1L10 5.2L7.1 6.3L6 9.2L4.9 6.3L2 5.2L4.9 4.1L6 1.2Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
-                                  <path d="M9.8 8.2L10.2 9.2L11.2 9.6L10.2 10L9.8 11L9.4 10L8.4 9.6L9.4 9.2L9.8 8.2Z" fill="currentColor" />
-                                </svg>
+                                <NavTabSolutionsIcon />
                               </span>
                               <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Решения</p>
                             </button>
@@ -470,6 +460,7 @@ export default function NavigationMenuPrototype2() {
                         </div>
                       </div>
                     </div>
+                    {activeTab !== 'solutions' && (
                     <div className="content-stretch flex gap-[8px] items-center shrink-0">
                       {(activeTab === 'platform' || activeTab === 'control') && (
                         <label className="content-stretch flex gap-[8px] items-center cursor-pointer select-none">
@@ -504,6 +495,7 @@ export default function NavigationMenuPrototype2() {
                         </div>
                       </button>
                     </div>
+                    )}
                   </div>
 
                   <NavigationMiniBanners />
@@ -529,17 +521,24 @@ export default function NavigationMenuPrototype2() {
                         favorites={favorites}
                         showMoreDetails={moreDetails}
                         searchQuery={searchQuery}
-                        expandedMegaservices={expandedMegaservices}
-                        onToggleMegaservice={toggleMegaservice}
+                        expandedMegaservices={expandedPlatformMegaservices}
+                        onToggleMegaservice={togglePlatformMegaservice}
                         categoryColors={categoryColors}
                         colorsEnabled={colorsEnabled}
                       />
                     );
                   })}
+                  <CategoryListEndDropZone
+                    type={PLATFORM_CATEGORY_TYPE}
+                    itemCount={visiblePlatformCategoryCount}
+                    onMove={movePlatformCategory}
+                  />
                   </CategorySortableList>
                 )}
 
                 {activeTab === 'control' && (
+                  <>
+                  <NavTabInfoBlock text={CONTROL_CENTER_INTRO} />
                   <CategorySortableList className="nav-tab-panel w-full">
                 {categoryOrder.map((categoryId, index) => {
                   const category = filteredControlCategories.find(c => c.id === categoryId);
@@ -559,18 +558,26 @@ export default function NavigationMenuPrototype2() {
                       favorites={favorites}
                       showMoreDetails={moreDetails}
                       searchQuery={searchQuery}
-                      expandedMegaservices={expandedMegaservices}
-                      onToggleMegaservice={toggleMegaservice}
+                      expandedMegaservices={expandedControlMegaservices}
+                      onToggleMegaservice={toggleControlMegaservice}
                       categoryColors={categoryColors}
                       colorsEnabled={colorsEnabled}
                     />
                   );
                 })}
+                  <CategoryListEndDropZone
+                    type={CONTROL_CATEGORY_TYPE}
+                    itemCount={visibleControlCategoryCount}
+                    onMove={moveCategory}
+                  />
                   </CategorySortableList>
+                  </>
                 )}
 
                 {activeTab === 'solutions' && (
                   <div className="nav-tab-panel content-stretch flex flex-col gap-[8px] items-start relative w-full">
+                    <NavTabInfoBlock text={SOLUTIONS_INTRO} />
+                    <SolutionsMarketplaceBanner />
                     <div className="content-stretch flex gap-[4px] items-start relative shrink-0 w-full">
                       {SOLUTION_CARDS.slice(0, 2).map((solution) => (
                         <div key={solution.id} className="nav-solution-card bg-[#fdfdfd] flex-[1_0_0] h-[80px] min-w-px relative rounded-[4px] cursor-pointer">

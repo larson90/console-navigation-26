@@ -28,7 +28,7 @@ function NavigationMenuScrimInner({ children }: NavigationMenuScrimProps) {
         onClick={closeOverlay ? handleScrimClick : undefined}
       >
         <div
-          className="nav-menu-drawer bg-[#eeeff3] h-full relative shadow-[0px_0px_16px_0px_rgba(0,0,0,0.08),0px_24px_16px_0px_rgba(0,0,0,0.08)] shrink-0"
+          className="nav-menu-drawer h-full relative shadow-[0px_0px_16px_0px_rgba(0,0,0,0.08),0px_24px_16px_0px_rgba(0,0,0,0.08)] shrink-0"
           style={{
             width: drawerWidth,
             transition: isResizing ? 'none' : 'width 0.2s ease',

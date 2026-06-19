@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PLATFORMS, type PlatformId, type PlatformOption } from '../data/platformCatalog';
+import { buildMarketplaceNavState, MARKETPLACE_PATH } from '../navigation/marketplaceNavigation';
 
 const DEFAULT_PROJECT_NAME = 'K8s прод-кластер';
 
@@ -29,6 +30,10 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
 
   const selectPlatform = useCallback(
     (id: PlatformId) => {
+      if (id === 'marketplace') {
+        navigate(MARKETPLACE_PATH, { state: buildMarketplaceNavState() });
+        return;
+      }
       setSelectedId(id);
       navigate('/');
     },

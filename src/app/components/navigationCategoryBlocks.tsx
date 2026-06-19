@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router';
 import {
   ServiceCardItem,
   ServiceItemWrapper,
@@ -12,8 +13,6 @@ import {
   resolveCategoryAccentColor,
   categoryHasAccentSlot,
 } from '../data/serviceCatalog';
-import { type Solution } from '../data/solutionsCatalog';
-import { SolutionIllustration } from './solutionIllustrations';
 import { NavCollapse } from './NavCollapse';
 import { CONTROL_CATEGORY_TYPE, PLATFORM_CATEGORY_TYPE } from './categoryDnd';
 import { useCategoryBlockDrag } from './useCategoryBlockDrag';
@@ -21,6 +20,8 @@ import { CategoryDragHandle, CategoryHeaderChevron } from './categoryBlockHeader
 import { useCategoryDrag } from './CategoryDragContext';
 import { MegaserviceBlock } from './MegaserviceBlock';
 import { navigateToMegaservice } from '../utils/megaserviceNavigation';
+import { useNavigationPrototype } from '../context/NavigationPrototypeContext';
+import { buildMegaserviceNavState, buildServicePath } from '../navigation/serviceNavigation';
 
 const CATEGORY_LAYOUT_TRANSITION = {
   duration: 0.32,
@@ -54,6 +55,7 @@ export interface PlatformCategoryBlockProps {
   onMegaserviceNavigate?: (megaserviceId: string) => void;
   categoryColors?: Record<string, string | null>;
   colorsEnabled?: boolean;
+  dragType?: string;
 }
 
 export interface CategoryBlockProps {
@@ -73,6 +75,7 @@ export interface CategoryBlockProps {
   onMegaserviceNavigate?: (megaserviceId: string) => void;
   categoryColors?: Record<string, string | null>;
   colorsEnabled?: boolean;
+  dragType?: string;
 }
 
 function isMegaserviceExpanded(
@@ -81,6 +84,24 @@ function isMegaserviceExpanded(
   isForceCollapsed: boolean,
 ): boolean {
   return expandedMegaservices.includes(megaserviceId) && !isForceCollapsed;
+}
+
+function useDefaultMegaserviceNavigate() {
+  const navigate = useNavigate();
+  const { completeMenuNavigation } = useNavigationPrototype();
+
+  return useCallback(
+    (megaserviceId: string) => {
+      const state = buildMegaserviceNavState(megaserviceId);
+      if (state) {
+        navigate(buildServicePath(megaserviceId), { state });
+      } else {
+        navigateToMegaservice(megaserviceId);
+      }
+      completeMenuNavigation();
+    },
+    [navigate, completeMenuNavigation],
+  );
 }
 
 export function PlatformCategoryBlock({
@@ -97,10 +118,13 @@ export function PlatformCategoryBlock({
   searchQuery = '',
   expandedMegaservices,
   onToggleMegaservice,
-  onMegaserviceNavigate = navigateToMegaservice,
+  onMegaserviceNavigate,
   categoryColors,
   colorsEnabled = true,
+  dragType = PLATFORM_CATEGORY_TYPE,
 }: PlatformCategoryBlockProps) {
+  const defaultMegaserviceNavigate = useDefaultMegaserviceNavigate();
+  const handleMegaserviceNavigate = onMegaserviceNavigate ?? defaultMegaserviceNavigate;
   const { isForceCollapsed } = useCategoryDrag();
   const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
   const showAccentStripe = accentColor !== null;
@@ -108,7 +132,7 @@ export function PlatformCategoryBlock({
   const effectiveExpanded = isExpanded && !isForceCollapsed;
 
   const { ref, dragHandleRef, isDragging } = useCategoryBlockDrag({
-    type: PLATFORM_CATEGORY_TYPE,
+    type: dragType,
     index,
     title: category.title,
     accentColor,
@@ -126,7 +150,7 @@ export function PlatformCategoryBlock({
       className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered ? ' nav-category-block--hovered' : ''}`}
     >
       {showAccentStripe && <CategoryAccentStripe color={accentColor} />}
-      <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative size-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
+      <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative w-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
             role="button"
@@ -138,7 +162,7 @@ export function PlatformCategoryBlock({
                 onToggle(category.id);
               }
             }}
-            className="nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
+            className="nav-category-block__header nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
               <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccentPadding ? 'pl-[12px]' : 'pl-[8px]'}`}>
@@ -166,7 +190,7 @@ export function PlatformCategoryBlock({
             isExpanded={isMegaserviceExpanded(category.megaservice.id, expandedMegaservices, isForceCollapsed)}
             showMoreDetails={showMoreDetails}
             onToggle={onToggleMegaservice}
-            onNavigate={onMegaserviceNavigate}
+            onNavigate={handleMegaserviceNavigate}
           >
             {category.megaservice.services.map((service) => (
               <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
@@ -207,7 +231,7 @@ export function PlatformCategoryBlock({
             isExpanded={isMegaserviceExpanded(subcategory.id, expandedMegaservices, isForceCollapsed)}
             showMoreDetails={showMoreDetails}
             onToggle={onToggleMegaservice}
-            onNavigate={onMegaserviceNavigate}
+            onNavigate={handleMegaserviceNavigate}
           >
             {subcategory.services.map((service) => (
               <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
@@ -245,10 +269,13 @@ export function CategoryBlock({
   searchQuery = '',
   expandedMegaservices,
   onToggleMegaservice,
-  onMegaserviceNavigate = navigateToMegaservice,
+  onMegaserviceNavigate,
   categoryColors,
   colorsEnabled = true,
+  dragType = CONTROL_CATEGORY_TYPE,
 }: CategoryBlockProps) {
+  const defaultMegaserviceNavigate = useDefaultMegaserviceNavigate();
+  const handleMegaserviceNavigate = onMegaserviceNavigate ?? defaultMegaserviceNavigate;
   const { isForceCollapsed } = useCategoryDrag();
   const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
   const showAccentStripe = accentColor !== null;
@@ -256,7 +283,7 @@ export function CategoryBlock({
   const effectiveExpanded = isExpanded && !isForceCollapsed;
 
   const { ref, dragHandleRef, isDragging } = useCategoryBlockDrag({
-    type: CONTROL_CATEGORY_TYPE,
+    type: dragType,
     index,
     title: category.title,
     accentColor,
@@ -274,7 +301,7 @@ export function CategoryBlock({
       className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered ? ' nav-category-block--hovered' : ''}`}
     >
       {showAccentStripe && <CategoryAccentStripe color={accentColor} />}
-      <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative size-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
+      <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative w-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
             role="button"
@@ -286,7 +313,7 @@ export function CategoryBlock({
                 onToggle(category.id);
               }
             }}
-            className="nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
+            className="nav-category-block__header nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
               <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccentPadding ? 'pl-[12px]' : 'pl-[8px]'}`}>
@@ -315,7 +342,7 @@ export function CategoryBlock({
             isExpanded={isMegaserviceExpanded(subcategory.id, expandedMegaservices, isForceCollapsed)}
             showMoreDetails={showMoreDetails}
             onToggle={onToggleMegaservice}
-            onNavigate={onMegaserviceNavigate}
+            onNavigate={handleMegaserviceNavigate}
           >
             {subcategory.items.map((item) => (
               <ServiceItemWrapper key={item.id} showMoreDetails={showMoreDetails}>
@@ -343,69 +370,4 @@ export function CategoryBlock({
   );
 }
 
-export interface SolutionBlockProps {
-  solution: Solution;
-  isExpanded: boolean;
-  onToggle: (id: string) => void;
-  toggleFavorite: (id: string) => void;
-  favorites: string[];
-  showMoreDetails?: boolean;
-}
-
-export function SolutionBlock({
-  solution,
-  isExpanded,
-  onToggle,
-  toggleFavorite,
-  favorites,
-  showMoreDetails = false,
-}: SolutionBlockProps) {
-  return (
-    <div className="bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full">
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => onToggle(solution.id)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onToggle(solution.id);
-          }
-        }}
-        className="solution-block__header nav-interactive relative flex w-full shrink-0 cursor-pointer items-center gap-[12px] overflow-hidden rounded-[4px] px-[14px] py-[8px]"
-      >
-        <div className="pointer-events-none flex h-[32px] w-[48px] shrink-0 items-center justify-center opacity-[0.85]">
-          <SolutionIllustration id={solution.illustrationId} />
-        </div>
-
-        <div className="flex min-w-0 flex-[1_0_0] flex-col gap-[4px]">
-          <p className="nav-solution-title font-medium text-[14px] leading-[20px] tracking-[0.15px] text-[#41424e]">
-            {solution.title}
-          </p>
-          <p className="font-['SB_Sans_Interface:Regular',sans-serif] text-[12px] leading-[16px] tracking-[0.1px] text-[#6d707f]">
-            {solution.description}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-center">
-          <CategoryHeaderChevron expanded={isExpanded} />
-        </div>
-      </div>
-
-      <NavCollapse open={isExpanded && solution.services.length > 0}>
-        <CategoryServicesSection showMoreDetails={showMoreDetails ?? false}>
-          {solution.services.map((service) => (
-            <ServiceItemWrapper key={service.id} showMoreDetails={showMoreDetails}>
-              <ServiceCardItem
-                service={service}
-                onAddToFavorites={toggleFavorite}
-                isFavorite={favorites.includes(service.id)}
-                showMoreDetails={showMoreDetails}
-              />
-            </ServiceItemWrapper>
-          ))}
-        </CategoryServicesSection>
-      </NavCollapse>
-    </div>
-  );
-}
+export { SolutionBlock, type SolutionBlockProps } from './SolutionBlock';

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { imgIconColor } from '../../imports/MainMenuDesktop/svg-3dkbq';
 import { PLATFORMS, type PlatformId, type PlatformOption } from '../data/platformCatalog';
+import { useNavigateToMarketplace } from '../hooks/useNavigateToMarketplace';
 import { PlatformItemIcon } from './PlatformIcons';
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -21,6 +22,7 @@ export function PlatformSelector() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<PlatformId>('evolution');
   const rootRef = useRef<HTMLDivElement>(null);
+  const navigateToMarketplace = useNavigateToMarketplace();
 
   const selected = PLATFORMS.find((p) => p.id === selectedId) ?? PLATFORMS[0];
   const cloudPlatforms = PLATFORMS.filter((p) => p.section === 'cloud');
@@ -47,6 +49,11 @@ export function PlatformSelector() {
         key={platform.id}
         type="button"
         onClick={() => {
+          if (platform.id === 'marketplace') {
+            navigateToMarketplace();
+            setIsOpen(false);
+            return;
+          }
           setSelectedId(platform.id);
           setIsOpen(false);
         }}

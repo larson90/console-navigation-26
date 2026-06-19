@@ -16,6 +16,6 @@ export function LkHeader({ prototypeId }: LkHeaderProps) {
     case '3':
       return <LkHeaderPrototype3 />;
     default:
-      return <LkHeaderPrototype1 />;
+      return <LkHeaderPrototype3 />;
   }
 }

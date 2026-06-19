@@ -1,13 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useMatch, useNavigate } from 'react-router';
 import {
   NAVIGATION_PROTOTYPES,
   useNavigationPrototype,
 } from '../../context/NavigationPrototypeContext';
 import { usePlatform } from '../../context/PlatformContext';
+import { lookupMegaservicePageContext, lookupServiceById } from '../../data/serviceCatalog';
+import { imgIconColor13 as defaultServiceIcon } from '../../../imports/MainMenuDesktop/svg-3dkbq';
+import { useServicePageBreadcrumb } from '../../context/ServicePageBreadcrumbContext';
+import { buildMegaservicePageNavState, buildServicePath } from '../../navigation/serviceNavigation';
+import type { ServiceNavState } from '../servicePage/types';
 import { Chips } from '../ui/chips';
+import { AppTooltip } from '../AppTooltip';
 import { HeaderPlatformSelector } from '../HeaderPlatformSelector';
 import { HeaderLogoMorph } from '../HeaderLogoMorph';
+import { useUserActionToast } from '../../context/UserActionToastContext';
+import { useScreenLoading } from '../../context/ScreenLoadingContext';
 import type { LkHeaderConfig } from './lkHeaderConfig';
 
 const ASSETS = '/assets/lk-header';
@@ -65,7 +73,11 @@ interface LkHeaderBaseProps {
 
 export function LkHeaderBase({ config }: LkHeaderBaseProps) {
   const navigate = useNavigate();
-  const { setSelectedProjectName } = usePlatform();
+  const location = useLocation();
+  const serviceMatch = useMatch('service/:serviceId');
+  const { selectedPlatform, setSelectedProjectName } = usePlatform();
+  const { showUserAction } = useUserActionToast();
+  const { startScreenLoading } = useScreenLoading();
   const { selectedPrototypeId, setSelectedPrototypeId, launchSelectedPrototype } =
     useNavigationPrototype();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -128,20 +140,62 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
     setProfileOpen(false);
   };
 
+  const { subpageTitle: localSubpageTitle, goToOverview } = useServicePageBreadcrumb();
+  const serviceNavState = location.state as ServiceNavState | null;
+  const serviceId = serviceMatch?.params.serviceId ?? '';
+  const catalogService = useMemo(
+    () => (serviceId ? lookupServiceById(serviceId, defaultServiceIcon) : null),
+    [serviceId],
+  );
+  const megaserviceContext = useMemo(
+    () => (serviceId ? (serviceNavState?.megaservice ?? lookupMegaservicePageContext(serviceId)) : null),
+    [serviceId, serviceNavState?.megaservice],
+  );
+  const activeSubpageFromUrl = useMemo(() => {
+    if (!megaserviceContext || serviceId === megaserviceContext.id) {
+      return null;
+    }
+    return megaserviceContext.subpages.find((item) => item.id === serviceId) ?? null;
+  }, [megaserviceContext, serviceId]);
+  const serviceBreadcrumbTitle =
+    megaserviceContext?.title ?? serviceNavState?.title ?? catalogService?.title ?? serviceId;
+  const breadcrumbSubpageTitle = activeSubpageFromUrl?.title ?? localSubpageTitle;
+
+  const openServiceOverview = () => {
+    if (megaserviceContext) {
+      navigate(buildServicePath(megaserviceContext.id), {
+        state: buildMegaservicePageNavState(megaserviceContext),
+      });
+      return;
+    }
+    goToOverview();
+  };
+
+  const selectProject = (projectId: string) => {
+    if (projectId !== selectedProjectId) {
+      startScreenLoading(undefined, () => showUserAction('Проект изменен'));
+    }
+    setSelectedProjectId(projectId);
+    setProjectOpen(false);
+    setOrganizationFilterOpen(false);
+    setProjectSearch('');
+  };
+
   return (
     <header className="lk-header" data-prototype={config.prototypeId}>
-      <a
-        href="/"
-        className="lk-header__logo lk-header__logo--leading"
-        aria-label="На главную"
-        title="На главную"
-        onClick={(e) => {
-          e.preventDefault();
-          navigate('/');
-        }}
-      >
-        <HeaderLogoMorph />
-      </a>
+      <AppTooltip label="На главную">
+        <a
+          href="/"
+          className="lk-header__logo lk-header__logo--leading"
+          aria-label="На главную"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/');
+          }}
+        >
+          <HeaderLogoMorph />
+        </a>
+      </AppTooltip>
 
       {config.showPlatformSelector && (
         <HeaderPlatformSelector
@@ -157,21 +211,22 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
         />
       )}
 
-      <button
-        type="button"
-        className="lk-header__appswitcher"
-        title="Сервисы"
-        aria-label={`Сервисы — прототип ${config.prototypeId}`}
-        onClick={() => {
-          setProfileOpen(false);
-          setProjectOpen(false);
-          setOrganizationFilterOpen(false);
-          setPlatformOpen(false);
-          launchSelectedPrototype();
-        }}
-      >
-        <img src={`${ASSETS}/lk-header-appswitcher.svg`} alt="" width={24} height={24} />
-      </button>
+      <AppTooltip label="Сервисы">
+        <button
+          type="button"
+          className="lk-header__appswitcher"
+          aria-label={`Сервисы — прототип ${config.prototypeId}`}
+          onClick={() => {
+            setProfileOpen(false);
+            setProjectOpen(false);
+            setOrganizationFilterOpen(false);
+            setPlatformOpen(false);
+            launchSelectedPrototype();
+          }}
+        >
+          <img src={`${ASSETS}/lk-header-appswitcher.svg`} alt="" width={24} height={24} />
+        </button>
+      </AppTooltip>
 
       <div className="lk-header__project-wrap" ref={projectWrapRef}>
         <button
@@ -250,6 +305,14 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
                     </svg>
                   </span>
                   <span className="lk-header__project-org-text">{organizationFilterLabel}</span>
+                  <img
+                    src={`${ASSETS}/lk-header-chev-down.svg`}
+                    alt=""
+                    width={10}
+                    height={10}
+                    className={`lk-header__project-org-chev${organizationFilterOpen ? ' lk-header__project-org-chev--up' : ''}`}
+                    aria-hidden
+                  />
                 </Chips>
 
                 {organizationFilterOpen && (
@@ -279,7 +342,10 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
                           setOrganizationFilterOpen(false);
                           setProjectSearch('');
                           if (!organization.projects.some((project) => project.id === selectedProjectId)) {
-                            setSelectedProjectId(organization.projects[0]?.id ?? selectedProjectId);
+                            const nextProjectId = organization.projects[0]?.id;
+                            if (nextProjectId) {
+                              selectProject(nextProjectId);
+                            }
                           }
                         }}
                       >
@@ -333,12 +399,7 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
                           role="option"
                           aria-selected={selectedProjectId === project.id}
                           className={`lk-header__project-row${selectedProjectId === project.id ? ' lk-header__project-row--selected' : ''}${isAllOrganizationsSelected ? ' lk-header__project-row--nested' : ''}`}
-                          onClick={() => {
-                            setSelectedProjectId(project.id);
-                            setProjectOpen(false);
-                            setOrganizationFilterOpen(false);
-                            setProjectSearch('');
-                          }}
+                          onClick={() => selectProject(project.id)}
                         >
                           {selectedProjectId === project.id && (
                             <span className="lk-header__project-row-marker" aria-hidden />
@@ -393,6 +454,30 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
         )}
       </div>
 
+      {serviceMatch && (
+        <nav className="lk-header__breadcrumb" aria-label="Хлебные крошки">
+          <button type="button" className="lk-header__breadcrumb-link" onClick={() => navigate('/')}>
+            {selectedPlatform.title}
+          </button>
+          <span className="lk-header__breadcrumb-sep" aria-hidden>
+            &gt;
+          </span>
+          {breadcrumbSubpageTitle ? (
+            <>
+              <button type="button" className="lk-header__breadcrumb-link" onClick={openServiceOverview}>
+                {serviceBreadcrumbTitle}
+              </button>
+              <span className="lk-header__breadcrumb-sep" aria-hidden>
+                &gt;
+              </span>
+              <span className="lk-header__breadcrumb-current">{breadcrumbSubpageTitle}</span>
+            </>
+          ) : (
+            <span className="lk-header__breadcrumb-current">{serviceBreadcrumbTitle}</span>
+          )}
+        </nav>
+      )}
+
       <div className="lk-header__spacer" />
 
       <button type="button" className="lk-header__balance" id="lk-balance">
@@ -406,25 +491,31 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
         />
       </button>
 
-      <button type="button" className="lk-header__icon-btn" title="Календарь" aria-label="Календарь">
-        <img src={`${ASSETS}/lk-header-calendar.svg`} alt="" width={20} height={20} />
-      </button>
+      <AppTooltip label="Календарь">
+        <button type="button" className="lk-header__icon-btn" aria-label="Календарь">
+          <img src={`${ASSETS}/lk-header-calendar.svg`} alt="" width={20} height={20} />
+        </button>
+      </AppTooltip>
 
-      <button type="button" className="lk-header__icon-btn" title="Помощь" aria-label="Помощь">
-        <img src={`${ASSETS}/lk-header-help.svg`} alt="" width={20} height={20} />
-      </button>
+      <AppTooltip label="Помощь">
+        <button type="button" className="lk-header__icon-btn" aria-label="Помощь">
+          <img src={`${ASSETS}/lk-header-help.svg`} alt="" width={20} height={20} />
+        </button>
+      </AppTooltip>
 
-      <button type="button" className="lk-header__icon-btn" title="Уведомления" aria-label="Уведомления">
-        <img src={`${ASSETS}/lk-header-bell.svg`} alt="" width={20} height={20} />
-        <span className="lk-header__badge">2</span>
-      </button>
+      <AppTooltip label="Уведомления">
+        <button type="button" className="lk-header__icon-btn" aria-label="Уведомления">
+          <img src={`${ASSETS}/lk-header-bell.svg`} alt="" width={20} height={20} />
+          <span className="lk-header__badge">2</span>
+        </button>
+      </AppTooltip>
 
       <div className="lk-header__avatar-wrap" ref={profileWrapRef}>
-        <button
-          type="button"
-          className={`lk-header__avatar${profileOpen ? ' lk-header__avatar--open' : ''}`}
-          title="Владимир Чумаков — выбор прототипа"
-          aria-label="Профиль — выбор прототипа навигации"
+        <AppTooltip label="Владимир Чумаков — выбор прототипа">
+          <button
+            type="button"
+            className={`lk-header__avatar${profileOpen ? ' lk-header__avatar--open' : ''}`}
+            aria-label="Профиль — выбор прототипа навигации"
           aria-expanded={profileOpen}
           aria-haspopup="menu"
           onClick={() => {
@@ -436,6 +527,7 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
         >
           ВЧ
         </button>
+        </AppTooltip>
 
         {profileOpen && (
           <div className="lk-header__proto-dropdown lk-header__proto-dropdown--profile" role="menu">
