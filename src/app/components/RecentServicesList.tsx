@@ -1,40 +1,34 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
-import { lookupServiceGroupLabel, type ServiceCard } from '../data/serviceCatalog';
-import { useNavigationPrototype } from '../context/NavigationPrototypeContext';
-import { buildServiceNavState, buildServicePath } from '../navigation/serviceNavigation';
-import { ServiceIcon } from './navigationServiceUi';
-
-function RecentServiceRow({ service }: { service: ServiceCard }) {
-  const navigate = useNavigate();
-  const { completeMenuNavigation } = useNavigationPrototype();
-  const subtitle = service.subtitle || lookupServiceGroupLabel(service.id);
-
-  const handleClick = () => {
-    navigate(buildServicePath(service.id), { state: buildServiceNavState(service) });
-    completeMenuNavigation();
-  };
-
-  return (
-    <button type="button" className="nav-recent-service-row" onClick={handleClick}>
-      <ServiceIcon icon={service.icon} />
-      <span className="nav-recent-service-row__text">
-        <span className="nav-recent-service-row__title">{service.title}</span>
-        {subtitle ? <span className="nav-recent-service-row__subtitle">{subtitle}</span> : null}
-      </span>
-    </button>
-  );
-}
+import React, { useMemo } from 'react';
+import { ServiceCardItem } from './navigationServiceUi';
+import type { ServiceCard } from '../data/serviceCatalog';
 
 interface RecentServicesListProps {
   recentServices: ServiceCard[];
+  favoriteIds: string[];
+  onToggleFavorite: (id: string) => void;
 }
 
-export function RecentServicesList({ recentServices }: RecentServicesListProps) {
+export function RecentServicesList({
+  recentServices,
+  favoriteIds,
+  onToggleFavorite,
+}: RecentServicesListProps) {
+  const favoriteIdSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+
   return (
-    <div className="nav-recent-services-list flex flex-col w-full">
+    <div className="nav-favorites-list flex flex-col gap-[4px] w-full">
       {recentServices.map((service) => (
-        <RecentServiceRow key={service.id} service={service} />
+        <div
+          key={service.id}
+          className="bg-[#fdfdfd] rounded-[4px] shrink-0 w-full relative"
+        >
+          <ServiceCardItem
+            service={service}
+            onAddToFavorites={onToggleFavorite}
+            isFavorite={favoriteIdSet.has(service.id)}
+            enableDrag={false}
+          />
+        </div>
       ))}
     </div>
   );

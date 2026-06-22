@@ -416,17 +416,15 @@ export function ServiceCardItem({
           </div>
         </div>
         <div className="nav-service-actions nav-service-actions--compact">
-          {!inFavorites && (
-            <div
-              className="nav-service-actions__btn nav-service-actions__info flex items-center justify-center shrink-0 rounded-[4px]"
-              style={{ width: COMPACT_SERVICE_ICON_SIZE, height: COMPACT_SERVICE_ICON_SIZE }}
-              ref={infoIconRef}
-              onMouseEnter={handleInfoMouseEnter}
-              onMouseLeave={handleInfoMouseLeave}
-            >
-              <ServiceInfoIcon size={COMPACT_SERVICE_ICON_SIZE} />
-            </div>
-          )}
+          <div
+            className="nav-service-actions__btn nav-service-actions__info flex items-center justify-center shrink-0 rounded-[4px]"
+            style={{ width: COMPACT_SERVICE_ICON_SIZE, height: COMPACT_SERVICE_ICON_SIZE }}
+            ref={infoIconRef}
+            onMouseEnter={handleInfoMouseEnter}
+            onMouseLeave={handleInfoMouseLeave}
+          >
+            <ServiceInfoIcon size={COMPACT_SERVICE_ICON_SIZE} />
+          </div>
           {favoriteButton(COMPACT_SERVICE_ICON_SIZE)}
         </div>
       </div>

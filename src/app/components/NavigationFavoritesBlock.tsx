@@ -146,7 +146,11 @@ export function NavigationFavoritesBlock({
             </div>
           </div>
         ) : (
-          <RecentServicesList recentServices={recentServices} />
+          <RecentServicesList
+            recentServices={recentServices}
+            favoriteIds={favoriteServices.map((service) => service.id)}
+            onToggleFavorite={onToggleFavorite}
+          />
         )}
       </div>
     </div>
