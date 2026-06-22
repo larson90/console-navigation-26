@@ -9,15 +9,16 @@ import { CategorySortableList } from './CategorySortableList';
 import { CategoryListEndDropZone } from './CategoryListEndDropZone';
 import { CONTROL_CATEGORY_TYPE, PLATFORM_CATEGORY_TYPE } from './categoryDnd';
 import { NavigationFavoritesBlock } from './NavigationFavoritesBlock';
-import { NavigationMenuCloseButton } from './NavigationMenuCloseButton';
+import { NavigationMenuSearchInput } from './NavigationMenuSearchInput';
+import { NavigationMenuTopBar } from './NavigationMenuTopBar';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
 import { NavigationMenuMainPanel } from './NavigationMenuMainPanel';
 import { NavTabControlCenterIcon, NavTabServicesGridIcon, NavTabSolutionsIcon } from './navigationTabIcons';
 import { NavigationMiniBanners } from './navigationMiniBanners';
 import { SolutionsMarketplaceBanner } from './SolutionsMarketplaceBanner';
-import { PlatformSelector } from './PlatformSelector';
 import { CategoryColorSettings } from './CategoryColorSettings';
 import { useFavorites } from '../hooks/useFavorites';
+import { useRecentServices } from '../hooks/useRecentServices';
 import { useCategoryColors } from '../hooks/useCategoryColors';
 import {
   PLATFORM_SERVICE_CATEGORIES,
@@ -149,10 +150,10 @@ function QuickAccessCard({
 const MEGASERVICE_EXPANSION_STORAGE_KEY = 'lk-megaservice-expansion:2';
 
 export default function NavigationMenuPrototype2() {
-  const showPlatformSelector = false;
   const showSolutionsTab = false;
-  const { favorites, favoriteServices, drop, toggleFavorite, moveFavorite, favoritesDragClassName } =
+  const { favorites, favoriteServices, drop, toggleFavorite, moveFavorite, isDraggingService, favoritesDragClassName, sortFavoritesAlphabetically, clearAllFavorites } =
     useFavorites(imgIcon2Color13);
+  const { recentServices, clearRecentServices } = useRecentServices(imgIcon2Color13);
   const { categoryColors, colorsEnabled, setCategoryColor, setColorsEnabled, resetCategoryColors } =
     useCategoryColors();
   const [searchQuery, setSearchQuery] = useState('');
@@ -320,22 +321,33 @@ export default function NavigationMenuPrototype2() {
       }}
     >
     <NavigationMenuScrim>
-          <div className="flex items-start w-full h-full pl-[16px] pt-0 relative">
+          <div className="flex flex-col h-full w-full min-h-0">
+            <NavigationMenuTopBar
+              search={
+                <NavigationMenuSearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  searchIconMask={imgIcon2Color10}
+                />
+              }
+            />
+            <div className="flex items-start flex-1 min-h-0 pl-[16px] pt-0 relative">
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
               <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] relative size-full">
                 <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2]">
-                  {showPlatformSelector && <PlatformSelector />}
-
-                  <NavigationMenuCloseButton />
-
                   <NavigationFavoritesBlock
                     dropRef={drop}
                     dragClassName={favoritesDragClassName}
+                    isDraggingService={isDraggingService}
                     favoriteServices={favoriteServices}
+                    recentServices={recentServices}
                     onToggleFavorite={toggleFavorite}
                     onMoveFavorite={moveFavorite}
+                    onSortFavorites={sortFavoritesAlphabetically}
+                    onClearFavorites={clearAllFavorites}
+                    onClearRecent={clearRecentServices}
                   />
                 </div>
 
@@ -394,26 +406,6 @@ export default function NavigationMenuPrototype2() {
 
                 {/* Search and Controls */}
                 <div className="content-stretch flex flex-col gap-[8px] items-start relative rounded-[8px] shrink-0 w-full">
-                  <div className="bg-[#fdfdfd] content-stretch flex flex-col items-start justify-center px-[10px] py-[8px] relative rounded-[4px] shrink-0 w-full">
-                    <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0)] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                    <div className="relative shrink-0 w-full">
-                      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[4px] items-center relative size-full">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color10}')` }} />
-                        </div>
-                        <div className="content-stretch flex flex-[1_0_0] items-start min-w-px overflow-clip relative">
-                          <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Поиск по категориям, сервисам и подсервисам"
-                            className="flex-[1_0_0] font-['SB_Sans_Interface:Regular',sans-serif] leading-[20px] min-w-px not-italic overflow-hidden relative text-[#41424e] text-[14px] text-ellipsis tracking-[0.1px] whitespace-nowrap bg-transparent border-none outline-none placeholder:text-[#aaaebd]"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="flex w-full min-h-[34px] items-center justify-between">
                     <div className="flex items-center p-[3px] relative rounded-[4px] shrink-0">
                       <div aria-hidden="true" className="absolute border border-[#dde0ea] border-solid inset-0 pointer-events-none rounded-[4px]" />
@@ -429,7 +421,7 @@ export default function NavigationMenuPrototype2() {
                             >
                               <NavTabServicesGridIcon />
                             </span>
-                            <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'platform' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Сервисы</p>
+                            <p className="relative shrink-0 whitespace-nowrap">Сервисы</p>
                           </button>
                           <button
                             onClick={() => selectTab('control')}
@@ -441,7 +433,7 @@ export default function NavigationMenuPrototype2() {
                             >
                               <NavTabControlCenterIcon />
                             </span>
-                            <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'control' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Центр управления</p>
+                            <p className="relative shrink-0 whitespace-nowrap">Центр управления</p>
                           </button>
                           {showSolutionsTab && (
                             <button
@@ -454,7 +446,7 @@ export default function NavigationMenuPrototype2() {
                               >
                                 <NavTabSolutionsIcon />
                               </span>
-                              <p className={`font-['SB_Sans_Interface:Semibold',sans-serif] leading-[16px] not-italic relative shrink-0 ${activeTab === 'solutions' ? 'text-[#41424e]' : 'text-[#6d707f]'} text-[12px] whitespace-nowrap`}>Решения</p>
+                              <p className="relative shrink-0 whitespace-nowrap">Решения</p>
                             </button>
                           )}
                         </div>
@@ -677,6 +669,7 @@ export default function NavigationMenuPrototype2() {
               </div>
             </NavigationMenuMainPanel>
 
+          </div>
           </div>
     </NavigationMenuScrim>
     </CategoryDragProvider>

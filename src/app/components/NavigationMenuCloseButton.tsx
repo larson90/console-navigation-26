@@ -15,10 +15,13 @@ function CloseMenuArrowIcon() {
   );
 }
 
+/** Временно скрыта — используется шапка сайдбара с крестиком. */
+export const NAV_MENU_CLOSE_BUTTON_ENABLED = false;
+
 export function NavigationMenuCloseButton() {
   const closeMenu = useNavigationOverlayClose();
 
-  if (!closeMenu) return null;
+  if (!NAV_MENU_CLOSE_BUTTON_ENABLED || !closeMenu) return null;
 
   return (
     <button type="button" className="nav-menu-close-btn" onClick={closeMenu}>

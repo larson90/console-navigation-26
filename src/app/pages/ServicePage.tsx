@@ -8,6 +8,7 @@ import {
   buildMegaservicePageNavState,
   buildServicePath,
 } from '../navigation/serviceNavigation';
+import { recordRecentServiceVisit } from '../hooks/recentServicesStorage';
 
 export default function ServicePage() {
   const { serviceId = '' } = useParams();
@@ -58,6 +59,12 @@ export default function ServicePage() {
   useEffect(() => {
     document.title = serviceTitle;
   }, [serviceTitle]);
+
+  useEffect(() => {
+    if (serviceId) {
+      recordRecentServiceVisit(serviceId);
+    }
+  }, [serviceId]);
 
   return (
     <ServicePageTemplate

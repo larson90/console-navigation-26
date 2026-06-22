@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Switch } from './ui/switch';
 import { NavigationFavoritesBlock } from './NavigationFavoritesBlock';
-import { NavigationMenuCloseButton } from './NavigationMenuCloseButton';
+import { NavigationMenuSearchInput } from './NavigationMenuSearchInput';
+import { NavigationMenuTopBar } from './NavigationMenuTopBar';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
 import { NavigationMenuMainPanel } from './NavigationMenuMainPanel';
 import { NavigationSidebarBottomMenu } from './navigationSidebarBottom';
@@ -16,6 +17,7 @@ import {
 } from './unifiedCategoryOrder';
 import { CategoryColorSettings } from './CategoryColorSettings';
 import { useFavorites } from '../hooks/useFavorites';
+import { useRecentServices } from '../hooks/useRecentServices';
 import { useCategoryColors } from '../hooks/useCategoryColors';
 import {
   PLATFORM_SERVICE_CATEGORIES,
@@ -101,10 +103,10 @@ const SOLUTION_CARDS: SolutionCard[] = [
 const MEGASERVICE_EXPANSION_STORAGE_KEY = 'lk-megaservice-expansion:1';
 
 export default function NavigationMenuPrototype1() {
-  const showPlatformSelector = false;
   const showSolutionsTab = false;
-  const { favorites, favoriteServices, drop, toggleFavorite, moveFavorite, favoritesDragClassName } =
+  const { favorites, favoriteServices, drop, toggleFavorite, moveFavorite, isDraggingService, favoritesDragClassName, sortFavoritesAlphabetically, clearAllFavorites } =
     useFavorites(imgIcon2Color13);
+  const { recentServices, clearRecentServices } = useRecentServices(imgIcon2Color13);
   const { categoryColors, colorsEnabled, setCategoryColor, setColorsEnabled, resetCategoryColors } =
     useCategoryColors();
   const [searchQuery, setSearchQuery] = useState('');
@@ -289,55 +291,34 @@ export default function NavigationMenuPrototype1() {
       }}
     >
     <NavigationMenuScrim>
-          <div className="flex items-start w-full h-full pl-[16px] pt-0 relative">
+          <div className="flex flex-col h-full w-full min-h-0">
+            <NavigationMenuTopBar
+              search={
+                <NavigationMenuSearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  searchIconMask={imgIcon2Color10}
+                />
+              }
+            />
+            <div className="flex items-start flex-1 min-h-0 pl-[16px] pt-0 relative">
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
               <div className="content-stretch flex flex-col isolate items-start justify-between pt-[16px] pb-[16px] relative size-full">
                 <div className="content-stretch flex flex-col gap-[4px] items-start relative shrink-0 w-full z-[2]">
 
-                  {/* Platform Selector */}
-                  {showPlatformSelector && (
-                    <div className="content-stretch flex flex-col h-[56px] items-start pb-[16px] relative shrink-0 w-full">
-                      <div className="bg-[#fdfdfd] h-[56px] relative rounded-[4px] shrink-0 w-full">
-                        <div className="flex flex-row items-center size-full">
-                          <div className="content-stretch flex gap-[8px] items-center px-[12px] py-px relative size-full">
-                            <div className="flex-[1_0_0] min-w-px relative">
-                              <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[8px] items-center relative size-full">
-                                <div className="bg-[#787b8a] relative rounded-[4px] shrink-0 size-[32px]">
-                                  <div className="absolute inset-0 overflow-clip">
-                                    <div className="absolute inset-[12.5%]">
-                                      <div className="absolute inset-[-5.21%]">
-                                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 26.5 26.5">
-                                          <path clipRule="evenodd" d={svgPaths.p1c0bf500} fill="white" fillRule="evenodd" stroke="white" strokeWidth="2.5" />
-                                        </svg>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="content-stretch flex flex-[1_0_0] flex-col items-start min-w-px not-italic relative">
-                                  <p className="font-['SB_Sans_Interface:Regular',sans-serif] leading-[16px] relative shrink-0 text-[#8b8e9b] text-[12px] tracking-[0.1px] w-full">Платформа</p>
-                                  <p className="font-['SB_Sans_Interface:Semibold',sans-serif] leading-[20px] overflow-hidden relative shrink-0 text-[#41424e] text-[14px] text-ellipsis tracking-[0.15px] w-full whitespace-nowrap">Evolution</p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="relative shrink-0 size-[24px]">
-                              <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIconColor}')` }} />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <NavigationMenuCloseButton />
-
                   <NavigationFavoritesBlock
                     dropRef={drop}
                     dragClassName={favoritesDragClassName}
+                    isDraggingService={isDraggingService}
                     favoriteServices={favoriteServices}
+                    recentServices={recentServices}
                     onToggleFavorite={toggleFavorite}
                     onMoveFavorite={moveFavorite}
+                    onSortFavorites={sortFavoritesAlphabetically}
+                    onClearFavorites={clearAllFavorites}
+                    onClearRecent={clearRecentServices}
                   />
                 </div>
 
@@ -360,27 +341,8 @@ export default function NavigationMenuPrototype1() {
             <NavigationMenuMainPanel>
               <div className="content-stretch flex flex-col gap-[8px] items-start pb-0 relative pr-[20px]">
 
-                {/* Search and Controls */}
+                {/* Controls */}
                 <div className="content-stretch flex flex-col gap-[8px] items-start pt-[16px] relative rounded-[8px] shrink-0 w-full">
-                  <div className="bg-[#fdfdfd] content-stretch flex flex-col items-start justify-center px-[10px] py-[8px] relative rounded-[4px] shrink-0 w-full">
-                    <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0)] border-solid inset-0 pointer-events-none rounded-[4px]" />
-                    <div className="relative shrink-0 w-full">
-                      <div className="bg-clip-padding border-0 border-[transparent] border-solid content-stretch flex gap-[4px] items-center relative size-full">
-                        <div className="relative shrink-0 size-[24px]">
-                          <div className="absolute bg-[#8b8e9b] inset-0 mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0px_0px] mask-size-[24px_24px]" style={{ maskImage: `url('${imgIcon2Color10}')` }} />
-                        </div>
-                        <div className="content-stretch flex flex-[1_0_0] items-start min-w-px overflow-clip relative">
-                          <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Поиск по категориям, сервисам и подсервисам"
-                            className="flex-[1_0_0] font-['SB_Sans_Interface:Regular',sans-serif] leading-[20px] min-w-px not-italic overflow-hidden relative text-[#41424e] text-[14px] text-ellipsis tracking-[0.1px] whitespace-nowrap bg-transparent border-none outline-none placeholder:text-[#aaaebd]"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <div className="content-stretch flex w-full shrink-0 items-center justify-between">
@@ -583,6 +545,7 @@ export default function NavigationMenuPrototype1() {
               </div>
             </NavigationMenuMainPanel>
 
+          </div>
           </div>
     </NavigationMenuScrim>
     </CategoryDragProvider>

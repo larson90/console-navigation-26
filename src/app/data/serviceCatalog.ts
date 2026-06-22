@@ -767,6 +767,42 @@ export function lookupServiceById(serviceId: string, controlItemIcon: string): S
   return cachedServicesIndex.get(serviceId) ?? null;
 }
 
+/** Подпись группы сервиса: категория, мегасервис или раздел центра управления. */
+export function lookupServiceGroupLabel(serviceId: string): string {
+  for (const category of SERVICE_CATEGORIES) {
+    if (category.services.some((service) => service.id === serviceId)) {
+      return category.title;
+    }
+    if (category.megaservice?.id === serviceId) {
+      return category.title;
+    }
+    if (category.megaservice?.services.some((service) => service.id === serviceId)) {
+      return category.megaservice.title;
+    }
+    for (const subcategory of category.subcategories ?? []) {
+      if (subcategory.id === serviceId) {
+        return category.title;
+      }
+      if (subcategory.services.some((service) => service.id === serviceId)) {
+        return subcategory.title;
+      }
+    }
+  }
+
+  for (const category of CONTROL_CATEGORIES) {
+    for (const subcategory of category.subcategories) {
+      if (subcategory.id === serviceId) {
+        return category.title;
+      }
+      if (subcategory.items.some((item) => item.id === serviceId)) {
+        return subcategory.title;
+      }
+    }
+  }
+
+  return '';
+}
+
 /** Список избранного в порядке добавления, без дубликатов по id. */
 export function resolveFavoriteServices(
   favoriteIds: string[],

@@ -72,6 +72,20 @@ export function useFavorites(controlItemIcon: string) {
     });
   }, []);
 
+  const sortFavoritesAlphabetically = useCallback(() => {
+    setFavoriteIds((prev) =>
+      [...prev].sort((a, b) => {
+        const titleA = servicesIndex.get(a)?.title ?? a;
+        const titleB = servicesIndex.get(b)?.title ?? b;
+        return titleA.localeCompare(titleB, 'ru');
+      }),
+    );
+  }, [servicesIndex]);
+
+  const clearAllFavorites = useCallback(() => {
+    setFavoriteIds([]);
+  }, []);
+
   return {
     favorites: favoriteIds,
     favoriteServices,
@@ -81,6 +95,8 @@ export function useFavorites(controlItemIcon: string) {
     drop,
     toggleFavorite,
     moveFavorite,
+    sortFavoritesAlphabetically,
+    clearAllFavorites,
   };
 }
 

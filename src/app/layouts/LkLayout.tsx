@@ -7,6 +7,7 @@ import { NavigationPrototypeProvider, useNavigationPrototype } from '../context/
 import { ServicePageBreadcrumbProvider } from '../context/ServicePageBreadcrumbContext';
 import { UserActionToastProvider } from '../context/UserActionToastContext';
 import { ScreenLoadingProvider } from '../context/ScreenLoadingContext';
+import { ProjectSelectionProvider } from '../context/ProjectSelectionContext';
 import { TooltipProvider } from '../components/ui/tooltip';
 import { LkHeader } from '../components/LkHeader';
 import { NavigationPrototypeOverlay } from '../components/NavigationPrototypeOverlay';
@@ -57,9 +58,11 @@ export default function LkLayout() {
           <ServicePageBreadcrumbProvider>
             <UserActionToastProvider>
               <ScreenLoadingProvider>
-                <TooltipProvider delayDuration={300}>
-                  <LkLayoutContent />
-                </TooltipProvider>
+                <ProjectSelectionProvider>
+                  <TooltipProvider delayDuration={300}>
+                    <LkLayoutContent />
+                  </TooltipProvider>
+                </ProjectSelectionProvider>
               </ScreenLoadingProvider>
             </UserActionToastProvider>
           </ServicePageBreadcrumbProvider>

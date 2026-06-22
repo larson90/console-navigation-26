@@ -1,5 +1,13 @@
 export const NAV_SIDEBAR_WIDTH = 216;
-export const NAV_DIVIDER_WIDTH = 32;
+export const NAV_MENU_GUTTER = 16;
+/** Отступ слева от линии разделителя в колонке между сайдбаром и основной частью */
+export const NAV_DIVIDER_PADDING = 16;
+export const NAV_DIVIDER_WIDTH = NAV_DIVIDER_PADDING * 2 + 1;
+/** Ширина зоны слева от вертикального разделителя (гаттер + сайдбар + отступ до линии) */
+export const NAV_MENU_LEADING_WIDTH =
+  NAV_MENU_GUTTER + NAV_SIDEBAR_WIDTH + NAV_DIVIDER_PADDING;
+/** Отступ основной части и поля поиска после вертикального разделителя */
+export const NAV_MENU_MAIN_GUTTER = NAV_DIVIDER_PADDING;
 
 /** Ширина всего меню (дровер) */
 export const NAV_MENU_MIN_DRAWER_WIDTH = 888;

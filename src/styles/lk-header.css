@@ -8,7 +8,7 @@
   border-bottom: 1px solid #dde0ea;
   height: 48px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   padding: 0 8px 0 0;
   gap: 0;
 }
@@ -16,18 +16,20 @@
 .lk-header__appswitcher,
 .lk-header__logo {
   width: 40px;
-  height: 40px;
+  height: auto;
+  align-self: stretch;
   border: 0;
   background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
   flex: none;
-  margin: 3.5px 0;
+  margin: 0;
   padding: 0;
   text-decoration: none;
+  color: #6d707f;
 }
 
 .lk-header__appswitcher:hover,
@@ -95,24 +97,25 @@
   flex: none;
   align-self: stretch;
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .lk-header__project {
   width: 176px;
-  height: 47px;
+  flex: 1;
+  min-height: 100%;
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 9px;
+  justify-content: flex-start;
+  padding: 0 10px;
   background: transparent;
   border: 0;
   border-left: 1px solid #dde0ea;
   border-right: 1px solid #dde0ea;
   cursor: pointer;
   text-align: left;
-  flex: none;
-  gap: 8px;
+  gap: 4px;
 }
 
 .lk-header__project:hover {
@@ -154,6 +157,7 @@
   width: 16px;
   height: 16px;
   flex: none;
+  margin-left: auto;
   opacity: 0.8;
 }
 
@@ -171,14 +175,15 @@
   flex: none;
   align-self: stretch;
   display: flex;
-  align-items: center;
+  align-items: stretch;
 }
 
 .lk-header__platform-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 47px;
+  height: auto;
+  align-self: stretch;
   padding: 0 10px;
   border: 0;
   background: transparent;
@@ -189,8 +194,9 @@
 .lk-header__platform-btn--icon-only {
   width: auto;
   min-width: 40px;
-  height: 40px;
-  margin: 3.5px 0;
+  height: auto;
+  align-self: stretch;
+  margin: 0;
   padding: 0 6px 0 8px;
   gap: 4px;
   justify-content: center;
@@ -889,4 +895,80 @@
 
 .lk-header__project-add-icon {
   display: inline-flex;
+}
+
+/* Компактный селектор проекта в шапке сайдбара меню */
+.lk-header__project-wrap--menu {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.lk-header__project--menu {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  min-height: 100%;
+  border-left: 1px solid #dde0ea;
+  border-right: 0;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.lk-header__project--menu .lk-header__project-chev {
+  margin-left: 0;
+}
+
+.lk-header__project-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: #fdfdfd;
+  border: 1px solid #dde0ea;
+  font: 600 12px/16px system-ui, sans-serif;
+  color: #41424e;
+  flex: none;
+  letter-spacing: 0.1px;
+}
+
+.lk-header__project-dropdown--menu {
+  z-index: 1200;
+  left: auto;
+  right: 0;
+}
+
+/* Левая часть хедера, проброшенная в открытое меню */
+.lk-header--menu-bridge {
+  flex: none;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  position: relative;
+  z-index: 3;
+  padding: 0;
+  border-bottom: 0;
+  background: #eeeff3;
+}
+
+.lk-header--menu-bridge .lk-header__platform-wrap {
+  flex: none;
+}
+
+.lk-header--menu-bridge .lk-header__platform-dropdown {
+  z-index: 1200;
+}
+
+.lk-header--menu-bridge .lk-header__project-wrap--menu {
+  flex: 1;
+  min-width: 0;
+}
+
+.lk-header--menu-bridge .lk-header__project--menu {
+  width: 100%;
+  min-width: 0;
 }
