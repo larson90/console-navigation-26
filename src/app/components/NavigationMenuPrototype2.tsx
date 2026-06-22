@@ -10,7 +10,7 @@ import { CategoryListEndDropZone } from './CategoryListEndDropZone';
 import { CONTROL_CATEGORY_TYPE, PLATFORM_CATEGORY_TYPE } from './categoryDnd';
 import { NavigationFavoritesBlock } from './NavigationFavoritesBlock';
 import { NavigationMenuSearchInput } from './NavigationMenuSearchInput';
-import { NavigationMenuTopBar } from './NavigationMenuTopBar';
+import { NavigationMenuDrawerLayout } from './NavigationMenuDrawerLayout';
 import { NavigationMenuScrim } from './NavigationMenuScrim';
 import { NavigationMenuMainPanel } from './NavigationMenuMainPanel';
 import { NavTabControlCenterIcon, NavTabServicesGridIcon, NavTabSolutionsIcon } from './navigationTabIcons';
@@ -321,17 +321,16 @@ export default function NavigationMenuPrototype2() {
       }}
     >
     <NavigationMenuScrim>
-          <div className="flex flex-col h-full w-full min-h-0">
-            <NavigationMenuTopBar
-              search={
-                <NavigationMenuSearchInput
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  searchIconMask={imgIcon2Color10}
-                />
-              }
-            />
-            <div className="flex items-start flex-1 min-h-0 pl-[16px] pt-0 relative">
+          <NavigationMenuDrawerLayout
+            search={
+              <NavigationMenuSearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                searchIconMask={imgIcon2Color10}
+              />
+            }
+          >
+            <div className="flex items-start flex-1 min-h-0 h-full w-full pl-[16px] pt-0 relative">
 
             {/* Left Sidebar */}
             <div className="h-full relative shrink-0 w-[216px]">
@@ -670,7 +669,7 @@ export default function NavigationMenuPrototype2() {
             </NavigationMenuMainPanel>
 
           </div>
-          </div>
+          </NavigationMenuDrawerLayout>
     </NavigationMenuScrim>
     </CategoryDragProvider>
   );

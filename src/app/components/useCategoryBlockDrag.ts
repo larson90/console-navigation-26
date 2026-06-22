@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useCategoryDrag } from './CategoryDragContext';
 import type { CategoryDragItem } from './categoryDnd';
 import { getCategoryDragBounds, getCategorySlotCenterY } from './verticalDrag';
+
+const DRAG_CLICK_THRESHOLD_PX = 4;
 
 export function useCategoryBlockDrag({
   type,
@@ -21,7 +23,8 @@ export function useCategoryBlockDrag({
   onMove: (dragIndex: number, hoverIndex: number) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const dragHandleRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const didDragRef = useRef(false);
   const { beginDrag, endDrag, canReorderRef } = useCategoryDrag();
 
   const [{ isDragging }, drag, preview] = useDrag({
@@ -55,8 +58,15 @@ export function useCategoryBlockDrag({
         ...getCategoryDragBounds(row, monitor),
       };
     },
-    end: () => {
+    end: (_, monitor) => {
       endDrag();
+      const offset = monitor.getDifferenceFromInitialOffset();
+      if (offset && Math.hypot(offset.x, offset.y) > DRAG_CLICK_THRESHOLD_PX) {
+        didDragRef.current = true;
+        requestAnimationFrame(() => {
+          didDragRef.current = false;
+        });
+      }
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -90,7 +100,9 @@ export function useCategoryBlockDrag({
   }, [preview]);
 
   drop(ref);
-  drag(dragHandleRef);
+  drag(headerRef);
 
-  return { ref, dragHandleRef, isDragging };
+  const shouldIgnoreHeaderClick = useCallback(() => didDragRef.current, []);
+
+  return { ref, headerRef, isDragging, shouldIgnoreHeaderClick };
 }

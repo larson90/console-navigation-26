@@ -11,6 +11,7 @@ export interface CategoryExpandSnapshot {
 interface CategoryDragContextValue {
   isForceCollapsed: boolean;
   isDragging: boolean;
+  isDraggingRef: React.RefObject<boolean>;
   canReorder: boolean;
   canReorderRef: React.RefObject<boolean>;
   beginDrag: () => void;
@@ -79,6 +80,7 @@ export function CategoryDragProvider({
       value={{
         isForceCollapsed: isDragging,
         isDragging,
+        isDraggingRef,
         canReorder,
         canReorderRef,
         beginDrag,
@@ -96,6 +98,7 @@ export function useCategoryDrag() {
     return {
       isForceCollapsed: false,
       isDragging: false,
+      isDraggingRef: { current: false },
       canReorder: true,
       canReorderRef: { current: true },
       beginDrag: () => {},

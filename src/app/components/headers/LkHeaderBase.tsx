@@ -89,7 +89,10 @@ export function LkHeaderBase({ config }: LkHeaderBaseProps) {
   };
 
   return (
-    <header className="lk-header" data-prototype={config.prototypeId}>
+    <header
+      className={`lk-header${isMenuOpen ? ' lk-header--menu-open' : ''}`}
+      data-prototype={config.prototypeId}
+    >
       <AppTooltip label="На главную">
         <a
           href="/"

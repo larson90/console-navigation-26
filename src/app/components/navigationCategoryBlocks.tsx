@@ -125,13 +125,13 @@ export function PlatformCategoryBlock({
 }: PlatformCategoryBlockProps) {
   const defaultMegaserviceNavigate = useDefaultMegaserviceNavigate();
   const handleMegaserviceNavigate = onMegaserviceNavigate ?? defaultMegaserviceNavigate;
-  const { isForceCollapsed } = useCategoryDrag();
+  const { isForceCollapsed, isDraggingRef } = useCategoryDrag();
   const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
   const showAccentStripe = accentColor !== null;
   const hasAccentPadding = colorsEnabled && categoryHasAccentSlot(category.id);
   const effectiveExpanded = isExpanded && !isForceCollapsed;
 
-  const { ref, dragHandleRef, isDragging } = useCategoryBlockDrag({
+  const { ref, headerRef, isDragging, shouldIgnoreHeaderClick } = useCategoryBlockDrag({
     type: dragType,
     index,
     title: category.title,
@@ -140,29 +140,37 @@ export function PlatformCategoryBlock({
     onMove,
   });
 
+  const handleHeaderToggle = () => {
+    if (shouldIgnoreHeaderClick()) return;
+    onToggle(category.id);
+  };
+
   return (
     <motion.div
       ref={ref}
       layout={!isDragging ? 'position' : false}
       transition={CATEGORY_LAYOUT_TRANSITION}
       onMouseEnter={() => onHover(category.id)}
-      onMouseLeave={() => onHover(null)}
-      className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered ? ' nav-category-block--hovered' : ''}`}
+      onMouseLeave={() => {
+        if (!isDraggingRef.current) onHover(null);
+      }}
+      className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered || isDragging ? ' nav-category-block--hovered' : ''}`}
     >
       {showAccentStripe && <CategoryAccentStripe color={accentColor} />}
       <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative w-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
+            ref={headerRef}
             role="button"
             tabIndex={0}
-            onClick={() => onToggle(category.id)}
+            onClick={handleHeaderToggle}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                onToggle(category.id);
+                handleHeaderToggle();
               }
             }}
-            className="nav-category-block__header nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
+            className="nav-category-block__header nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-grab rounded-[4px]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
               <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccentPadding ? 'pl-[12px]' : 'pl-[8px]'}`}>
@@ -172,7 +180,7 @@ export function PlatformCategoryBlock({
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
-                  <CategoryDragHandle handleRef={dragHandleRef} />
+                  <CategoryDragHandle />
                   <CategoryHeaderChevron expanded={effectiveExpanded} />
                 </div>
               </div>
@@ -276,13 +284,13 @@ export function CategoryBlock({
 }: CategoryBlockProps) {
   const defaultMegaserviceNavigate = useDefaultMegaserviceNavigate();
   const handleMegaserviceNavigate = onMegaserviceNavigate ?? defaultMegaserviceNavigate;
-  const { isForceCollapsed } = useCategoryDrag();
+  const { isForceCollapsed, isDraggingRef } = useCategoryDrag();
   const accentColor = resolveCategoryAccentColor(category.id, { categoryColors, colorsEnabled });
   const showAccentStripe = accentColor !== null;
   const hasAccentPadding = colorsEnabled && categoryHasAccentSlot(category.id);
   const effectiveExpanded = isExpanded && !isForceCollapsed;
 
-  const { ref, dragHandleRef, isDragging } = useCategoryBlockDrag({
+  const { ref, headerRef, isDragging, shouldIgnoreHeaderClick } = useCategoryBlockDrag({
     type: dragType,
     index,
     title: category.title,
@@ -291,29 +299,37 @@ export function CategoryBlock({
     onMove,
   });
 
+  const handleHeaderToggle = () => {
+    if (shouldIgnoreHeaderClick()) return;
+    onToggle(category.id);
+  };
+
   return (
     <motion.div
       ref={ref}
       layout={!isDragging ? 'position' : false}
       transition={CATEGORY_LAYOUT_TRANSITION}
       onMouseEnter={() => onHover(category.id)}
-      onMouseLeave={() => onHover(null)}
-      className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered ? ' nav-category-block--hovered' : ''}`}
+      onMouseLeave={() => {
+        if (!isDraggingRef.current) onHover(null);
+      }}
+      className={`nav-category-block bg-[#fdfdfd] relative rounded-[4px] shrink-0 w-full${isDragging ? ' nav-category-block--dragging' : ''}${isHovered || isDragging ? ' nav-category-block--hovered' : ''}`}
     >
       {showAccentStripe && <CategoryAccentStripe color={accentColor} />}
       <div className={`content-stretch flex flex-col items-start pr-[8px] py-[8px] relative w-full ${hasAccentPadding ? 'pl-[14px]' : 'pl-[8px]'}`}>
         <div className="relative shrink-0 w-full">
           <div
+            ref={headerRef}
             role="button"
             tabIndex={0}
-            onClick={() => onToggle(category.id)}
+            onClick={handleHeaderToggle}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                onToggle(category.id);
+                handleHeaderToggle();
               }
             }}
-            className="nav-category-block__header nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-pointer rounded-[4px]"
+            className="nav-category-block__header nav-interactive content-stretch flex gap-[8px] items-center pr-[8px] py-[4px] relative size-full cursor-grab rounded-[4px]"
           >
             <div className="flex-[1_0_0] min-w-px relative">
               <div className={`content-stretch flex items-center relative size-full min-h-[32px] ${hasAccentPadding ? 'pl-[12px]' : 'pl-[8px]'}`}>
@@ -323,7 +339,7 @@ export function CategoryBlock({
                   </div>
                 </div>
                 <div className="content-stretch flex gap-[4px] items-center relative shrink-0 ml-auto">
-                  <CategoryDragHandle handleRef={dragHandleRef} />
+                  <CategoryDragHandle />
                   <CategoryHeaderChevron expanded={effectiveExpanded} />
                 </div>
               </div>

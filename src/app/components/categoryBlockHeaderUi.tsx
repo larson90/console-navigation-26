@@ -16,19 +16,11 @@ export function CategoryDragHandleIcon() {
   );
 }
 
-export function CategoryDragHandle({
-  handleRef,
-}: {
-  handleRef?: React.Ref<HTMLDivElement>;
-}) {
+export function CategoryDragHandle() {
   return (
     <div
-      ref={handleRef}
-      role="button"
-      tabIndex={-1}
-      aria-label="Переместить категорию"
-      onClick={(e) => e.stopPropagation()}
-      className="nav-category-drag content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] cursor-move nav-icon-btn"
+      aria-hidden="true"
+      className="nav-category-drag content-stretch flex items-center justify-center relative rounded-[4px] shrink-0 size-[24px] nav-icon-btn"
     >
       <div className="relative shrink-0 size-[24px]">
         <CategoryDragHandleIcon />

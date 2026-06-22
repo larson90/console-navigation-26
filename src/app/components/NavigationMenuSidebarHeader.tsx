@@ -66,19 +66,18 @@ export function NavigationMenuSidebarHeader({
         />
       )}
 
-      <AppTooltip label="Закрыть меню">
-        <button
-          type="button"
-          className="lk-header__appswitcher"
-          aria-label="Закрыть меню"
-          onClick={() => {
-            closeSiblingDropdowns();
-            closeMenu?.();
-          }}
-        >
-          <HeaderMenuCloseIcon />
-        </button>
-      </AppTooltip>
+      <button
+        type="button"
+        className="lk-header__menu-close"
+        aria-label="Закрыть меню"
+        onClick={() => {
+          closeSiblingDropdowns();
+          closeMenu?.();
+        }}
+      >
+        <HeaderMenuCloseIcon />
+        <span className="lk-header__menu-close-label">Закрыть меню</span>
+      </button>
     </div>
   );
 }
